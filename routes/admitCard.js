@@ -93,19 +93,19 @@ router.get("/search/results", async (req, res) => {
 
 //// GET /admitcard/:i
 
-router.get('/server/lokesh/:id', async (req, res) => {
-  try {
-    const submission = await Submission.findById(req.params.id).populate("form");
-    if (!submission) return res.status(404).send("Submission not found");
-    if (!submission.admitCardGenerated) return res.status(400).send("Admit card not generated");
-    res.json({
-      submission,
-      examCenter: "Garud Classes Near Saraswati Mahila College NH-19 Adarsh Nagar Colony Palwal Haryana 121102",});
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server error");
-  }
-});
+// router.get('/server/lokesh/:id', async (req, res) => {
+//   try {
+//     const submission = await Submission.findById(req.params.id).populate("form");
+//     if (!submission) return res.status(404).send("Submission not found");
+//     if (!submission.admitCardGenerated) return res.status(400).send("Admit card not generated");
+//     res.json({
+//       submission,
+//       examCenter: "Garud Classes Near Saraswati Mahila College NH-19 Adarsh Nagar Colony Palwal Haryana 121102",});
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Server error");
+//   }
+// });
 
 router.get("/:id", async (req, res) => {
   try {
@@ -124,19 +124,19 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// GET: Download admit card
-router.get("/download/:submissionId", async (req, res) => {
-  try {
-    const submission = await Submission.findById(req.params.submissionId).populate("form");
-    if (!submission || !submission.admitCardGenerated) {
-      return res.status(404).send("Admit card not found");
-    }
-    const filePath = path.join(process.cwd(), "admitCards", `${submission._id}.pdf`);
-    res.download(filePath);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server error");
-  }
-});
+// // GET: Download admit card
+// router.get("/download/:submissionId", async (req, res) => {
+//   try {
+//     const submission = await Submission.findById(req.params.submissionId).populate("form");
+//     if (!submission || !submission.admitCardGenerated) {
+//       return res.status(404).send("Admit card not found");
+//     }
+//     const filePath = path.join(process.cwd(), "admitCards", `${submission._id}.pdf`);
+//     res.download(filePath);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Server error");
+//   }
+// });
 
 module.exports = router;

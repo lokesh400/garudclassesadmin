@@ -2,6 +2,7 @@ const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode");
 
 let io = null;
+let initializing = false;
 
 let waStatus = {
   connected: false,
@@ -10,14 +11,42 @@ let waStatus = {
   qr: null,
 };
 
+/* ---------------- Force Puppeteer Stability ---------------- */
+process.on("unhandledRejection", (reason) => {
+  if (
+    String(reason).includes("Execution context was destroyed")
+  ) {
+    console.warn("⚠️ Puppeteer context destroyed — ignored");
+    return;
+  }
+  throw reason;
+});
+
+/* ---------------- WhatsApp Client ---------------- */
 const client = new Client({
   authStrategy: new LocalAuth({
     clientId: "default",
   }),
   puppeteer: {
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    headless: true,
+    executablePath: undefined, // force bundled Chromium
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--disable-features=IsolateOrigins",
+      "--disable-site-isolation-trials",
+    ],
   },
 });
+
+/* ---------------- Delay Injection (CRITICAL) ---------------- */
+const originalInject = client.inject.bind(client);
+client.inject = async () => {
+  await new Promise((res) => setTimeout(res, 3000));
+  return originalInject();
+};
 
 /* ---------------- WhatsApp Events ---------------- */
 client.on("qr", async (qr) => {
@@ -42,22 +71,34 @@ client.on("ready", () => {
   waStatus.ready = true;
   waStatus.connected = true;
   waStatus.qr = null;
+  initializing = false;
   io?.emit("status", waStatus);
 });
 
 client.on("disconnected", () => {
   console.log("❌ WhatsApp disconnected");
+
   waStatus = {
     connected: false,
     authenticated: false,
     ready: false,
     qr: null,
   };
+
   io?.emit("status", waStatus);
-  client.initialize();
+
+  // Prevent re-init loop
+  if (!initializing) {
+    initializing = true;
+    setTimeout(() => client.initialize(), 5000);
+  }
 });
 
-client.initialize();
+/* ---------------- Init Client Safely ---------------- */
+if (!initializing) {
+  initializing = true;
+  client.initialize();
+}
 
 /* ---------------- Socket.IO Init ---------------- */
 const initSocket = (socketIO) => {
