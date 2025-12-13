@@ -1,0 +1,39 @@
+<div class="mx-auto">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    <% forms.forEach(form => { %>
+      <div class="bg-white shadow-lg hover:shadow-2xl rounded-xl p-6 flex flex-col justify-between transition-transform transform hover:-translate-y-1">
+        
+        <h3 class="text-2xl font-bold mb-2 text-gray-900"><%= form.title %></h3>
+        <p class="text-gray-600 mb-4 min-h-[48px]"><%= form.description || "No description provided" %></p>
+
+        <div class="text-sm text-gray-500 mb-4 space-y-1">
+          <p>Created At: 
+            <span class="font-medium text-gray-700">
+              <%= new Date(form.createdAt).toLocaleString() %>
+            </span>
+          </p>
+        </div>
+
+        <div class="flex justify-between items-center mt-auto space-x-2">
+          <a href="/forms/<%= form._id %>/submissions"
+             class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg text-center transition">
+            View Submissions
+          </a>
+          <button onclick="copyLink('<%= form._id %>')"
+                  class="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded-lg text-center transition">
+            Share
+          </button>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<script>
+  function copyLink(formId) {
+    const link = `${window.location.origin}/forms/fill/${formId}`;
+    navigator.clipboard.writeText(link)
+      .then(() => alert("Form link copied: " + link))
+      .catch(err => console.error("Failed to copy link:", err));
+  }
+</script>

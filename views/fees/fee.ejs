@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Fee Summary</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6 text-center">📊 Student Fee Summary</h1>
+    <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+      <thead class="bg-green-600 text-white">
+        <tr>
+          <th class="py-3 px-4">Name</th>
+          <th class="py-3 px-4">Roll Number</th>
+          <th class="py-3 px-4">Batch</th>
+          <th class="py-3 px-4">Total Fee</th>
+          <th class="py-3 px-4">Paid</th>
+          <th class="py-3 px-4">Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% feeSummary.forEach(item => { %>
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2 px-4"><%= item.student.name %></td>
+            <td class="py-2 px-4"><%= item.student.rollNumber || '-' %></td>
+            <td class="py-2 px-4"><%= item.student.batch ? item.student.batch.name : '-' %></td>
+            <td class="py-2 px-4"><%= item.totalFee %></td>
+            <td class="py-2 px-4"><%= item.paid %></td>
+            <td class="py-2 px-4 font-semibold <%= item.balance > 0 ? 'text-red-600' : 'text-green-600' %>">
+              <%= item.balance %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

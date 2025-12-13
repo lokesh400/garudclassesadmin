@@ -1,0 +1,266 @@
+<div class="mx-auto bg-white p-8 rounded-2xl shadow-lg mt-10">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">🎓 Manage Batches</h2>
+    <button
+      id="openModalBtn"
+      class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg shadow-md transition duration-200"
+    >
+      ➕ Add New Batch
+    </button>
+  </div>
+
+  <!-- Batch List -->
+
+  <div>
+  <h3 class="text-2xl font-semibold text-gray-800 mb-4">📋 All Batches</h3>
+  <ul id="batchList" class="space-y-4">
+    <% batches.forEach(batch => { %>
+      <li class="border border-gray-200 rounded-xl p-5 hover:shadow-lg transition duration-300 bg-white">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+          <!-- Batch Info -->
+          <div>
+            <p class="text-lg font-bold text-gray-900"><%= batch.name %></p>
+            <p class="text-gray-600 text-sm"><%= batch.courseType %> • <%= batch.year %></p>
+          </div>
+
+          <!-- Buttons -->
+          <div class="mt-4 sm:mt-0 flex flex-wrap gap-2">
+            <a href="/api/timetable/<%= batch._id %>"
+               class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
+              🕒 Timetable
+            </a>
+
+            <a href="/api/batches/add/<%= batch._id %>"
+               class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
+              ➕ Add Student
+            </a>
+
+            <a href="/api/students/all/<%= batch._id %>"
+               class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
+              👥 View Students
+            </a>
+
+            <a href="/marks/download/<%= batch._id %>"
+               class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-4 py-2 rounded-lg shadow transition">
+              📄 Download Template
+            </a>
+
+            <button onclick="openUploadModal('<%= batch._id %>')"
+                    class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
+              ⬆️ Upload Marks
+            </button>
+
+            <a href="/marks/tests/<%= batch._id %>"
+               class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
+              🧾 View Tests
+            </a>
+          </div>
+        </div>
+      </li>
+    <% }) %>
+  </ul>
+</div>
+
+
+</div>
+
+<!-- Modal Background -->
+<div
+  id="batchModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
+    <button
+      id="closeModalBtn"
+      class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl"
+    >
+      ✖
+    </button>
+
+    <h2 class="text-2xl font-semibold mb-5 text-gray-800 text-center">
+      ➕ Create New Batch
+    </h2>
+
+    <form id="batchForm" class="space-y-5">
+      <div>
+        <label for="name" class="block text-gray-700 font-medium mb-1"
+          >Batch Name</label
+        >
+        <input
+          type="text"
+          id="name"
+          placeholder="e.g. 11th JEE Alpha"
+          class="border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 rounded-lg w-full outline-none transition"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="courseType" class="block text-gray-700 font-medium mb-1"
+          >Course Type</label
+        >
+        <select
+          id="courseType"
+          class="border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 rounded-lg w-full outline-none transition"
+          required
+        >
+          <option value="">Select Course Type</option>
+          <option value="JEE">JEE</option>
+          <option value="NEET">NEET</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="year" class="block text-gray-700 font-medium mb-1">Year</label>
+        <input
+          type="text"
+          id="year"
+          placeholder="e.g. 2025"
+          class="border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 rounded-lg w-full outline-none transition"
+          required
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg w-full shadow transition duration-200"
+      >
+        Create Batch
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Upload Marks Modal -->
+<div
+  id="uploadModal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
+    <button
+      id="closeUploadModalBtn"
+      class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl"
+    >
+      ✖
+    </button>
+
+    <h2 class="text-2xl font-semibold mb-5 text-gray-800 text-center">
+      📤 Upload Marks Excel
+    </h2>
+
+    <form id="uploadForm" enctype="multipart/form-data" class="space-y-4">
+      <input type="hidden" id="uploadBatchId" name="batchId" />
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Test Title</label>
+        <input
+          type="text"
+          id="testTitle"
+          name="testTitle"
+          placeholder="e.g. JEE Full Test 1"
+          class="border border-gray-300 p-3 rounded-lg w-full outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Upload Excel File</label>
+        <input
+          type="file"
+          id="excelFile"
+          name="excelFile"
+          accept=".xlsx"
+          class="border border-gray-300 p-3 rounded-lg w-full outline-none"
+          required
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg w-full shadow transition duration-200"
+      >
+        Upload Marks
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const uploadModal = document.getElementById("uploadModal");
+  const closeUploadModalBtn = document.getElementById("closeUploadModalBtn");
+  const uploadForm = document.getElementById("uploadForm");
+
+  function openUploadModal(batchId) {
+    document.getElementById("uploadBatchId").value = batchId;
+    uploadModal.classList.remove("hidden");
+    uploadModal.classList.add("flex");
+  }
+
+  closeUploadModalBtn.addEventListener("click", () => {
+    uploadModal.classList.add("hidden");
+  });
+
+  window.addEventListener("click", (e) => {
+    if (e.target === uploadModal) uploadModal.classList.add("hidden");
+  });
+
+  uploadForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const batchId = document.getElementById("uploadBatchId").value;
+    const formData = new FormData(uploadForm);
+
+    const res = await fetch(`/marks/upload/${batchId}`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    alert(data.message);
+    if (res.ok) uploadModal.classList.add("hidden");
+  });
+</script>
+
+
+<script>
+  // Open and close modal
+  const modal = document.getElementById("batchModal");
+  const openModalBtn = document.getElementById("openModalBtn");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+
+  openModalBtn.addEventListener("click", () => {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  });
+
+  closeModalBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+  });
+
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) modal.classList.add("hidden");
+  });
+
+  // Handle batch form submission
+  document.getElementById("batchForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const courseType = document.getElementById("courseType").value;
+    const year = document.getElementById("year").value.trim();
+
+    if (!name || !courseType || !year) {
+      alert("Please fill all fields before submitting.");
+      return;
+    }
+
+    const res = await fetch("/api/batches/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, courseType, year }),
+    });
+
+    const data = await res.json();
+    alert(data.message);
+    if (res.ok) location.reload();
+  });
+</script>

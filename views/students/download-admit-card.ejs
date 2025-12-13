@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Admit Card - <%= submission.data.Name %></title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+  <style>
+    .admit-container {
+      background: #fff;
+      padding: 20mm;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .txt-center {
+      text-align: center;
+    }
+
+    .border- {
+      border: 1px solid #000 !important;
+    }
+
+    .padding {
+      padding: 15px;
+    }
+
+    .mar-bot {
+      margin-bottom: 15px;
+    }
+
+    .table-bordered td,
+    .table-bordered th {
+      border: 1px solid #000000 !important;
+    }
+
+    .download-btn {
+      display: block;
+      margin: 25px auto;
+    }
+
+    @media print {
+      .download-btn {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <section>
+    <div class="admit-container" id="admitCard">
+      <div class="text-center mb-3">
+        <h4 class="font-weight-bold">ADMIT CARD</h4>
+        <h5><%= submission.form.title %></h5>
+      </div>
+
+      <div class="BoxA border- padding mar-bot">
+        <div class="row justify-content-between">
+          <div class="col-sm-6">
+            <h5>Garud Classes</h5>
+            <p>NH-19, Adarsh Nagar Colony, Palwal, Haryana 121102</p>
+          </div>
+          <div class="col-sm-4 txt-center">
+            <img src="/logo.png" alt="Garud Classes Logo" width="130px;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="BoxC border- padding mar-bot">
+        <h6><b>Enrollment No:</b> <%= submission.enrollmentNumber %></h6>
+      </div>
+
+      <div class="BoxD border- padding mar-bot">
+        <div class="row">
+          <div class="col-sm-8">
+            <table class="table table-bordered">
+              <tbody>
+                <% Object.keys(submission.data).forEach(key => { %>
+                <tr>
+                  <td><b><%= key %></b>: <%= submission.data[key] %></td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+          <div class="col-sm-4 txt-center">
+            <div class="border mb-3" style="height:165px;">Photograph</div>
+            <div class="border" style="height:40px;">Signature</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="BoxE border- padding mar-bot txt-center">
+        <h5>EXAMINATION VENUE</h5>
+        <p>Garud Classes Near Saraswati Mahila College NH-19 Adarsh Nagar Colony,
+          Palwal, Haryana 121102</p>
+      </div>
+
+      <div class="BoxF border- padding mar-bot txt-center">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Subject/Paper</th>
+              <th>Exam Date</th>
+              <th>Exam Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><%= submission.form.title %></td>
+              <td><%= submission.form.date %></td>
+              <td><%= submission.form.timing %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="txt-center">
+        <p>*** Garud Classes ***</p>
+      </footer>
+    </div>
+
+    <button class="btn btn-primary download-btn" onclick="downloadPDF()">Download Admit Card</button>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    function downloadPDF() {
+      const element = document.getElementById("admitCard");
+
+      const opt = {
+        margin: [0, 0, 0, 0],
+        filename: '<%= submission.data.Name %>_AdmitCard.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          scrollY: 0,
+          windowWidth: element.scrollWidth
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    }
+  </script>
+</body>
+
+</html>

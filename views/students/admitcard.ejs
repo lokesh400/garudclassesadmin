@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admit Card Download</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6">
+
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
+        <h1 class="text-2xl font-bold mb-4">Download Admit Card</h1>
+
+        <form action="/admit-cards/search" method="POST"
+            class="flex flex-col md:flex-row gap-3 mb-6">
+            <input type="text" name="name" placeholder="Student Name"
+                value="<%= query.name || '' %>"
+                class="border p-2 rounded w-full md:w-1/2" required>
+            <input type="text" name="mobile" placeholder="Mobile Number"
+                value="<%= query.mobile || '' %>"
+                class="border p-2 rounded w-full md:w-1/2" required>
+            <button type="submit"
+                class="bg-blue-600 text-white px-4 py-2 rounded">Search</button>
+        </form>
+        <% if (submissions.length > 0) { %>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-6 py-3 text-left font-semibold">Form Title
+                        </th>
+                        <th class="px-6 py-3 text-left font-semibold">Submitted
+                            At</th>
+                        <th class="px-6 py-3 text-left font-semibold">Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <% submissions.forEach(sub => { %>
+                    <tr>
+                        <td class="px-6 py-3">
+                            <%= sub.form.title %>
+                        </td>
+                        <td class="px-6 py-3">
+                            <%= new Date(sub.createdAt).toLocaleString() %>
+                        </td>
+                        <td class="px-6 py-3">
+                            <a href="/admit-cards/download/<%= sub._id %>"
+                                class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
+                                Download
+                            </a>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <% } else if (query.name || query.mobile) { %>
+        <p class="text-red-500">No admit cards found for this student.</p>
+
+        
+        <% } %>
+    </div>
+
+</body>
+
+</html>

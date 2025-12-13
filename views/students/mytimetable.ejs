@@ -1,0 +1,44 @@
+  <div class="mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-semibold text-gray-800 mb-4 text-center">
+      Weekly Timetable - <%= batchName %>
+    </h1>
+
+    <% if (!timetable || timetable.length === 0) { %>
+      <div class="text-center text-gray-600 py-10">
+        <p>No timetable has been created for this batch yet.</p>
+      </div>
+    <% } else { %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full border border-gray-300 text-sm">
+          <thead class="bg-gray-200 text-gray-700">
+            <tr>
+              <th class="border px-4 py-2 text-left">Day</th>
+              <th class="border px-4 py-2 text-left">Period</th>
+              <th class="border px-4 py-2 text-left">Subject</th>
+              <th class="border px-4 py-2 text-left">Teacher</th>
+              <th class="border px-4 py-2 text-left">Start Time</th>
+              <th class="border px-4 py-2 text-left">End Time</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% timetable.forEach(dayData => { %>
+              <% dayData.periods.forEach((p, i) => { %>
+                <tr>
+                  <% if (i === 0) { %>
+                    <td class="border px-4 py-2 font-semibold" rowspan="<%= dayData.periods.length %>">
+                      <%= dayData.day %>
+                    </td>
+                  <% } %>
+                  <td class="border px-4 py-2">Period <%= i + 1 %></td>
+                  <td class="border px-4 py-2"><%= p.subject || '-' %></td>
+                  <td class="border px-4 py-2"><%= p.teacher || '-' %></td>
+                  <td class="border px-4 py-2"><%= p.startTime || '-' %></td>
+                  <td class="border px-4 py-2"><%= p.endTime || '-' %></td>
+                </tr>
+              <% }) %>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>

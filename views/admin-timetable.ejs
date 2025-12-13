@@ -1,0 +1,121 @@
+  <div class="max-w-6xl mx-auto bg-white p-6 rounded shadow">
+
+    <input type="hidden" id="batchId" value="<%= batchId %>" />
+    <input type="hidden" id="hasTimetable" value="<%= hasTimetable %>" />
+    <script>const existingTimetable = <%- timetable || 'null' %>;</script>
+
+    <div class="flex justify-between items-center mb-4">
+      <div class="space-x-2">
+        <label class="font-medium">No. of Periods:</label>
+        <input type="number" id="periodCount" min="1" max="10" value="6" class="border p-1 rounded w-20">
+        <button type="button" id="generatePeriods" class="bg-blue-600 text-white px-3 py-1 rounded">Generate</button>
+      </div>
+      <button type="button" id="copyAllBtn" class="bg-green-600 text-white px-3 py-1 rounded">Copy Monday to All Days</button>
+    </div>
+
+    <div id="timetableContainer" class="overflow-x-auto"></div>
+
+    <button type="button" id="submitBtn" class="mt-6 bg-blue-700 text-white px-6 py-2 rounded">
+      <%= hasTimetable ? "Update Timetable" : "Save Timetable" %>
+    </button>
+  </div>
+
+  <script>
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+    function generateTable(periodCount = 6) {
+      let html = `<table class="w-full border border-gray-300 text-sm">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="border p-2 w-24">Day</th>`;
+      for (let i = 1; i <= periodCount; i++) {
+        html += `<th class="border p-2 text-center">Period ${i}</th>`;
+      }
+      html += `</tr></thead><tbody>`;
+
+      days.forEach(day => {
+        html += `<tr>
+          <td class="border font-semibold p-2 text-center">${day}</td>`;
+        for (let i = 1; i <= periodCount; i++) {
+          html += `
+            <td class="border p-1">
+              <input type="text" class="subject border p-1 rounded w-full mb-1" placeholder="Subject" data-day="${day}" data-period="${i}">
+              <input type="text" class="teacher border p-1 rounded w-full mb-1" placeholder="Teacher" data-day="${day}" data-period="${i}">
+              <input type="time" class="startTime border p-1 rounded w-full mb-1" data-day="${day}" data-period="${i}">
+              <input type="time" class="endTime border p-1 rounded w-full" data-day="${day}" data-period="${i}">
+            </td>`;
+        }
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table>`;
+      document.getElementById("timetableContainer").innerHTML = html;
+
+      // 🟢 Prefill existing data
+      if (existingTimetable) {
+        existingTimetable.forEach(dayObj => {
+          dayObj.periods.forEach((p, index) => {
+            document.querySelector(`[data-day="${dayObj.day}"][data-period="${index + 1}"].subject`).value = p.subject || "";
+            document.querySelector(`[data-day="${dayObj.day}"][data-period="${index + 1}"].teacher`).value = p.teacher || "";
+            document.querySelector(`[data-day="${dayObj.day}"][data-period="${index + 1}"].startTime`).value = p.startTime || "";
+            document.querySelector(`[data-day="${dayObj.day}"][data-period="${index + 1}"].endTime`).value = p.endTime || "";
+          });
+        });
+      }
+    }
+
+    // Default load
+    generateTable();
+
+    document.getElementById("generatePeriods").addEventListener("click", () => {
+      const count = parseInt(document.getElementById("periodCount").value);
+      if (count > 0) generateTable(count);
+    });
+
+    // Copy Monday → all days
+    document.getElementById("copyAllBtn").addEventListener("click", () => {
+      const mondaySubjects = document.querySelectorAll('[data-day="Monday"].subject');
+      const mondayTeachers = document.querySelectorAll('[data-day="Monday"].teacher');
+      const mondayStart = document.querySelectorAll('[data-day="Monday"].startTime');
+      const mondayEnd = document.querySelectorAll('[data-day="Monday"].endTime');
+      const periodCount = mondaySubjects.length;
+
+      days.slice(1).forEach(day => {
+        for (let i = 0; i < periodCount; i++) {
+          document.querySelector(`[data-day="${day}"][data-period="${i+1}"].subject`).value = mondaySubjects[i].value;
+          document.querySelector(`[data-day="${day}"][data-period="${i+1}"].teacher`).value = mondayTeachers[i].value;
+          document.querySelector(`[data-day="${day}"][data-period="${i+1}"].startTime`).value = mondayStart[i].value;
+          document.querySelector(`[data-day="${day}"][data-period="${i+1}"].endTime`).value = mondayEnd[i].value;
+        }
+      });
+      alert("✅ Copied Monday’s timetable to all days!");
+    });
+
+    // Save or Update
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const batchId = document.getElementById("batchId").value;
+      const periodCount = parseInt(document.getElementById("periodCount").value);
+      const timetable = [];
+
+      days.forEach(day => {
+        const dayPeriods = [];
+        for (let i = 1; i <= periodCount; i++) {
+          const subject = document.querySelector(`[data-day="${day}"][data-period="${i}"].subject`).value.trim();
+          const teacher = document.querySelector(`[data-day="${day}"][data-period="${i}"].teacher`).value.trim();
+          const startTime = document.querySelector(`[data-day="${day}"][data-period="${i}"].startTime`).value;
+          const endTime = document.querySelector(`[data-day="${day}"][data-period="${i}"].endTime`).value;
+          dayPeriods.push({ subject, teacher, startTime, endTime });
+        }
+        timetable.push({ day, periods: dayPeriods });
+      });
+
+      const res = await fetch("/api/timetable/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ batchId, timetable }),
+      });
+
+      const data = await res.json();
+      alert(data.message || "Timetable saved!");
+    });
+  </script>

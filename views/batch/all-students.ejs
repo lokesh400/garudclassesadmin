@@ -1,0 +1,163 @@
+  <div class="bg-white p-6 rounded-lg shadow">
+  <div class="flex justify-between items-center mb-4">
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search by name, username, or roll number..."
+      class="border border-gray-300 rounded-lg px-4 py-2 w-72 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+
+  <table class="min-w-full border border-gray-200" id="usersTable">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="py-2 px-4 border">Name</th>
+        <th class="py-2 px-4 border">Username</th>
+        <th class="py-2 px-4 border">Number</th>
+        <th class="py-2 px-4 border">Parent</th>
+        <th class="py-2 px-4 border">Roll No</th>
+        <th class="py-2 px-4 border">Batch</th>
+        <th class="py-2 px-4 border">Role</th>
+        <th class="py-2 px-4 border text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody">
+      <% const users = students %>
+      <% users.forEach(u => { %>
+        <tr class="hover:bg-gray-50">
+          <td class="py-2 px-4 border"><%= u.name %></td>
+          <td class="py-2 px-4 border"><%= u.username %></td>
+          <td class="py-2 px-4 border"><%= u.number || '-' %></td>
+          <td class="py-2 px-4 border"><%= u.parent || '-' %></td>
+          <td class="py-2 px-4 border"><%= u.rollNumber || '-' %></td>
+          <td class="py-2 px-4 border"><%= u.batch ? u.batch.name : '-' %></td>
+          <td class="py-2 px-4 border capitalize"><%= u.role %></td>
+          <td class="py-2 px-4 border text-center">
+            <button
+              class="bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500"
+              onclick="openEditModal('<%= u._id %>', '<%= u.name %>', '<%= u.username %>', '<%= u.parent || '' %>', '<%= u.rollNumber || '' %>', '<%= u.role %>')"
+            >
+              Edit
+            </button>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<!-- ✏️ Edit User Modal -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
+    <h2 class="text-xl font-semibold mb-4">Edit User</h2>
+    <form id="editUserForm">
+      <input type="hidden" id="editUserId" name="id" />
+
+      <div class="mb-3">
+        <label class="block font-medium mb-1">Name</label>
+        <input type="text" id="editName" name="name" class="border border-gray-300 p-2 rounded w-full" required />
+      </div>
+
+      <div class="mb-3">
+        <label class="block font-medium mb-1">Username</label>
+        <input type="text" id="editUsername" name="username" class="border border-gray-300 p-2 rounded w-full" required />
+      </div>
+
+      <div class="mb-3">
+        <label class="block font-medium mb-1">Number</label>
+        <input type="text" id="editNumber" name="number" class="border border-gray-300 p-2 rounded w-full" />
+      </div>
+
+      <div class="mb-3">
+        <label class="block font-medium mb-1">Parent</label>
+        <input type="text" id="editParent" name="parent" class="border border-gray-300 p-2 rounded w-full" />
+      </div>
+
+      <div class="mb-3">
+        <label class="block font-medium mb-1">Roll Number</label>
+        <input type="text" id="editRollNumber" name="rollNumber" class="border border-gray-300 p-2 rounded w-full" />
+      </div>
+
+      <div class="mb-3">
+        <label class="block font-medium mb-1">Role</label>
+        <select id="editRole" name="role" class="border border-gray-300 p-2 rounded w-full">
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <button
+          type="button"
+          onclick="closeEditModal()"
+          class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded transition"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
+        >
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // 🔍 Search Functionality
+  document.getElementById("searchInput").addEventListener("input", function () {
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll("#userTableBody tr");
+    rows.forEach(row => {
+      const text = row.innerText.toLowerCase();
+      row.style.display = text.includes(filter) ? "" : "none";
+    });
+  });
+
+  // ✏️ Open Edit Modal
+  function openEditModal(id, name, username, parent, rollNumber, role, number) {
+    document.getElementById("editUserId").value = id;
+    document.getElementById("editName").value = name;
+    document.getElementById("editUsername").value = username;
+    document.getElementById("editParent").value = parent;
+    document.getElementById("editRollNumber").value = rollNumber;
+    document.getElementById("editNumber").value = number;
+    document.getElementById("editRole").value = role;
+    document.getElementById("editModal").classList.remove("hidden");
+    document.getElementById("editModal").classList.add("flex");
+  }
+
+  function closeEditModal() {
+    document.getElementById("editModal").classList.add("hidden");
+  }
+
+  // 💾 Handle Form Submission
+  document.getElementById("editUserForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const id = document.getElementById("editUserId").value;
+    const data = {
+      name: document.getElementById("editName").value,
+      username: document.getElementById("editUsername").value,
+      parent: document.getElementById("editParent").value,
+      rollNumber: document.getElementById("editRollNumber").value,
+      role: document.getElementById("editRole").value,
+      number: document.getElementById("editNumber").value
+    };
+
+    const res = await fetch(`/api/students/edit/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+    alert(result.message);
+    if (result.success) {
+      closeEditModal();
+      location.reload();
+    }
+  });
+</script>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WhatsApp Login</title>
+    <style>
+        body { background:#101827; color:#fff; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; }
+        .card { background:#1e293b; padding:20px; border-radius:10px; width:340px; text-align:center; }
+        .qr { width:240px; height:240px; background:white; padding:10px; border-radius:8px; }
+        .small { font-size:12px; color:#ccc; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>WhatsApp Web Login</h2>
+
+    <div id="qr"></div>
+
+    <p class="small">If QR doesn't show, client may already be logged in.</p>
+
+    <h3>Status</h3>
+    <p>Connected: <span id="connected"><%= status.connected %></span></p>
+    <p>Authenticated: <span id="authenticated"><%= status.authenticated %></span></p>
+    <p>Ready: <span id="ready"><%= status.ready %></span></p>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const qrBox = document.getElementById("qr");
+    const connected = document.getElementById("connected");
+    const authenticated = document.getElementById("authenticated");
+    const ready = document.getElementById("ready");
+
+    const socket = io();
+
+    socket.on("status", (st) => {
+        connected.innerHTML = st.connected;
+        authenticated.innerHTML = st.authenticated;
+        ready.innerHTML = st.ready;
+        if (!st.qr) qrBox.innerHTML = "";
+    });
+
+    socket.on("qr", (dataUrl) => {
+        qrBox.innerHTML = `<img class="qr" src="${dataUrl}" />`;
+    });
+</script>
+
+</body>
+</html>
