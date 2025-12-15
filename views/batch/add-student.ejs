@@ -2,10 +2,16 @@
     <h2 class="text-2xl font-semibold mb-4">Add Student</h2>
     <form id="studentForm" class="space-y-4">
       <input type="text" id="name" placeholder="Student Name" class="border p-2 rounded w-full" required>
+      <input type="text" id="username" placeholder="Username" class="border p-2 rounded w-full" required>
       <input type="email" id="email" placeholder="Email" class="border p-2 rounded w-full" required>
-      <input type="text" id="parent" placeholder="Parent" class="border p-2 rounded w-full" required>
       <input type="text" id="number" placeholder="Number" class="border p-2 rounded w-full" required>
-      
+      <input type="text" id="fatherName" placeholder="Father's Name" class="border p-2 rounded w-full">
+      <input type="text" id="motherName" placeholder="Mother's Name" class="border p-2 rounded w-full">
+      <input type="text" id="address" placeholder="Address" class="border p-2 rounded w-full">
+      <input type="number" id="admissionFee" placeholder="Admission Fee" class="border p-2 rounded w-full">
+      <input type="number" id="tuitionFee" placeholder="Tuition Fee"  class="border p-2 rounded w-full">
+      <input type="number" id="transportFee" placeholder="Transport Fee" class="  border p-2 rounded w-full">
+      <input type="number" id="otherFee" placeholder="Other Fee" class="border p-2 rounded w-full">
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Add Student</button>
     </form>
   </div>
@@ -13,17 +19,23 @@
   <script>
     document.getElementById("studentForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const name = document.getElementById("name").value;
       const email = document.getElementById("email").value;
       const batchId = '<%= batchId %>';
-      const parent = document.getElementById("parent").value;
       const number = document.getElementById("number").value;
+      const fatherName = document.getElementById("fatherName").value;
+      const motherName = document.getElementById("motherName").value;
+      const address = document.getElementById("address").value;
+      const admissionFee = document.getElementById("admissionFee").value;
+      const tuitionFee = document.getElementById("tuitionFee").value;
+      const transportFee = document.getElementById("transportFee").value;
+      const otherFee = document.getElementById("otherFee").value;
+      const username = document.getElementById("username").value;
 
       const res = await fetch("/api/students/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, batchId, parent, number }),
+        body: JSON.stringify({ name, email, batchId, username, number, fatherName, motherName, address, admissionFee, tuitionFee, transportFee, otherFee }),
       });
       const data = await res.json();
       alert(data.message);

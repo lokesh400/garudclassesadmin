@@ -1,17 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send Message</title>
+  <meta charset="UTF-8" />
+  <title>WhatsApp Chat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100">
 
-    <form action="/send" method="POST">
-        <input type="text" name="number" placeholder="Phone number (e.g., 1234567890)" required>
-        <input type="text" name="msg" placeholder="Message content">
-        <button type="submit">Send Message</button>
-    </form>
+<div class="flex h-screen">
+
+  <!-- LEFT USER LIST -->
+  <div class="w-1/4 bg-[#075e54] text-white">
+    <div class="p-4 font-bold text-lg border-b border-[#0b806f]">
+      Users
+    </div>
+    <% if (users) { %>
+      <ul id="userList" class="overflow-y-auto h-full">
+        <% users.forEach(user => { %>
+          <li class="p-4 cursor-pointer hover:bg-[#0b806f] border-b border-[#0b806f]" onclick="selectUser('<%= user.number %>')">
+            <%= user.name %>  <%= user.batch.name %>
+          </li>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <ul id="userList" class="overflow-y-auto h-full">
+        <li class="p-4 cursor-pointer hover:bg-[#0b806f] border-b border-[#0b806f]">No users available</li>
+      </ul>
+    <% } %>
+  </div>
+
+  <!-- RIGHT CHAT -->
+  <div class="w-3/4 flex flex-col bg-[#ece5dd]">
+
+    <!-- CHAT HEADER -->
+    <div id="chatHeader" class="p-4 bg-[#075e54] text-white font-semibold">
+      Select a user
+    </div>
+
+    <!-- MESSAGES -->
+    <div id="chatBox" class="flex-1 p-4 overflow-y-auto space-y-2"></div>
+
+    <!-- INPUT -->
+    <div class="p-3 bg-white flex gap-2">
+      <input
+        id="message"
+        type="text"
+        placeholder="Type a message"
+        class="flex-1 border rounded-lg px-3 py-2 focus:outline-none"
+      />
+      <button
+        onclick="sendMessage()"
+        class="bg-[#075e54] text-white px-4 py-2 rounded-lg"
+      >
+        Send
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    
+  function selectUser(id, name) {
+    selectedUser = id;
+    document.getElementById("chatHeader").innerText = name;
+    document.getElementById("chatBox").innerHTML = "";
+   }
+
+  function sendMessage() {
+    const msg = message.value.trim();
+    if (!msg || !selectedUser) return;
+
+   };
+
+</script>
 
 </body>
 </html>

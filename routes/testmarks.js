@@ -7,12 +7,13 @@ const ExcelJS = require("exceljs");
 const Batch = require("../models/Batch.js");
 const User = require("../models/User.js");
 const Marks = require("../models/Marks.js");
+const { isLoggedIn, requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
 // 🧾 Download Excel template for a batch
-router.get("/download/:batchId", async (req, res) => {
+router.get("/download/:batchId", isLoggedIn, requireRole("admin"), async (req, res) => {
   try {
     const batchId = req.params.batchId;
     const batch = await Batch.findById(batchId);
@@ -65,7 +66,7 @@ router.get("/download/:batchId", async (req, res) => {
 });
 
 // 📤 Upload Excel and Save Marks
-router.post("/upload/:batchId", upload.single("excelFile"), async (req, res) => {
+router.post("/upload/:batchId",isLoggedIn,requireRole("admin"), upload.single("excelFile"), async (req, res) => {
   try {
     const batchId = req.params.batchId;
     console.log(req.body.testTitle);
@@ -77,7 +78,6 @@ router.post("/upload/:batchId", upload.single("excelFile"), async (req, res) => 
     await workbook.xlsx.readFile(filePath);
     const worksheet = workbook.getWorksheet(1);
     const marksData = [];
-    
     if(type==="JEE"){
         worksheet.eachRow(async (row, rowNumber) => {
       if (rowNumber === 1) return; // skip header
@@ -133,7 +133,7 @@ router.post("/upload/:batchId", upload.single("excelFile"), async (req, res) => 
 
 
 // 📄 List all tests for a batch
-router.get("/tests/:batchId", async (req, res) => {
+router.get("/tests/:batchId",isLoggedIn,requireRole("admin"), async (req, res) => {
   const batch = await Batch.findById(req.params.batchId);
   const tests = await Marks.find({ batch: batch._id }).distinct("testTitle");
   res.render("test/test-list", { batch, tests,
@@ -145,7 +145,7 @@ router.get("/tests/:batchId", async (req, res) => {
 
 
 // 📊 View result of a particular test
-router.get("/view/:batchId/:testTitle", async (req, res) => {
+router.get("/view/:batchId/:testTitle",isLoggedIn,requireRole("admin"), async (req, res) => {
   const batch = await Batch.findById(req.params.batchId);
   const marks = await Marks.find({ batch: batch._id, testTitle: req.params.testTitle }).populate("student");
   res.render("test/view-marks", { batch, marks, testTitle: req.params.testTitle,

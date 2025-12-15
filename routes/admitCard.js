@@ -2,6 +2,8 @@ const express = require("express");
 const Submission = require("../models/Submission.js"); // submissions
 const Form = require("../models/Form.js"); // form metadata
 const path = require("path");
+const { isLoggedIn, requireRole } = require("../middleware/auth");
+const { sendAdmitCardUpdate } = require("../utils/mailer.js");
 
 const router = express.Router();
 
@@ -18,7 +20,7 @@ const {
   waStatus,
 } = require("../whatsapp/whatsappClient");
 
-router.get("/generate/:formId", async (req, res) => {
+router.get("/generate/:formId", isLoggedIn, requireRole("superadmin"), async (req, res) => {
   console.log("Admit card generation requested for form:", req.params.formId);
   try {
     const { formId } = req.params;
@@ -40,39 +42,93 @@ router.get("/generate/:formId", async (req, res) => {
   }
 });
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-router.post("/send/update/:formId", async (req, res) => {
-  try {
-    const results = await Submission.find({ form: req.params.formId });
-    console.log("Results to send:", results.length);
-    if (!results.length) return res.status(404).json({ message: "No results found for this form" });
-    (async () => {
-      for (const result of results) {
-        if (result) {
-          console.log(result)
-          const phoneNumber = result.mobileNumber;
-          const chatId = `91${phoneNumber}@c.us`;
-          console.log("Preparing to send message to:", chatId);
-          if (client && client.info && client.info.wid) {
-            const messageText = `Hello student, your admit card has been generated. Please click on the link to download it https://garudclasses.com/admitcard/download/${result._id}.`;
-            await client.sendMessage(chatId, messageText);
-            await delay(20000); // 20 seconds interval
-          }
-          else {
-            console.log("WhatsApp client not ready.");
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+router.post(
+  "/send/update/:formId",
+  isLoggedIn,
+  requireRole("superadmin", "admin"),
+  async (req, res) => {
+    try {
+      const results = await Submission
+        .find({ form: req.params.formId })
+        .populate("form");
+
+      console.log("Results to send:", results.length);
+
+      if (!results.length) {
+        return res.status(404).json({
+          message: "No submissions found for this form"
+        });
+      }
+
+      // ✅ Respond immediately
+      res.json({
+        message: "Notifications are being sent in background"
+      });
+
+      // 🔥 BACKGROUND TASK
+      setImmediate(async () => {
+        for (const result of results) {
+          try {
+            if (!result) continue;
+
+            /* ---------- EMAIL ---------- */
+            if (result.email) {
+              const emailMessage = `Dear Student,
+
+Your Admit Card for the exam "${result.form.title}" has been generated.
+
+Download link:
+https://garudclasses.com/admitcard/download/${result._id}
+
+Thank you.`;
+
+              await sendAdmitCardUpdate(result.email, emailMessage);
+            }
+
+            /* ---------- WHATSAPP ---------- */
+            if (client?.info?.wid && result.mobileNumber) {
+              const chatId = `91${result.mobileNumber}@c.us`;
+              const waMessage = `Hello Student,
+
+Your admit card has been generated.
+
+Download here:
+https://garudclasses.com/admitcard/download/${result._id}`;
+
+              await client.sendMessage(chatId, waMessage);
+
+              console.log("✅ WhatsApp sent to", chatId);
+
+              // ⏱️ Delay AFTER WhatsApp only
+              await delay(20000);
+            } else {
+              console.log("⚠️ WhatsApp client not ready or number missing");
+            }
+
+          } catch (singleErr) {
+            console.error(
+              `❌ Failed for submission ${result._id}:`,
+              singleErr.message
+            );
           }
         }
-      }
-    })();
-    res.json({ message: "WhatsApp sending started in the background!" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error sending results", error: err.message });
-  }
-});
 
-// POST: Search for submissions with admit cards
-// GET: Search for submissions with admit cards
+        console.log("📨 Admit card notifications completed");
+      });
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        message: "Error starting background job",
+        error: err.message
+      });
+    }
+  }
+);
+
+
 router.get("/search", (req, res) => {
   res.render("students/student-search.ejs", { layout: false }); // simple search form
 });
@@ -90,22 +146,6 @@ router.get("/search/results", async (req, res) => {
     res.status(500).send("Error fetching submissions.");
   }
 });
-
-//// GET /admitcard/:i
-
-// router.get('/server/lokesh/:id', async (req, res) => {
-//   try {
-//     const submission = await Submission.findById(req.params.id).populate("form");
-//     if (!submission) return res.status(404).send("Submission not found");
-//     if (!submission.admitCardGenerated) return res.status(400).send("Admit card not generated");
-//     res.json({
-//       submission,
-//       examCenter: "Garud Classes Near Saraswati Mahila College NH-19 Adarsh Nagar Colony Palwal Haryana 121102",});
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("Server error");
-//   }
-// });
 
 router.get("/:id", async (req, res) => {
   try {

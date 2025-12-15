@@ -1,7 +1,11 @@
 const express = require("express");
 const User = require("../models/User.js");
 const Batch = require("../models/Batch.js");
-const bcrypt = require("bcryptjs");
+const Fee = require("../models/Fee.js");
+const passport = require("passport");
+const crypto = require("crypto");
+const { sendStudentCredentials } = require("../utils/mailer.js");
+const { isLoggedIn, requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -19,26 +23,50 @@ async function generateRollNumber(batch) {
 }
 
 // Admin: Create student
-router.post('/create', async (req, res) => {
+router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) => {
   try {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash("123456", salt);
-    const { name, email, batchId,parent,number } = req.body;
-    if (!name || !email || !batchId || !parent)
+     function generateStrongPassword(length = 10) {
+      const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+        "abcdefghijklmnopqrstuvwxyz" +
+        "0123456789" +
+        "!@#$%^&*()_+[]{}<>?";
+      const randomBytes = crypto.randomBytes(length);
+      let password = "";
+      for (let i = 0; i < length; i++) {
+        password += chars[randomBytes[i] % chars.length];
+      }
+      return password;
+      }
+      const password = generateStrongPassword(8);
+    const { name,email, batchId,username,number,fatherName,motherName,address,admissionFee,tuitionFee,transportFee,otherFee } = req.body;
+    if (!name || !email || !batchId)
       return res.status(400).json({ message: 'All fields are required' });
     const batch = await Batch.findById(batchId);
     if (!batch) return res.status(404).json({ message: 'Batch not found' });
     const roll = await generateRollNumber(batch);
-    const student = await User.create({
+    const student = new User({
       name,
-      username:email,
+      username,
+      email,
       batch: batchId,
       rollNumber: roll,
-      parent,
       number,
+      fatherName,
+      motherName,
+      address,
       role: 'student',
-      password: hashedPassword,
     });
+    await User.register(student, password);
+    await sendStudentCredentials(email, student.username, password);
+    const fee = new Fee({
+      student: student._id,
+      admissionFee: admissionFee || 0,
+      tuitionFee: tuitionFee || 0,
+      transportFee: transportFee || 0,
+      otherFee: otherFee || 0,
+    });
+    await fee.save();
     res.status(201).json({ message: 'Student added', student });
   } catch (err) {
     console.error(err);

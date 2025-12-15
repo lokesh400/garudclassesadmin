@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fee Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen p-6">
+
+<div class="max-w-7xl mx-auto">
+
+  <!-- HEADER -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">💰 Fee Management</h1>
+      <p class="text-gray-500">Student-wise fee summary & payments</p>
+    </div>
+
+    <a href="/fees/new"
+       class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow transition">
+      + Add Fee
+    </a>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="bg-white rounded-xl shadow p-4 mb-6 flex gap-4 sticky top-4 z-10">
+    <input
+      id="search"
+      placeholder="🔍 Search by name or roll"
+      class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none"
+    />
+
+    <select
+      id="batchFilter"
+      class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500"
+    >
+      <option value="">All Batches</option>
+    </select>
+  </div>
+
+  <!-- TABLE CARD -->
+  <div class="bg-white rounded-xl shadow overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-green-600 text-white">
+        <tr>
+          <th class="p-4 text-left">Student</th>
+          <th class="p-4">Batch</th>
+          <th class="p-4">Total</th>
+          <th class="p-4">Paid</th>
+          <th class="p-4">Balance</th>
+          <th class="p-4 text-center">Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="feeTable">
+        <% fees.forEach(f => {
+          const paid = f.payments.reduce((s,p)=>s+p.amount,0);
+          const balance = f.totalFee - paid;
+        %>
+
+        <tr
+          class="border-b hover:bg-gray-50 transition fee-row"
+          data-name="<%= f.student.name %>"
+          data-roll="<%= f.student.rollNumber || '' %>"
+          data-batch="<%= f.student.batch?.name || '' %>"
+        >
+
+          <!-- STUDENT -->
+          <td class="p-4">
+            <div class="font-semibold text-gray-800">
+              <%= f.student.name %>
+            </div>
+            <div class="text-xs text-gray-500">
+              Roll: <%= f.student.rollNumber || '-' %>
+            </div>
+          </td>
+
+          <!-- BATCH -->
+          <td class="p-4 text-gray-700">
+            <%= f.student.batch?.name || '-' %>
+          </td>
+
+          <!-- TOTAL -->
+          <td class="p-4 font-semibold">
+            ₹ <%= f.totalFee %>
+          </td>
+
+          <!-- PAID -->
+          <td class="p-4 text-green-600 font-medium">
+            ₹ <%= paid %>
+          </td>
+
+          <!-- BALANCE -->
+          <td class="p-4">
+            <span class="px-3 py-1 rounded-full text-xs font-semibold
+              <%= balance > 0
+                ? 'bg-red-100 text-red-600'
+                : 'bg-green-100 text-green-600' %>">
+              ₹ <%= balance %>
+            </span>
+          </td>
+
+          <!-- ACTION -->
+          <td class="p-4 text-center">
+            <a
+              href="/fees/student/<%= f.student._id %>"
+              class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg shadow transition text-sm"
+            >
+              View
+            </a>
+          </td>
+
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const rows = document.querySelectorAll(".fee-row");
+const search = document.getElementById("search");
+const batchFilter = document.getElementById("batchFilter");
+
+// populate batch dropdown
+[...new Set([...rows].map(r => r.dataset.batch))]
+  .filter(b => b)
+  .forEach(b => batchFilter.innerHTML += `<option>${b}</option>`);
+
+function filter() {
+  const s = search.value.toLowerCase();
+  const b = batchFilter.value;
+
+  rows.forEach(r => {
+    const match =
+      (r.dataset.name.toLowerCase().includes(s) ||
+       r.dataset.roll.toLowerCase().includes(s)) &&
+      (b === "" || r.dataset.batch === b);
+
+    r.style.display = match ? "" : "none";
+  });
+}
+
+search.addEventListener("input", filter);
+batchFilter.addEventListener("change", filter);
+</script>
+
+</body>
+</html>

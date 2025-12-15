@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const Form = require("../models/Form.js");
 const Submission = require("../models/Submission.js");
-const {ensureAuthenticated, requireRole} = require("../middleware/auth.js");
+const { isLoggedIn, requireRole} = require("../middleware/auth.js");
 const ExcelJS = require("exceljs");
+const { sendFormConfirmation } = require("../utils/mailer");
   
 async function generateRollNumber() {
   const yearPart = batch.year.slice(-2);
@@ -19,7 +20,7 @@ async function generateRollNumber() {
 }
 
 // ✅ Admin: create form page
-router.get("/create", ensureAuthenticated, requireRole("admin", "superadmin"), (req, res) => {
+router.get("/create", isLoggedIn, requireRole("admin"), (req, res) => {
   res.render("forms/create",{
       title: 'Create New Form',
       pageTitle: 'Create New Form',
@@ -28,7 +29,7 @@ router.get("/create", ensureAuthenticated, requireRole("admin", "superadmin"), (
 });
 
 // ✅ Admin: save new form
-router.post("/create", ensureAuthenticated, requireRole("admin", "superadmin"), async (req, res) => {
+router.post("/create", isLoggedIn, requireRole("admin"), async (req, res) => {
   try {
     const { title, description, date, time, fields } = req.body;
     const form = new Form({
@@ -39,7 +40,7 @@ router.post("/create", ensureAuthenticated, requireRole("admin", "superadmin"), 
       fields: JSON.parse(fields) // frontend sends array of fields
     });
     await form.save();
-    res.redirect("/forms/list-all");
+    res.redirect("/forms/list");
   } catch (err) {
     console.error(err);
     res.redirect("/forms/create");
@@ -47,7 +48,7 @@ router.post("/create", ensureAuthenticated, requireRole("admin", "superadmin"), 
 });
 
 // ✅ Admin: list forms of current club
-router.get("/list", ensureAuthenticated, requireRole("admin", "superadmin"), async (req, res) => {
+router.get("/list", isLoggedIn, requireRole("admin"), async (req, res) => {
   try {
     const forms = await Form.find().sort({ createdAt: -1 });
     res.render("forms/list", { forms,
@@ -82,7 +83,9 @@ router.post("/:formId/submit", async (req, res) => {
       data: req.body
     });
     await submission.save();
-    res.redirect(`/forms/fill/${form._id}`);
+    const message = `Dear Student,\n\nYour Application for "${form.title}" has been successfully submitted.\n\nThank you.`;
+    await sendFormConfirmation(email,message);
+    res.render('forms/submission-success', { form, layout: false,pageTitle: 'Submission Successful',title: 'Submission Successful',activePage: 'forms' });
   } catch (err) {
     console.error(err);
     res.redirect("back");
@@ -90,7 +93,7 @@ router.post("/:formId/submit", async (req, res) => {
 });
 
 // View Submissions
-router.get("/:id/submissions", ensureAuthenticated, requireRole("admin", "superadmin"), async (req, res) => {
+router.get("/:id/submissions", isLoggedIn, requireRole("admin"), async (req, res) => {
   try {
     const form = await Form.findById(req.params.id)
     const submissions = await Submission.find({ form: req.params.id }).sort({ createdAt: -1 });

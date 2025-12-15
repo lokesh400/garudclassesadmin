@@ -1,6 +1,5 @@
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode");
-
 let io = null;
 let initializing = false;
 
@@ -11,7 +10,6 @@ let waStatus = {
   qr: null,
 };
 
-/* ---------------- Force Puppeteer Stability ---------------- */
 process.on("unhandledRejection", (reason) => {
   if (
     String(reason).includes("Execution context was destroyed")

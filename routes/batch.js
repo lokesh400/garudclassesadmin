@@ -1,10 +1,11 @@
 const express = require("express");
 const Batch = require("../models/Batch.js");
+const { isLoggedIn, requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
 // ✅ Render page for admin to create and view batches (EJS)
-router.get("/", async (req, res) => {
+router.get("/", isLoggedIn, requireRole("admin"), async (req, res) => {
   try {
     const batches = await Batch.find().sort({ createdAt: -1 });
     res.render("batch/all-batches", { batches,
@@ -18,7 +19,7 @@ router.get("/", async (req, res) => {
 });
 
 // ✅ API to create a new batch
-router.post("/create", async (req, res) => {
+router.post("/create", isLoggedIn, requireRole("superadmin"), async (req, res) => {
   try {
     console.log(req.body);
     const { name, courseType, year } = req.body;
@@ -35,7 +36,7 @@ router.post("/create", async (req, res) => {
 });
 
 // ✅ API to get all batches (for React Native)
-router.get("/", async (req, res) => {
+router.get("/", isLoggedIn, requireRole("superadmin"), async (req, res) => {
   try {
     const batches = await Batch.find().sort({ createdAt: -1 });
     res.json(batches);
@@ -48,7 +49,7 @@ router.get("/", async (req, res) => {
 ///// grt route to add student to batch (ejs form) /////
 // Admin: Render add student page
 // Admin: Render add student page
-router.get("/add/:id", async (req, res) => {
+router.get("/add/:id",isLoggedIn,requireRole("admin"), async (req, res) => {
   try {
     res.render("batch/add-student", { batchId: req.params.id,
       title: 'Add Student',

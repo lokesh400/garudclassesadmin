@@ -1,80 +1,83 @@
 const express = require("express");
-const router = express.Router();
 const Fee = require("../models/Fee");
-const {Student:User} = require("../models/User");
-const Batch = require("../models/Batch");
+const PDFDocument = require("pdfkit");
+const { isLoggedIn, requireRole } = require("../middleware/auth");
+const router = express.Router();
 
-// Render all students with fee summary
-router.get("/all/fees/view", async (req, res) => {
-  try {
-    // Fetch all students with role "student" and populate batch name
-    const students = await User.find({ role: "student" }).populate("batch", "name");
-
-    // Build fee summary
-    const feeSummary = await Promise.all(
-      students.map(async (student) => {
-        const fee = await Fee.findOne({ student: student._id });
-        const totalFee = fee ? fee.totalFee : 0;
-        const paid = fee ? fee.payments.reduce((sum, p) => sum + p.amount, 0) : 0;
-        const balance = totalFee - paid;
-
-        return {
-          student,
-          totalFee,
-          paid,
-          balance
-        };
-      })
-    );
-
-    // ✅ Render the correct object
-    res.render("students/fees", { feeSummary });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
-  }
+/* LIST */
+router.get("/", isLoggedIn, requireRole("superadmin"), async (req, res) => {
+  const fees = await Fee.find()
+    .populate({ path: "student", populate: { path: "batch" } });
+  res.render("fees/list", { fees,
+    title: "Fees",
+    pageTitle: "Fees",
+    activePage: "fees",
+   });
 });
 
-
-// Add fee payment for a student
-router.post("/fee/:studentId/pay", async (req, res) => {
-  try {
-    const { studentId } = req.params;
-    const { amount, method } = req.body;
-
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ ok: false, error: "Amount must be greater than 0" });
-    }
-
-    const fee = await Fee.findOne({ student: studentId });
-    if (!fee) {
-      return res.status(404).json({ ok: false, error: "Fee record not found for student" });
-    }
-
-    // Add payment
-    fee.payments.push({ amount, method });
-    await fee.save();
-
-    res.json({ ok: true, fee });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, error: err.message });
-  }
+/* STUDENT HISTORY */
+router.get("/student/:studentId", isLoggedIn, requireRole("superadmin"), async (req, res) => {
+  const fee = await Fee.findOne({ student: req.params.studentId })
+    .populate("student");
+  const paid = fee.payments.reduce((s, p) => s + p.amount, 0);
+  res.render("fees/student-history", {
+    fee,
+    paid,
+    balance: fee.totalFee - paid,
+    title: "Fee History",
+    pageTitle: "Fee History",
+    activePage: "fees",
+  });
 });
 
-// Get student fee info
-router.get("/fee/:studentId", async (req, res) => {
-  try {
-    const { studentId } = req.params;
-    const fee = await Fee.findOne({ student: studentId }).populate("student", "name rollNumber");
-    if (!fee) return res.status(404).json({ ok: false, error: "Fee record not found" });
-
-    res.json({ ok: true, fee });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, error: err.message });
-  }
+/* ADD PAYMENT */
+router.post("/student/:studentId/pay", isLoggedIn, requireRole("superadmin"), async (req, res) => {
+  console.log(req.body,req.params.studentId);
+  const fee = await Fee.findOne({ student: req.params.studentId });
+  fee.payments.push({
+    amount: req.body.amount,
+    mode: req.body.mode,
+    // receiptNo: "RCPT-" + Date.now()
+  });
+  await fee.save();
+  res.redirect(`/fees/student/${req.params.studentId}`);
 });
 
+/* EDIT PAYMENT */
+router.post("/payment/:feeId/:paymentId/edit", isLoggedIn, requireRole("superadmin"), async (req, res) => {
+  const fee = await Fee.findById(req.params.feeId);
+  const p = fee.payments.id(req.params.paymentId);
+  p.amount = req.body.amount;
+  p.mode = req.body.mode;
+  await fee.save();
+  res.redirect(`/fees/student/${req.params.studentId}`);
+});
+
+/* DELETE PAYMENT */
+router.post("/payment/:feeId/:paymentId/delete", async (req, res) => {
+  const fee = await Fee.findById(req.params.feeId);
+  fee.payments.id(req.params.paymentId).remove();
+  await fee.save();
+  res.redirect(`/fees/student/${req.params.studentId}`);
+});
+
+/* PDF RECEIPT */
+router.get("/receipt/:feeId/:paymentId", async (req, res) => {
+  const fee = await Fee.findById(req.params.feeId).populate("student");
+  const p = fee.payments.id(req.params.paymentId);
+
+  const doc = new PDFDocument();
+  res.setHeader("Content-Type", "application/pdf");
+  doc.pipe(res);
+
+  doc.fontSize(18).text("Fee Receipt", { align: "center" });
+  doc.moveDown();
+  doc.text(`Student: ${fee.student.name}`);
+  doc.text(`Receipt: ${p.receiptNo}`);
+  doc.text(`Amount: ₹${p.amount}`);
+  doc.text(`Mode: ${p.mode}`);
+  doc.text(`Date: ${p.date.toDateString()}`);
+  doc.end();
+});
 
 module.exports = router;

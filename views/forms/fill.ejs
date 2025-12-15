@@ -16,16 +16,36 @@
 
     <!-- Form -->
     <form method="POST" action="/forms/<%= form._id %>/submit" class="space-y-5">
-      <% form.fields.forEach(f => { %>
-        <div>
-          <label class="block font-medium mb-2 text-gray-700">Contact Number</label>
-          <input type="number" name="mobileNumber"
-                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition"
-                 required >
+      <div>
+           <div>
+  <label class="block font-medium mb-2 text-gray-700">Contact Number</label>
+
+  <div class="flex">
+    <!-- Prefix -->
+    <span
+      class="inline-flex items-center px-4 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-600 font-medium">
+      +91
+    </span>
+
+    <!-- Number input -->
+    <input
+      type="tel"
+      name="mobileNumber"
+      pattern="[0-9]{10}"
+      maxlength="10"
+      placeholder="Enter 10-digit number"
+      class="w-full px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition"
+      required
+    >
+  </div>
+</div>
                   <label class="block font-medium mb-2 text-gray-700">E Mail</label>
           <input type="email" name="email"
                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition"
                  required >
+        </div>
+      <% form.fields.forEach(f => { %>
+        <div>
           <label class="block font-medium mb-2 text-gray-700"><%= f.label %></label>
           <input type="<%= f.type %>" name="<%= f.label %>" 
                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition"

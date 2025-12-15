@@ -1,0 +1,14 @@
+<form method="POST" class="max-w-lg mx-auto bg-white p-6 shadow rounded" action="/teachers/<%= id %>/edit">
+  <h2 class="text-xl font-bold mb-4">Edit User</h2>
+
+  <input name="name" value="<%= user.name %>" class="input">
+  
+  <select name="role" class="input">
+    <option <%= user.role==='admin'?'selected':'' %>>admin</option>
+    <option <%= user.role==='superadmin'?'selected':'' %>>superadmin</option>
+  </select>
+
+  <button class="bg-blue-600 text-white px-4 py-2 rounded mt-3">
+    Update
+  </button>
+</form>
