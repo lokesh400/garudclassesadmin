@@ -52,7 +52,7 @@ app.set("layout", "layouts/admin");
 /* ---------------- SESSION (MUST COME FIRST) ---------------- */
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: "njjhjhjhjghjghjgh",
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
