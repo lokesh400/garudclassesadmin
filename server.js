@@ -100,7 +100,7 @@ const { isLoggedIn, requireRole } = require("./middleware/auth");
 /* ---------------- PAGES ---------------- */
 app.get("/", (req, res) => res.redirect("/admin"));
 
-app.get("/admin", (req, res) => {
+app.get("/admin", isLoggedIn, (req, res) => {
   res.render("admin", {
     title: "Dashboard",
     pageTitle: "Dashboard",
