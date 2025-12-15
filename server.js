@@ -31,6 +31,8 @@ const batchRoutes = require("./routes/batch");
 const feeRouter = require("./routes/fee");
 const webAuthRoutes = require("./routes/webauthroutes");
 
+const mobileAuthRoutes = require("./routes/mobile/auth");
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -38,7 +40,13 @@ const io = new Server(server);
 const PORT = process.env.PORT || 5000;
 
 /* ---------------- BASIC MIDDLEWARE ---------------- */
-app.use(cors());
+// app.use(cors());
+app.use(
+  cors({
+    origin: 8081,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -94,6 +102,8 @@ app.use("/forms", formRouter);
 app.use("/admitcard", admitcardRouter);
 app.use("/marks", marksRouter);
 app.use("/", webAuthRoutes);
+
+app.use("/auth", mobileAuthRoutes);
 
 const { isLoggedIn, requireRole } = require("./middleware/auth");
 
@@ -171,5 +181,27 @@ const startServer = async () => {
     startKeepAlive();
   });
 };
+
+const feeRoutes = require("./routes/mobile/fee");
+app.use("/api/fees", feeRoutes);
+
+const timetable = require("./routes/mobile/timetable");
+app.use("/api/timetable", timetable)
+
+const marks = require("./routes/mobile/marks");
+app.use("/api/marks", marks);
+
+app.post("/me/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId).populate("batch");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", err });
+  }
+});
+
 
 startServer();
