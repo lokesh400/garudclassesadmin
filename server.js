@@ -203,5 +203,51 @@ app.post("/me/:id", async (req, res) => {
   }
 });
 
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+// Verify immediately (important for Render logs)
+transporter.verify((err, success) => {
+  if (err) {
+    console.error("❌ SMTP VERIFY FAILED:", err);
+  } else {
+    console.log("✅ SMTP READY");
+  }
+});
+
+app.get("/mail", async (req, res) => {
+  try {
+    console.log("➡️ Mail test route hit");
+
+    const info = await transporter.sendMail({
+      from: `"Render Test" <${process.env.EMAIL_USER}>`,
+      to: "lokeshbadgujjar400@gmail.com", // send to yourself
+      subject: "✅ Render Mail Test",
+      text: "If you received this, email is working on Render!"
+    });
+
+    console.log("✅ Mail sent:", info.messageId);
+    res.send("Mail sent successfully. Check inbox.");
+
+  } catch (err) {
+    console.error("❌ MAIL ERROR:", err);
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
+  }
+});
+
+
+
 
 startServer();
