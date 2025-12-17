@@ -16,29 +16,55 @@
     </form>
   </div>
 
-  <script>
-    document.getElementById("studentForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = document.getElementById("name").value;
-      const email = document.getElementById("email").value;
-      const batchId = '<%= batchId %>';
-      const number = document.getElementById("number").value;
-      const fatherName = document.getElementById("fatherName").value;
-      const motherName = document.getElementById("motherName").value;
-      const address = document.getElementById("address").value;
-      const admissionFee = document.getElementById("admissionFee").value;
-      const tuitionFee = document.getElementById("tuitionFee").value;
-      const transportFee = document.getElementById("transportFee").value;
-      const otherFee = document.getElementById("otherFee").value;
-      const username = document.getElementById("username").value;
+  <!-- Loading Spinner -->
+<div id="loader"
+  class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+  <div
+    class="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin">
+  </div>
+</div>
 
+<script>
+  document.getElementById("studentForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // SHOW spinner
+    document.getElementById("loader").classList.remove("hidden");
+
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const batchId = '<%= batchId %>';
+    const number = document.getElementById("number").value;
+    const fatherName = document.getElementById("fatherName").value;
+    const motherName = document.getElementById("motherName").value;
+    const address = document.getElementById("address").value;
+    const admissionFee = document.getElementById("admissionFee").value;
+    const tuitionFee = document.getElementById("tuitionFee").value;
+    const transportFee = document.getElementById("transportFee").value;
+    const otherFee = document.getElementById("otherFee").value;
+    const username = document.getElementById("username").value;
+
+    try {
       const res = await fetch("/api/students/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, batchId, username, number, fatherName, motherName, address, admissionFee, tuitionFee, transportFee, otherFee }),
+        body: JSON.stringify({
+          name, email, batchId, username, number,
+          fatherName, motherName, address,
+          admissionFee, tuitionFee, transportFee, otherFee
+        }),
       });
+
       const data = await res.json();
       alert(data.message);
+
       if (data.success) location.reload();
-    });
-  </script>
+    } catch (err) {
+      alert("Something went wrong");
+    } finally {
+      // HIDE spinner
+      document.getElementById("loader").classList.add("hidden");
+    }
+  });
+</script>
+

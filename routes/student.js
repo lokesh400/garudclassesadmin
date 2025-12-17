@@ -44,6 +44,9 @@ router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) =
       return res.status(400).json({ message: 'All fields are required' });
     const batch = await Batch.findById(batchId);
     if (!batch) return res.status(404).json({ message: 'Batch not found' });
+    const existingUser = await User.findOne({ username:username });
+    if (existingUser)
+      return res.status(400).json({ message: 'User with this username already exists' });
     const roll = await generateRollNumber(batch);
     const student = new User({
       name,
@@ -58,7 +61,6 @@ router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) =
       role: 'student',
     });
     await User.register(student, password);
-    await sendStudentCredentials(email, student.username, password);
     const fee = new Fee({
       student: student._id,
       admissionFee: admissionFee || 0,
@@ -68,6 +70,7 @@ router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) =
     });
     await fee.save();
     res.status(201).json({ message: 'Student added', student });
+    await sendStudentCredentials(email, student.username, password);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
