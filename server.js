@@ -203,51 +203,18 @@ app.post("/me/:id", async (req, res) => {
   }
 });
 
-const nodemailer = require("nodemailer");
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
-
-// Verify immediately (important for Render logs)
-transporter.verify((err, success) => {
-  if (err) {
-    console.error("❌ SMTP VERIFY FAILED:", err);
-  } else {
-    console.log("✅ SMTP READY");
-  }
-});
-
 app.get("/mail", async (req, res) => {
+  const { sendMail } = require("./utils/mailer"); 
   try {
-    console.log("➡️ Mail test route hit");
-
-    const info = await transporter.sendMail({
-      from: `"Render Test" <${process.env.EMAIL_USER}>`,
-      to: "lokeshbadgujjar400@gmail.com", // send to yourself
-      subject: "✅ Render Mail Test",
-      text: "If you received this, email is working on Render!"
+    await sendMail({
+      to: "lokeshbadgujjar400@gmail.com",
+      subject: "Test Email from Garud Classes",
+      text: "This is a test email sent using Gmail API.",
     });
-
-    console.log("✅ Mail sent:", info.messageId);
-    res.send("Mail sent successfully. Check inbox.");
-
+    res.send("Email sent");
   } catch (err) {
-    console.error("❌ MAIL ERROR:", err);
-    res.status(500).json({
-      success: false,
-      error: err.message
-    });
+    res.status(500).send("Error sending email");
   }
 });
-
-
-
 
 startServer();
