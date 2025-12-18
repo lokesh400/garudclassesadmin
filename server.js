@@ -30,6 +30,7 @@ const marksRouter = require("./routes/testmarks");
 const batchRoutes = require("./routes/batch");
 const feeRouter = require("./routes/fee");
 const webAuthRoutes = require("./routes/webauthroutes");
+const queryRoutes = require("./routes/query");
 
 const mobileAuthRoutes = require("./routes/mobile/auth");
 
@@ -102,6 +103,8 @@ app.use("/forms", formRouter);
 app.use("/admitcard", admitcardRouter);
 app.use("/marks", marksRouter);
 app.use("/", webAuthRoutes);
+app.use("/", queryRoutes);
+
 
 app.use("/auth", mobileAuthRoutes);
 
@@ -110,7 +113,7 @@ const { isLoggedIn, requireRole } = require("./middleware/auth");
 /* ---------------- PAGES ---------------- */
 app.get("/", (req, res) => res.redirect("/admin"));
 
-app.get("/admin", isLoggedIn, (req, res) => {
+app.get("/admin", isLoggedIn, requireRole("superadmin"), (req, res) => {
   res.render("admin", {
     title: "Dashboard",
     pageTitle: "Dashboard",
@@ -128,7 +131,8 @@ app.get("/whatsapp", isLoggedIn, requireRole("superadmin"), (req, res) => {
 });
 
 app.get("/send",isLoggedIn,requireRole("superadmin"), async (req, res) => {
-  const users = await User.find().populate("batch");
+  const users = await User.find({role:"student"}).populate("batch");
+  console.log(users);
   res.render("whatsapp/message", {
     users,
     status: waStatus,
@@ -184,13 +188,10 @@ const startServer = async () => {
 
 const feeRoutes = require("./routes/mobile/fee");
 app.use("/api/fees", feeRoutes);
-
 const timetable = require("./routes/mobile/timetable");
 app.use("/api/timetable", timetable)
-
 const marks = require("./routes/mobile/marks");
 app.use("/api/marks", marks);
-
 app.post("/me/:id", async (req, res) => {
   try {
     const userId = req.params.id;
@@ -203,28 +204,15 @@ app.post("/me/:id", async (req, res) => {
   }
 });
 
-const sendUserCredentials = async (email, username, password) => {
-  return sendMail({
-    to: email,
-    subject: "Your Account Details",
-    html: `
-      <h2>Welcome to Garud Classes</h2>
-      <p><strong>Username:</strong> ${username}</p>
-      <p><strong>Password:</strong> ${password}</p>
-      <p>Please change your password after login.</p>
-    `,
-  });
-};
-
-app.get("/mail", async (req, res) => {
-  const { sendUserCredentials } = require("./utils/mailer"); 
-  try {
-    await sendUserCredentials("lokeshbadgujjar400@gmail.com", "lokesh", "lokesh123");
-    res.send("Email sent");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error sending email");
-  }
-});
+// app.get("/mail", async (req, res) => {
+//   const { sendUserCredentials } = require("./utils/mailer"); 
+//   try {
+//     await sendUserCredentials("lokeshbadgujjar400@gmail.com", "lokesh", "lokesh123");
+//     res.send("Email sent");
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Error sending email");
+//   }
+// });
 
 startServer();

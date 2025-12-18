@@ -1,0 +1,19 @@
+<h2 class="text-xl font-bold"><%= query.subject %></h2>
+
+<p><b>Student:</b> <%= query.studentName %></p>
+<p><b>Description:</b> <%= query.description %></p>
+<p><b>Created By:</b> <%= query.createdBy.name %></p>
+
+<% if (query.status === "Open") { %>
+<form method="POST" action="/queries/<%= query._id %>/close">
+  <textarea name="remarks" placeholder="Closing remarks"
+    class="w-full border p-2 mt-4"></textarea>
+
+  <button class="bg-red-600 text-white px-4 py-2 mt-2">
+    Close Query
+  </button>
+</form>
+<% } else { %>
+<p><b>Remarks:</b> <%= query.remarks %></p>
+<p><b>Closed By:</b> <%= query.closedBy.name %></p>
+<% } %>

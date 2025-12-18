@@ -55,12 +55,12 @@ router.post("/payment/:feeId/:paymentId/edit", isLoggedIn, requireRole("superadm
 });
 
 /* DELETE PAYMENT */
-router.post("/payment/:feeId/:paymentId/delete", async (req, res) => {
-  const fee = await Fee.findById(req.params.feeId);
-  fee.payments.id(req.params.paymentId).remove();
-  await fee.save();
-  res.redirect(`/fees/student/${req.params.studentId}`);
-});
+// router.post("/payment/:feeId/:paymentId/delete", async (req, res) => {
+//   const fee = await Fee.findById(req.params.feeId);
+//   fee.payments.id(req.params.paymentId).remove();
+//   await fee.save();
+//   res.redirect(`/fees/student/${req.params.studentId}`);
+// });
 
 /* PDF RECEIPT */
 router.get("/receipt/:feeId/:paymentId", async (req, res) => {

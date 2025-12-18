@@ -34,13 +34,33 @@ router.post("/login", (req, res, next) => {
 
     req.logIn(user, (err) => {
       if (err) return next(err);
+      if (user.role === "receptionist") {
+        return res.redirect("/receptionist");
+      }
+      if (user.role === "admin") {
+        return res.redirect("/admin/only");
+      }
       console.log("LOGIN SUCCESS:", user.username);
       return res.redirect("/admin");
     });
   })(req, res, next);
 });
 
+router.get("/receptionist", (req, res) => {
+  res.render("receptionist", {
+    title: "Receptionist Dashboard",
+    pageTitle: "Receptionist Dashboard",
+    activePage: "receptionist-dashboard",
+  });
+});
 
+router.get("/admin/only", (req, res) => {
+  res.render("adminOnly", {
+    title: "Admin Dashboard",
+    pageTitle: "Admin Dashboard",
+    activePage: "admin-dashboard",
+  });
+});
 /* REGISTER (ADMIN CAN CREATE USERS) */
 // router.get("/register", async (req, res) => {
 //   res.render("auth/register");
@@ -72,7 +92,8 @@ router.get("/teachers/all", isLoggedIn, requireRole("superadmin"), async (req, r
   const users = await User.find({
     $or: [
     { role: "admin" },
-    { role: "superadmin" }
+    { role: "superadmin" },
+    { role: "receptionist" }
   ]
   })
   res.render("users/list.ejs", {

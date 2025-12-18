@@ -20,12 +20,11 @@ const userSchema = new mongoose.Schema({
   address: String,
   role: {
     type: String,
-    enum: ["admin", "teacher", "student", "superadmin"],
+    enum: ["admin", "teacher", "student", "superadmin", "receptionist"],
     default: "student"
   }
 }, { timestamps: true });
 
-/* ✅ THIS MUST BE A FUNCTION */
 userSchema.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model("User", userSchema);

@@ -48,7 +48,7 @@ router.post("/create", isLoggedIn, requireRole("admin"), async (req, res) => {
 });
 
 // ✅ Admin: list forms of current club
-router.get("/list", isLoggedIn, requireRole("admin"), async (req, res) => {
+router.get("/list", isLoggedIn, requireRole("admin","receptionist"), async (req, res) => {
   try {
     const forms = await Form.find().sort({ createdAt: -1 });
     res.render("forms/list", { forms,

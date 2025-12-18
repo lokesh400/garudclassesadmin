@@ -1,0 +1,87 @@
+<div class="max-w-7xl mx-auto">
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-semibold text-gray-800">
+      Student Queries
+    </h1>
+
+    <a
+      href="/queries/new"
+      class="bg-green-600 hover:bg-green-700 transition text-white px-5 py-2 rounded-lg shadow"
+    >
+      + Add Query
+    </a>
+  </div>
+
+  <!-- Table Card -->
+  <div class="bg-white rounded-xl shadow overflow-x-auto">
+    <table class="min-w-full text-sm text-left text-gray-700">
+      <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+        <tr>
+          <th class="px-6 py-4">Student</th>
+          <th class="px-6 py-4">Contact</th>
+          <th class="px-6 py-4">Status</th>
+          <th class="px-6 py-4">Created By</th>
+          <th class="px-6 py-4">Created At</th>
+          <th class="px-6 py-4">Closed By</th>
+          <th class="px-6 py-4">Closed At</th>
+          <th class="px-6 py-4 text-center">Action</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y">
+        <% queries.forEach(q => { %>
+          <tr class="hover:bg-gray-50 transition">
+            
+            <td class="px-6 py-4 font-medium text-gray-900">
+              <%= q.studentName %>
+            </td>
+
+            <td class="px-6 py-4">
+              <%= q.mobileNumber %>
+            </td>
+
+            <td class="px-6 py-4">
+              <% if (q.status === "Open") { %>
+                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-semibold">
+                  Open
+                </span>
+              <% } else { %>
+                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">
+                  Closed
+                </span>
+              <% } %>
+            </td>
+
+            <td class="px-6 py-4">
+              <%= q.createdBy?.name %>
+            </td>
+
+            <td class="px-6 py-4 text-gray-500">
+              <%= q.createdAt.toLocaleDateString() %>
+            </td>
+
+            <td class="px-6 py-4">
+              <%= q.closedBy?.name || "-" %>
+            </td>
+
+            <td class="px-6 py-4 text-gray-500">
+              <%= q.closedAt ? q.closedAt.toLocaleDateString() : "-" %>
+            </td>
+
+            <td class="px-6 py-4 text-center">
+              <a
+                href="/queries/<%= q._id %>"
+                class="text-blue-600 hover:text-blue-800 font-medium"
+              >
+                View →
+              </a>
+            </td>
+
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
