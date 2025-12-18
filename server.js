@@ -203,16 +203,26 @@ app.post("/me/:id", async (req, res) => {
   }
 });
 
+const sendUserCredentials = async (email, username, password) => {
+  return sendMail({
+    to: email,
+    subject: "Your Account Details",
+    html: `
+      <h2>Welcome to Garud Classes</h2>
+      <p><strong>Username:</strong> ${username}</p>
+      <p><strong>Password:</strong> ${password}</p>
+      <p>Please change your password after login.</p>
+    `,
+  });
+};
+
 app.get("/mail", async (req, res) => {
-  const { sendMail } = require("./utils/mailer"); 
+  const { sendUserCredentials } = require("./utils/mailer"); 
   try {
-    await sendMail({
-      to: "lokeshbadgujjar400@gmail.com",
-      subject: "Test Email from Garud Classes",
-      text: "This is a test email sent using Gmail API.",
-    });
+    await sendUserCredentials("lokeshbadgujjar400@gmail.com", "lokesh", "lokesh123");
     res.send("Email sent");
   } catch (err) {
+    console.error(err);
     res.status(500).send("Error sending email");
   }
 });

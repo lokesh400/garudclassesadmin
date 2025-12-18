@@ -61,8 +61,9 @@ router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) =
       role: 'student',
     });
     await User.register(student, password);
+    const studentUser = await User.findOne({ username: username });
     const fee = new Fee({
-      student: student._id,
+      student: studentUser._id,
       admissionFee: admissionFee || 0,
       tuitionFee: tuitionFee || 0,
       transportFee: transportFee || 0,

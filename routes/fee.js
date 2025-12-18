@@ -4,10 +4,11 @@ const PDFDocument = require("pdfkit");
 const { isLoggedIn, requireRole } = require("../middleware/auth");
 const router = express.Router();
 
-/* LIST */
+
 router.get("/", isLoggedIn, requireRole("superadmin"), async (req, res) => {
   const fees = await Fee.find()
     .populate({ path: "student", populate: { path: "batch" } });
+    console.log(fees);
   res.render("fees/list", { fees,
     title: "Fees",
     pageTitle: "Fees",
