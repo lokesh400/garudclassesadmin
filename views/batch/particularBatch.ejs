@@ -1,0 +1,171 @@
+<div class="max-w-5xl mx-auto p-6">
+
+  <%- include('../flash.ejs') %>
+
+  <!-- HEADER -->
+  <h1 class="text-3xl font-bold mb-6">
+    <%= batch.name %>
+  </h1>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+
+    <!-- Students -->
+    <div class="bg-blue-100 border-l-4 border-blue-600 p-4 rounded shadow">
+      <p class="text-lg font-medium text-blue-800">
+        Total Students
+      </p>
+      <p class="text-3xl font-bold text-blue-900">
+        <%= studentsCount %>
+      </p>
+    </div>
+
+    <!-- Tests -->
+    <div class="bg-purple-100 border-l-4 border-purple-600 p-4 rounded shadow">
+      <p class="text-lg font-medium text-purple-800">
+        Total Tests Taken
+      </p>
+      <p class="text-3xl font-bold text-purple-900">
+        <%= totalTests %>
+      </p>
+    </div>
+
+  </div>
+
+
+  <!-- ACTION BUTTONS -->
+  <div class="flex flex-wrap gap-4 mb-10">
+
+    <!-- Bulk Enroll Button -->
+    <button 
+      onclick="document.getElementById('formModal').classList.remove('hidden')"
+      class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded shadow">
+      Enroll Bulk Students
+    </button>
+
+    <a href="/api/students/send/details/<%= batch._id %>" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded shadow">
+        📨 Send Student Credentials
+    </a>
+
+    <!-- Delete Batch Button -->
+    <button 
+      onclick="document.getElementById('deleteModal').classList.remove('hidden')"
+      class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded shadow">
+      Delete Batch
+    </button>
+
+  </div>
+
+
+  <!-- ========================== -->
+  <!--      MODAL #1 : FORM LIST  -->
+  <!-- ========================== -->
+
+  <div id="formModal" 
+       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+
+    <div class="bg-white w-96 p-6 rounded shadow-lg">
+
+      <h2 class="text-xl font-bold mb-4">
+        Select Form
+      </h2>
+
+      <% forms.forEach(f => { %>
+        <div class="flex justify-between items-center mb-2 p-2 border rounded">
+          <span><%= f.title %></span>
+
+          <button 
+            class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
+            onclick="openConfirm('<%= f._id %>')">
+            Include
+          </button>
+        </div>
+      <% }) %>
+
+      <button 
+        onclick="document.getElementById('formModal').classList.add('hidden')"
+        class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 mt-4 rounded w-full">
+        Close
+      </button>
+
+    </div>
+  </div>
+
+
+  <!-- ============================== -->
+  <!--      MODAL #2 : CONFIRM FORM   -->
+  <!-- ============================== -->
+
+  <div id="confirmModal" 
+       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+
+    <div class="bg-white w-80 p-6 rounded shadow-lg">
+
+      <h2 class="text-lg font-bold mb-4">
+        Confirm Import?
+      </h2>
+
+      <form method="POST" id="confirmForm">
+        <button class="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded">
+          Confirm
+        </button>
+      </form>
+
+      <button 
+        onclick="document.getElementById('confirmModal').classList.add('hidden')"
+        class="bg-gray-600 hover:bg-gray-700 text-white w-full py-2 mt-3 rounded">
+        Cancel
+      </button>
+
+    </div>
+  </div>
+
+
+  <!-- =============================== -->
+  <!--      MODAL #3 : DELETE BATCH    -->
+  <!-- =============================== -->
+
+  <div id="deleteModal" 
+       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+
+    <div class="bg-white w-80 p-6 rounded shadow-lg">
+
+      <h2 class="text-lg font-bold mb-4 text-red-600">
+        Delete Batch Permanently?
+      </h2>
+
+      <p class="text-gray-700 mb-4">
+        This will delete this batch AND all its student accounts. This action cannot be undone.
+      </p>
+
+      <form action="/api/batches/<%= batch._id %>/delete" method="POST">
+        <button class="bg-red-600 hover:bg-red-700 text-white w-full py-2 rounded">
+          Delete Batch
+        </button>
+      </form>
+
+      <button 
+        onclick="document.getElementById('deleteModal').classList.add('hidden')"
+        class="bg-gray-600 hover:bg-gray-700 text-white w-full py-2 mt-3 rounded">
+        Cancel
+      </button>
+
+    </div>
+  </div>
+
+</div>
+
+
+<!-- =============================== -->
+<!--          JAVASCRIPT            -->
+<!-- =============================== -->
+
+<script>
+  function openConfirm(formId) {
+    document.getElementById('confirmModal').classList.remove('hidden');
+    document.getElementById('formModal').classList.add('hidden');
+
+    document.getElementById('confirmForm').action =
+      "/forms/" + formId + "/import/<%= batch._id %>";
+  }
+</script>

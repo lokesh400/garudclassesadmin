@@ -14,9 +14,12 @@
 <div class="card p-6 bg-white rounded-lg shadow-lg text-center">
     <h2>WhatsApp Web Login</h2>
 
-    <div id="qr"></div>
+    <div id="qr">
+    <div class="qr">
+        <img src="<%= qrImage %>" class="qr" />
+    </div>
 
-    <p class="small">If QR doesn't show, client may already be logged in.</p>
+    <!-- <p class="small">If QR doesn't show, client may already be logged in.</p> -->
 
     <h3>Status</h3>
     <p class="small">Connected: <span id="connected"><%= status.connected %></span></p>

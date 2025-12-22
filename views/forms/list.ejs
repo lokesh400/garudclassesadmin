@@ -1,43 +1,126 @@
 <div class="mx-auto">
+
+  <%- include('../flash.ejs') %>
+
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
     <% forms.forEach(form => { %>
       <div class="bg-white shadow-lg hover:shadow-2xl rounded-xl p-6 flex flex-col justify-between transition-transform transform hover:-translate-y-1">
-        
-        <h3 class="text-2xl font-bold mb-2 text-gray-900"><%= form.title %></h3>
-        <p class="text-gray-600 mb-4 min-h-[48px]"><%= form.description || "No description provided" %></p>
 
+        <!-- FORM TITLE -->
+        <h3 class="text-2xl font-bold mb-2 text-gray-900">
+          <%= form.title %>
+        </h3>
+
+        <!-- DESCRIPTION -->
+        <p class="text-gray-600 mb-4 min-h-[48px]">
+          <%= form.description || "No description provided" %>
+        </p>
+
+        <!-- CREATED AT -->
         <div class="text-sm text-gray-500 mb-4 space-y-1">
-          <p>Created At: 
+          <p>
+            Created At: 
             <span class="font-medium text-gray-700">
               <%= new Date(form.createdAt).toLocaleString() %>
             </span>
           </p>
         </div>
 
-        <div class="flex justify-between items-center mt-auto space-x-2">
+        <!-- BUTTONS -->
+        <div class="flex flex-col space-y-2 mt-auto">
 
           <% if(currUser && (currUser.role === 'superadmin' || currUser.role === 'admin')) { %> 
-             <a href="/forms/<%= form._id %>/submissions"
-             class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg text-center transition">
-            View Submissions
-           </a>
-        <% } %>
+            <a href="/forms/<%= form._id %>/submissions"
+               class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg text-center transition">
+              View Submissions
+            </a>
+          <% } %>
 
-          <button onclick="copyLink('<%= form._id %>')"
-                  class="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded-lg text-center transition">
+          <!-- SHARE BUTTON -->
+          <button 
+            onclick="openShareModal('<%= form._id %>')"
+            class="bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded-lg text-center transition">
             Share
           </button>
+
+          <% if(currUser && (currUser.role === 'superadmin' )) { %> 
+            <form action="/forms/delete/<%= form._id %>" method="POST"
+                  onsubmit="return confirm('Are you sure you want to delete this form and all submissions?')">
+              <button 
+                class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg text-center transition w-full">
+                Delete Form
+              </button>
+            </form>
+          <% } %>
+
         </div>
       </div>
     <% }) %>
+
   </div>
 </div>
 
+
+<!-- ========================= -->
+<!-- SHARE MODAL -->
+<!-- ========================= -->
+<div id="shareModal" 
+     class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+
+  <div class="bg-white w-80 p-6 rounded shadow-lg space-y-4">
+
+    <h2 class="text-xl font-bold text-gray-900">
+      Share Form
+    </h2>
+    <!-- LINK DISPLAY -->
+    <p id="shareLink" class="text-sm text-blue-600 underline break-all"></p>
+    <!-- COPY -->
+    <button onclick="copyShareLink()"
+            class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 w-full rounded">
+      Copy Link
+    </button>
+    <!-- WHATSAPP -->
+    <a id="whatsappShare" target="_blank"
+       class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 w-full rounded block text-center">
+      Share via WhatsApp
+    </a>
+    <!-- EMAIL -->
+    <a id="emailShare" target="_blank"
+       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 w-full rounded block text-center">
+      Share via Email
+    </a>
+    <!-- CLOSE -->
+    <button onclick="closeShareModal()"
+            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 w-full rounded">
+      Close
+    </button>
+
+  </div>
+</div>
+
+
+
+<!-- ========================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================= -->
 <script>
-  function copyLink(formId) {
-    const link = `${window.location.origin}/forms/fill/${formId}`;
-    navigator.clipboard.writeText(link)
-      .then(() => alert("Form link copied: " + link))
-      .catch(err => console.error("Failed to copy link:", err));
+  let currentShareLink = "";
+  function openShareModal(formId) {
+    currentShareLink = `${window.location.origin}/forms/fill/${formId}`;
+    document.getElementById('shareLink').textContent = currentShareLink;
+    document.getElementById('whatsappShare').href = 
+      `https://wa.me/?text=${encodeURIComponent(currentShareLink)}`;
+    document.getElementById('emailShare').href =
+      `mailto:?subject=Form Link&body=${encodeURIComponent(currentShareLink)}`;
+    document.getElementById('shareModal').classList.remove('hidden');
+  }
+  function closeShareModal() {
+    document.getElementById('shareModal').classList.add('hidden');
+  }
+  function copyShareLink() {
+    navigator.clipboard.writeText(currentShareLink)
+      .then(() => alert("Form link copied!"))
+      .catch(() => alert("Unable to copy link"));
   }
 </script>

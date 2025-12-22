@@ -125,4 +125,68 @@ router.post("/edit/:id", async (req, res) => {
   }
 });
 
+
+
+//////////////////////////////////////
+/////////////////////////////////////
+/////Bulk Student Detals/////////////
+/////////////////////////////////////
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+router.get('/send/details/:BatchId',isLoggedIn,requireRole('superadmin', 'admin'),async (req, res) => {
+    try {
+      const results = await User.find({
+        batch: req.params.BatchId
+      }).populate('batch');
+      console.log('Results to send:', results.length)
+      if (!results.length) {
+        return res.status(404).json({
+          message: 'No submissions found for this form'
+        })
+      }
+      // ✅ Respond immediately
+      res.json({
+        message: 'Notifications are being sent in background'
+      })
+
+      // 🔥 BACKGROUND TASK
+      setImmediate(async () => {
+        for (const result of results) {
+          try {
+            if (!result) continue
+            /* ---------- EMAIL ---------- */
+            if (result.email) {
+              password = "Please Reset Your Password";
+              await sendStudentCredentials(
+                result.email,
+                result.username,
+                password
+              )
+              console.log(`📧 Email sent to ${result.email}`)
+              await delay(20000)
+            } else {
+              console.log('⚠️ WhatsApp client not ready or number missing')
+            }
+          } catch (singleErr) {
+            console.error(
+              `❌ Failed for submission ${result._id}:`,
+              singleErr.message
+            )
+          }
+        }
+        console.log('📨 Student credentials notifications completed')
+      })
+    } catch (err) {
+      console.error(err)
+      res.status(500).json({
+        message: 'Error starting background job',
+        error: err.message
+      })
+    }
+  }
+)
+
+
+
 module.exports = router;

@@ -1,19 +1,119 @@
-<h2 class="text-xl font-bold"><%= query.subject %></h2>
+<div class="max-w mx-auto mt-8 bg-white shadow-lg rounded-lg p-8">
 
-<p><b>Student:</b> <%= query.studentName %></p>
-<p><b>Description:</b> <%= query.description %></p>
-<p><b>Created By:</b> <%= query.createdBy.name %></p>
+  <!-- Heading -->
+  <h2 class="text-2xl font-bold text-gray-900 border-b pb-3">
+    <%= query.subject %>
+  </h2>
 
-<% if (query.status === "Open") { %>
-<form method="POST" action="/queries/<%= query._id %>/close">
-  <textarea name="remarks" placeholder="Closing remarks"
-    class="w-full border p-2 mt-4"></textarea>
+  <!-- Basic Details -->
+  <div class="mt-4 space-y-2 text-gray-700">
+    <p><span class="font-semibold">Student:</span> <%= query.studentName %></p>
+    <p><span class="font-semibold">Description:</span> <%= query.description %></p>
+    <p><span class="font-semibold">Created By:</span> <%= query.createdBy.name %></p>
+  </div>
 
-  <button class="bg-red-600 text-white px-4 py-2 mt-2">
+  <!-- Status Badge -->
+  <div class="mt-4">
+    <% if(query.status === "Open") { %>
+      <span class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+        OPEN
+      </span>
+    <% } else { %>
+      <span class="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
+        CLOSED
+      </span>
+    <% } %>
+  </div>
+
+  <!-- Follow Ups -->
+  <h3 class="text-xl font-semibold mt-8 mb-4 text-gray-900">
+    Follow-Ups
+  </h3>
+
+  <% if (followUps.length === 0) { %>
+    <p class="text-gray-500 italic">No follow-ups added yet.</p>
+  <% } else { %>
+    <div class="space-y-4">
+      <% followUps.forEach(followUp => { %>
+        <div class="bg-gray-50 p-4 rounded-lg border">
+          <p class="text-gray-800"><%= followUp.note %></p>
+          <p class="text-sm text-gray-500 mt-1">
+            <%= followUp.createdAt %>
+          </p>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <!-- Follow Up Form -->
+  <% if (query.status === "Open") { %>
+  <form action="/queries/<%= query.id %>/followups/new" method="POST" id="followUpForm" class="mt-6">
+    <textarea
+      name="note"
+      placeholder="Write a follow-up note..."
+      class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+      required
+    ></textarea>
+    
+    <button
+      class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg mt-3 transition">
+      Add Follow-Up
+    </button>
+  </form>
+  <% } %>
+
+  <!-- Close Query Button -->
+  <% if (query.status === "Open") { %>
+  <button
+    class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg mt-4 transition"
+    id="closeBtn">
     Close Query
   </button>
-</form>
-<% } else { %>
-<p><b>Remarks:</b> <%= query.remarks %></p>
-<p><b>Closed By:</b> <%= query.closedBy.name %></p>
-<% } %>
+  <% } %>
+
+  <!-- Close Form -->
+  <% if (query.status === "Open") { %>
+  <form
+    method="POST"
+    action="/queries/<%= query._id %>/close"
+    id="form-btn"
+    style="display: none;"
+    class="mt-6">
+
+    <textarea
+      name="remarks"
+      placeholder="Add closing remarks..."
+      class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-red-400 focus:outline-none"
+      required
+    ></textarea>
+
+    <button
+      class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg mt-3 transition">
+      Close Query
+    </button>
+  </form>
+  <% } else { %>
+
+  <!-- Closing Info -->
+  <div class="bg-gray-50 p-4 rounded-lg border mt-6 text-gray-800 space-y-2">
+    <p><span class="font-semibold">Remarks:</span> <%= query.remarks %></p>
+    <p><span class="font-semibold">Closed By:</span> <%= query.closedBy.name %></p>
+  </div>
+
+  <% } %>
+</div>
+
+<script>
+  const closeBtn = document.getElementById("closeBtn");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", function(event) {
+      if (!confirm("Are you sure you want to close this query?")) {
+        event.preventDefault();
+      } else {
+        document.getElementById("closeBtn").style.display = "none";
+        document.getElementById("followUpForm").style.display = "none";
+        document.getElementById("form-btn").style.display = "block";
+      }
+    });
+  }
+</script>

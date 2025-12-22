@@ -78,55 +78,177 @@ async function sendMail({ to, subject, html, text }) {
    SPECIFIC MAIL FUNCTIONS (REPLACEMENT FOR OLD ONES)
    ===================================================== */
 
-const sendUserCredentials = async (email, username, password) => {
-  return sendMail({
-    to: email,
-    subject: "Your Account Details",
-    html: `
-      <h2>Welcome to Garud Classes</h2>
+// const sendUserCredentials = async (email, username, password) => {
+//   return sendMail({
+//     to: email,
+//     subject: "Your Account Details",
+//     html: `
+//       <h2>Welcome to Garud Classes</h2>
+//       <p><strong>Username:</strong> ${username}</p>
+//       <p><strong>Password:</strong> ${password}</p>
+//       <p>Please change your password after login.</p>
+//     `,
+//   });
+// };
+
+// const sendStudentCredentials = async (email, username, password) => {
+//   return sendMail({
+//     to: email,
+//     subject: "Student Account Details",
+//     html: `
+//       <h2>Welcome to Garud Classes</h2>
+//       <p><strong>Username:</strong> ${username}</p>
+//       <p><strong>Password:</strong> ${password}</p>
+//       <p>Please change your password after login.</p>
+//     `,
+//   });
+// };
+
+// const sendFormConfirmation = async (email, message) => {
+//   return sendMail({
+//     to: email,
+//     subject: "Application Submitted Successfully",
+//     html: `<p>${message}</p>`,
+//   });
+// };
+
+// const sendStudentTimeTable = async (email, message) => {
+//   return sendMail({
+//     to: email,
+//     subject: "Time Table Updated",
+//     html: `<p>${message}</p>`,
+//   });
+// };
+
+// const sendAdmitCardUpdate = async (email, message) => {
+//   return sendMail({
+//     to: email,
+//     subject: "Admit Card Updated",
+//     html: `<p>${message}</p>`,
+//   });
+// };
+
+const sendOtp = async (email, subject,message) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:3000/send-otp",
+      {
+        email,
+        subject,
+        message
+      }
+    );
+    console.log("SMTP response:", response.data);
+    return response.data;
+  } catch (err) {
+    console.error("SMTP server error:", err.message);
+    return err;
+  }
+};
+
+
+const sendAdmitCardUpdate = async (email,message) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:3000/send-otp",
+      {
+        email,
+        subject: "Admit Card Update",
+        message
+      }
+    );
+    console.log("SMTP response:", response.data);
+    return response.data;
+  } catch (err) {
+    console.error("SMTP server error:", err.message);
+    return err;
+  }
+};
+
+const sendStudentTimeTable = async (email,message) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:3000/send-otp",
+      {
+        email,
+        subject: "Time Table Update",
+        message
+      }
+    );
+    console.log("SMTP response:", response.data);
+    return response.data;
+  } catch (err) {
+    console.error("SMTP server error:", err.message);
+    return err;
+  }
+};
+
+const sendFormConfirmation = async (email,message) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:3000/send-otp",
+      {
+        email,
+        subject: "Application Submitted Successfully",
+        message
+      }
+    );
+    console.log("SMTP response:", response.data);
+    return response.data;
+  } catch (err) {
+    console.error("SMTP server error:", err.message);
+    return err;
+  }
+};
+
+const sendUserCredentials = async (email,username,password) => {
+  try {
+    const message = `<h2>Welcome to Garud Classes</h2>
       <p><strong>Username:</strong> ${username}</p>
       <p><strong>Password:</strong> ${password}</p>
       <p>Please change your password after login.</p>
-    `,
-  });
+    `;
+    const response = await axios.post(
+      "http://localhost:3000/send-otp",
+      {
+        email,
+        subject: "Application Submitted Successfully",
+        message
+      }
+    );
+    console.log("SMTP response:", response.data);
+    return response.data;
+  } catch (err) {
+    console.error("SMTP server error:", err.message);
+    return err;
+  }
 };
 
-const sendStudentCredentials = async (email, username, password) => {
-  return sendMail({
-    to: email,
-    subject: "Student Account Details",
-    html: `
-      <h2>Welcome to Garud Classes</h2>
+const sendStudentCredentials = async (email,username,password) => {
+  try {
+    const message = `<h2>Welcome to Garud Classes</h2>
       <p><strong>Username:</strong> ${username}</p>
       <p><strong>Password:</strong> ${password}</p>
       <p>Please change your password after login.</p>
-    `,
-  });
+    `;
+    const response = await axios.post(
+      "http://localhost:3000/send-otp",
+      {
+        email,
+        subject: "Application Submitted Successfully",
+        message
+      }
+    );
+    console.log("SMTP response:", response.data);
+    return response.data;
+  } catch (err) {
+    console.error("SMTP server error:", err.message);
+    return err;
+  }
 };
 
-const sendFormConfirmation = async (email, message) => {
-  return sendMail({
-    to: email,
-    subject: "Application Submitted Successfully",
-    html: `<p>${message}</p>`,
-  });
-};
+const axios = require("axios");
 
-const sendStudentTimeTable = async (email, message) => {
-  return sendMail({
-    to: email,
-    subject: "Time Table Updated",
-    html: `<p>${message}</p>`,
-  });
-};
-
-const sendAdmitCardUpdate = async (email, message) => {
-  return sendMail({
-    to: email,
-    subject: "Admit Card Updated",
-    html: `<p>${message}</p>`,
-  });
-};
 
 // EXPORTS
 module.exports = {
@@ -135,4 +257,5 @@ module.exports = {
   sendFormConfirmation,
   sendStudentTimeTable,
   sendAdmitCardUpdate,
+  sendOtp
 };

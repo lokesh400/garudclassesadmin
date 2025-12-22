@@ -25,9 +25,15 @@
 
           <!-- Buttons -->
           <div class="mt-4 sm:mt-0 flex flex-wrap gap-2">
+
             <a href="/api/timetable/<%= batch._id %>"
                class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
               🕒 Timetable
+            </a>
+
+            <a href="/api/batches/<%= batch._id %>"
+               class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
+              View Batch
             </a>
 
             <a href="/api/batches/add/<%= batch._id %>"

@@ -9,15 +9,18 @@ const expressLayouts = require("express-ejs-layouts");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
+const flash = require("connect-flash");
+const axios = require("axios");
+const QRCode = require("qrcode");
 
 const connectDB = require("./config/db");
 const User = require("./models/User");
 
-const {
-  client,
-  initSocket,
-  waStatus,
-} = require("./whatsapp/whatsappClient");
+// const {
+//   client,
+//   initSocket,
+//   waStatus,
+// } = require("./whatsapp/whatsappClient");
 
 // Routes
 const authRoutes = require("./routes/auth");
@@ -81,6 +84,7 @@ app.use(passport.session());
 passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+app.use(flash());
 
 app.use((req, res, next) => {
   res.locals.currUser = req.user || null;
@@ -90,7 +94,7 @@ app.use((req, res, next) => {
 
 
 /* ---------------- SOCKET.IO ---------------- */
-initSocket(io);
+// initSocket(io);
 
 /* ---------------- ROUTES ---------------- */
 app.use("/api/auth", authRoutes);
@@ -104,6 +108,8 @@ app.use("/admitcard", admitcardRouter);
 app.use("/marks", marksRouter);
 app.use("/", webAuthRoutes);
 app.use("/", queryRoutes);
+const resetPasswordRoute = require("./routes/password");
+app.use(resetPasswordRoute);
 
 
 app.use("/auth", mobileAuthRoutes);
@@ -121,26 +127,30 @@ app.get("/admin", isLoggedIn, requireRole("superadmin"), (req, res) => {
   });
 });
 
-app.get("/whatsapp", isLoggedIn, requireRole("superadmin"), (req, res) => {
-  res.render("whatsapp/index", {
-    status: waStatus,
-    title: "WhatsApp",
-    pageTitle: "WhatsApp",
-    activePage: "whatsapp",
-  });
-});
+// app.get("/whatsapp", isLoggedIn, requireRole("superadmin"), async (req, res) => {
+//   const response = await axios.get("http://localhost:3000/whatsapp");
+//       console.log(response.data);
+//       const qrImage = await QRCode.toDataURL(response.data.status.qr);
+//       res.render("whatsapp/index", {
+//       status: response.data.status,
+//       qrImage,
+//       title: "WhatsApp",
+//       pageTitle: "WhatsApp",
+//       activePage: "whatsapp",
+//     });
+//    });
 
-app.get("/send",isLoggedIn,requireRole("superadmin"), async (req, res) => {
-  const users = await User.find({role:"student"}).populate("batch");
-  console.log(users);
-  res.render("whatsapp/message", {
-    users,
-    status: waStatus,
-    title: "WhatsApp",
-    pageTitle: "WhatsApp",
-    activePage: "whatsapp",
-  });
-});
+// app.get("/send",isLoggedIn,requireRole("superadmin"), async (req, res) => {
+//   const users = await User.find({role:"student"}).populate("batch");
+//   console.log(users);
+//   res.render("whatsapp/message", {
+//     users,
+//     status: waStatus,
+//     title: "WhatsApp",
+//     pageTitle: "WhatsApp",
+//     activePage: "whatsapp",
+//   });
+// });
 
 app.use((err, req, res, next) => {
   console.error(err);

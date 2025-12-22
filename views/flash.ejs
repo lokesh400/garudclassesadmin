@@ -1,13 +1,11 @@
-<div class="max-w-lg mx-auto mt-6">
-  <% if (success_msg.length > 0) { %>
-    <div class="bg-green-100 text-green-800 px-4 py-3 rounded-lg mb-4">
-      <%= success_msg %>
-    </div>
-  <% } %>
+<% if (messages && messages.success && messages.success.length > 0 ) { %>
+  <p class="mb-4 text-green-600 font-medium text-center">
+    <%= messages.success %>
+  </p>
+<% } %>
 
-  <% if (error_msg.length > 0) { %>
-    <div class="bg-red-100 text-red-800 px-4 py-3 rounded-lg mb-4">
-      <%= error_msg %>
-    </div>
-  <% } %>
-</div>
+<% if (messages && messages.error && messages.error.length > 0 ) { %>
+  <p class="mb-4 text-red-600 font-medium text-center">
+    <%= messages.error %>
+  </p>
+<% } %>

@@ -3,6 +3,7 @@
     "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.3",
+    "connect-flash": "^0.1.1",
     "connect-mongo": "^4.6.0",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",

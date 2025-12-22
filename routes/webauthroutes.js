@@ -15,6 +15,7 @@ router.get("/login", async (req, res) => {
     pageTitle: "Login",
     activePage: "login",
     layout: false,
+    messages: req.flash()
   });
 });
 
@@ -25,22 +26,27 @@ router.post("/login", (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) {
       console.error("ERR:", err);
+      req.flash("error", "Authentication error");
       return next(err);
     }
     if (!user) {
       console.log("LOGIN FAILED:", info);
+      req.flash("error", info.message);
       return res.redirect("/login");
     }
 
     req.logIn(user, (err) => {
       if (err) return next(err);
       if (user.role === "receptionist") {
+        req.flash("success", "Login successful");
         return res.redirect("/receptionist");
       }
       if (user.role === "admin") {
+        req.flash("success", "Login successful");
         return res.redirect("/admin/only");
       }
       console.log("LOGIN SUCCESS:", user.username);
+      req.flash("success", "Login successful");
       return res.redirect("/admin");
     });
   })(req, res, next);
@@ -156,6 +162,24 @@ router.post("/teachers/:id/edit", isLoggedIn, requireRole("superadmin"), async (
 router.post("/teachers/:id/delete", isLoggedIn, requireRole("superadmin"), async (req, res) => {
   await User.findByIdAndDelete(req.params.id);
   res.redirect("/teachers/all");
+});
+
+
+
+
+/////////////////////
+////logout
+router.get("/logout", (req, res, next) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+
+    req.session.destroy(() => {
+      req.flash("success", "Logged out successfully");
+      res.redirect("/login");
+    });
+  });
 });
 
 module.exports = router;
