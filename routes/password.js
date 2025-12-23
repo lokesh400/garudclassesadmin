@@ -4,6 +4,64 @@ const User = require("../models/User");
 const Otp = require("../models/Otp");
 const crypto = require("crypto");
 const { sendOtp } = require("../utils/mailer"); // update filename if different
+const Brevo = require('@getbrevo/brevo');
+
+/* ---------------- BREVO SETUP (WORKING) ---------------- */
+const brevo = new Brevo.TransactionalEmailsApi();
+
+// ✅ Correct way to set API key
+brevo.setApiKey(
+  Brevo.TransactionalEmailsApiApiKeys.apiKey,
+  process.env.BREVO_API_KEY
+);
+
+/* ---------------- OTP MAIL FUNCTION ---------------- */
+async function sendOtpEmail(email, otp) {
+  const mail = new Brevo.SendSmtpEmail();
+
+  mail.to = [{ email }];
+  mail.templateId = 1; // ✅ transactional template ID
+
+  mail.sender = {
+    email: process.env.SENDER_EMAIL,
+    name: process.env.SENDER_NAME
+  };
+
+  // ✅ pass dynamic values to template
+  mail.params = {
+    otp: otp
+  };
+
+  // ✅ force transactional (no unsubscribe)
+  mail.headers = {
+    'X-Mailin-transactional': 'true'
+  };
+
+  return brevo.sendTransacEmail(mail);
+}
+
+/* ---------------- ROUTE ---------------- */
+// app.get('/mail', async (req, res) => {
+//   try {
+//     const email = "lokeshbadgujjar400@gmail.com";
+
+//     const otp = Math.floor(100000 + Math.random() * 900000);
+
+//     await sendOtpEmail(email, otp);
+
+//     res.json({
+//       success: true,
+//       message: 'OTP sent successfully'
+//     });
+//   } catch (err) {
+//     console.error(err.response?.data || err.message);
+//     res.status(500).json({
+//       success: false,
+//       error: err.response?.data || err.message
+//     });
+//   }
+// });
+
 
 // RESET PAGE
 router.get("/user/reset-password", (req, res) => {
@@ -36,11 +94,9 @@ router.post("/reset-password", async (req, res) => {
       username,
       otp: code
     });
+    const otp = code;
     const email = user.email;
-    const subject = "Garud Classes Password Reset OTP";
-    const message = "Dear User,\n\nYour OTP for password reset is: " + code + "\n\nIf you did not request this, please ignore this email.\n\nBest regards,\nTeach Team Garud Classes";
-    console.log("Sending OTP to:", email);
-    await sendOtp(email, subject, message);
+    await sendOtpEmail(email, otp);
     req.flash("success", "OTP has been sent to your registered email");
     return res.render("reset-password", {
       stage: "otp",
@@ -84,9 +140,7 @@ router.post("/reset-password", async (req, res) => {
     // update password
     await user.setPassword(newPassword);
     await user.save();
-
     await Otp.deleteMany({ userId: user._id });
-
     req.flash("success", "Password updated successfully 🎉");
     return res.redirect("/login");
   }

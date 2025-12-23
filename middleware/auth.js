@@ -27,17 +27,13 @@ function requireRole(...roles) {
     if (!req.isAuthenticated()) {
       return res.redirect("/login");
     }
-
-    // superadmin always allowed
     if (req.user.role === "superadmin") {
       return next();
     }
 
-    // allowed roles
     if (roles.includes(req.user.role)) {
       return next();
     }
-
     return res.status(403).render("protected", {
       title: "Access Denied",
       pageTitle: "Access Denied",
