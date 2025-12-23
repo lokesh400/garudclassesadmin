@@ -15,13 +15,37 @@ brevo.setApiKey(
   process.env.BREVO_API_KEY
 );
 
+const contactApi = new Brevo.ContactsApi();
+contactApi.setApiKey(
+  Brevo.ContactsApiApiKeys.apiKey,
+  process.env.BREVO_API_KEY
+);
+const transactionalApi = new Brevo.TransactionalEmailsApi();
+// Function to unblock email if blacklisted
+async function unblockIfBlacklisted(email) {
+  try {
+    await transactionalApi.deleteTransacBlockedContacts(email);
+    console.log(`✅ Successfully unblocked email: ${email}`);
+  } catch (e) {
+    // Brevo throws error if email is NOT blocked → ignore safely
+    if (e.response?.status === 404) {
+      console.log('ℹ️ Email was not blocked');
+    } else {
+      console.error(
+        '❌ Error unblocking email:',
+        e.response?.body || e.message
+      );
+    }
+  }
+}
+
+
+
 /* ---------------- OTP MAIL FUNCTION ---------------- */
 async function sendOtpEmail(email, otp) {
   const mail = new Brevo.SendSmtpEmail();
-
   mail.to = [{ email }];
   mail.templateId = 1; // ✅ transactional template ID
-
   mail.sender = {
     email: process.env.SENDER_EMAIL,
     name: process.env.SENDER_NAME
@@ -96,6 +120,7 @@ router.post("/reset-password", async (req, res) => {
     });
     const otp = code;
     const email = user.email;
+    await unblockIfBlacklisted(email);
     await sendOtpEmail(email, otp);
     req.flash("success", "OTP has been sent to your registered email");
     return res.render("reset-password", {

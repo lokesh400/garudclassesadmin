@@ -39,7 +39,7 @@ router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) =
       return password;
       }
       const password = generateStrongPassword(8);
-    const { name,email, batchId,username,number,fatherName,motherName,address,admissionFee,tuitionFee,transportFee,otherFee } = req.body;
+    const { name,email, batchId,number,fatherName,motherName,address,admissionFee,tuitionFee,transportFee,otherFee } = req.body;
     if (!name || !email || !batchId)
       return res.status(400).json({ message: 'All fields are required' });
     const batch = await Batch.findById(batchId);
@@ -50,7 +50,7 @@ router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) =
     const roll = await generateRollNumber(batch);
     const student = new User({
       name,
-      username,
+      username:roll,
       email,
       batch: batchId,
       rollNumber: roll,
