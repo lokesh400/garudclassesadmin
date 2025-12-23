@@ -41,22 +41,19 @@
     const tuitionFee = document.getElementById("tuitionFee").value;
     const transportFee = document.getElementById("transportFee").value;
     const otherFee = document.getElementById("otherFee").value;
-    const username = document.getElementById("username").value;
 
     try {
       const res = await fetch("/api/students/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name, email, batchId, username, number,
+          name, email, batchId, number,
           fatherName, motherName, address,
           admissionFee, tuitionFee, transportFee, otherFee
         }),
       });
-
       const data = await res.json();
       alert(data.message);
-
       if (data.success) location.reload();
     } catch (err) {
       alert("Something went wrong");

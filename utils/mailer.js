@@ -78,18 +78,18 @@ async function sendMail({ to, subject, html, text }) {
    SPECIFIC MAIL FUNCTIONS (REPLACEMENT FOR OLD ONES)
    ===================================================== */
 
-// const sendUserCredentials = async (email, username, password) => {
-//   return sendMail({
-//     to: email,
-//     subject: "Your Account Details",
-//     html: `
-//       <h2>Welcome to Garud Classes</h2>
-//       <p><strong>Username:</strong> ${username}</p>
-//       <p><strong>Password:</strong> ${password}</p>
-//       <p>Please change your password after login.</p>
-//     `,
-//   });
-// };
+const sendUserCredentials = async (email, username, password) => {
+  return sendMail({
+    to: email,
+    subject: "Your Account Details",
+    html: `
+      <h2>Welcome to Garud Classes</h2>
+      <p><strong>Username:</strong> ${username}</p>
+      <p><strong>Password:</strong> ${password}</p>
+      <p>Please change your password after login.</p>
+    `,
+  });
+};
 
 // const sendStudentCredentials = async (email, username, password) => {
 //   return sendMail({
@@ -201,28 +201,28 @@ const sendFormConfirmation = async (email,message) => {
   }
 };
 
-const sendUserCredentials = async (email,username,password) => {
-  try {
-    const message = `<h2>Welcome to Garud Classes</h2>
-      <p><strong>Username:</strong> ${username}</p>
-      <p><strong>Password:</strong> ${password}</p>
-      <p>Please change your password after login.</p>
-    `;
-    const response = await axios.post(
-      "http://localhost:3000/send-otp",
-      {
-        email,
-        subject: "Application Submitted Successfully",
-        message
-      }
-    );
-    console.log("SMTP response:", response.data);
-    return response.data;
-  } catch (err) {
-    console.error("SMTP server error:", err.message);
-    return err;
-  }
-};
+// const sendUserCredentials = async (email,username,password) => {
+//   try {
+//     const message = `<h2>Welcome to Garud Classes</h2>
+//       <p><strong>Username:</strong> ${username}</p>
+//       <p><strong>Password:</strong> ${password}</p>
+//       <p>Please change your password after login.</p>
+//     `;
+//     const response = await axios.post(
+//       "http://localhost:3000/send-otp",
+//       {
+//         email,
+//         subject: "Application Submitted Successfully",
+//         message
+//       }
+//     );
+//     console.log("SMTP response:", response.data);
+//     return response.data;
+//   } catch (err) {
+//     console.error("SMTP server error:", err.message);
+//     return err;
+//   }
+// };
 
 const sendStudentCredentials = async (email,username,password) => {
   try {

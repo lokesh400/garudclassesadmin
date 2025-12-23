@@ -10,7 +10,7 @@ const { isLoggedIn, requireRole } = require("../middleware/auth");
 const router = express.Router();
 
 async function generateRollNumber(batch) {
-  const yearPart = batch.year.slice(-2);
+  const yearPart = batch.year[2].toString() + batch.year[3].toString();
   const classPart = batch.name
   let coursePart = '';
   if (batch.courseType === 'JEE') coursePart = 'N';
@@ -24,6 +24,7 @@ async function generateRollNumber(batch) {
 
 // Admin: Create student
 router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) => {
+  console.log(req.body);
   try {
      function generateStrongPassword(length = 10) {
       const chars =
@@ -44,10 +45,11 @@ router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) =
       return res.status(400).json({ message: 'All fields are required' });
     const batch = await Batch.findById(batchId);
     if (!batch) return res.status(404).json({ message: 'Batch not found' });
+    const roll = await generateRollNumber(batch);
+    const username = roll;
     const existingUser = await User.findOne({ username:username });
     if (existingUser)
-      return res.status(400).json({ message: 'User with this username already exists' });
-    const roll = await generateRollNumber(batch);
+    return res.status(400).json({ message: 'User with this username already exists' });
     const student = new User({
       name,
       username:roll,
