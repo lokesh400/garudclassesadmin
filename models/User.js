@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
     unique: true
   },
   email: String,
+  image:String,
   rollNumber: String,
   number: Number,
   fatherName: String,

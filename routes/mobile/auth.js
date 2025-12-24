@@ -36,7 +36,8 @@ router.post("/login", (req, res, next) => {
       res.json({
          loggedIn: true,
          user: req.user.email,
-         userId: req.user.id
+         userId: req.user.id,
+         role:req.user.role
   });
     });
   })(req, res, next);
@@ -47,7 +48,7 @@ router.get("/check", (req, res) => {
   console.log("CHECK SESSION:", req.isAuthenticated());
   if (req.isAuthenticated()) {
     console.log("USER LOGGED IN:", req.user.id);
-    res.json({ loggedIn: true, user: req.user.email,userId: req.user.id });
+    res.json({ loggedIn: true, user: req.user.email,userId: req.user.id,role:req.user.role });
   } else {
     res.json({ loggedIn: false });
   }
