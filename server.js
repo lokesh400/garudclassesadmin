@@ -108,6 +108,8 @@ app.use("/admitcard", admitcardRouter);
 app.use("/marks", marksRouter);
 app.use("/", webAuthRoutes);
 app.use("/", queryRoutes);
+app.use("/",require('./routes/userEdit'))
+
 const resetPasswordRoute = require("./routes/password");
 app.use(resetPasswordRoute);
 

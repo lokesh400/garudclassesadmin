@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
   fatherName: String,
   motherName: String,
   address: String,
+  editAllowed:Boolean,
   role: {
     type: String,
     enum: ["admin", "teacher", "student", "superadmin", "receptionist"],

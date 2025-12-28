@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Data</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #e5e7eb;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Form container */
+form {
+  background: #ffffff;
+  width: 100%;
+  max-width: 900px;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+/* Header */
+h2 {
+  text-align: center;
+  margin-bottom: 5px;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.subtitle {
+  text-align: center;
+  color: #555;
+  margin-bottom: 30px;
+}
+
+/* Profile image */
+.profile-pic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.profile-pic img {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  border: 4px solid #1d4ed8;
+  object-fit: cover;
+}
+
+.profile-pic label {
+  margin-top: 12px;
+  background: #1d4ed8;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.profile-pic input {
+  display: none;
+}
+
+/* Section title */
+.section-title {
+  background: #1f2937;
+  color: white;
+  padding: 12px;
+  font-weight: bold;
+  margin-top: 40px;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-top: 25px;
+}
+
+.full {
+  grid-column: span 2;
+}
+
+/* Label */
+.label {
+  display: block;
+  background: #dbeafe;
+  border-left: 6px solid #1d4ed8;
+  padding: 10px 12px;
+  font-weight: 800;
+  color: #1e3a8a;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+/* INPUT — BIG, BOLD, ALWAYS HIGHLIGHTED */
+.input {
+  width: 100%;
+  padding: 16px 18px;
+  font-size: 18px;
+  border-radius: 8px;
+  border: 4px solid #2563eb; /* ALWAYS VISIBLE */
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+/* Focus */
+.input:focus {
+  border-color: #1e40af;
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.3);
+}
+
+/* Readonly */
+.input[readonly] {
+  background: #e5e7eb;
+  border-color: #6b7280;
+  cursor: not-allowed;
+}
+
+/* Submit */
+button {
+  margin-top: 40px;
+  padding: 16px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #15803d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .full {
+    grid-column: span 1;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<form action="/user/profile/edit" method="POST" enctype="multipart/form-data">
+
+  <h2>EDIT PROFILE</h2>
+  <p class="subtitle">All fields are clearly marked</p>
+
+  <!-- Profile Image -->
+  <div class="profile-pic">
+    <img id="preview" src="<%= user.image || '/images/default-user.png' %>">
+    <label>
+      Change Photo
+      <input type="file" name="image" onchange="previewImage(event)">
+    </label>
+  </div>
+
+  <!-- Personal -->
+  <div class="section-title">PERSONAL DETAILS</div>
+  <div class="grid">
+    <div>
+      <label class="label">FULL NAME</label>
+      <input class="input" name="name" value="<%= user.name %>">
+    </div>
+
+    <div>
+      <label class="label">USERNAME</label>
+      <input class="input" name="username" value="<%= user.username %>" readonly>
+    </div>
+
+    <div>
+      <label class="label">ROLL NUMBER</label>
+      <input class="input" name="rollNumber" value="<%= user.rollNumber || '' %>" readonly>
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div class="section-title">CONTACT INFORMATION</div>
+  <div class="grid">
+    <div>
+      <label class="label">EMAIL</label>
+      <input class="input" name="email" value="<%= user.email || '' %>">
+    </div>
+
+    <div>
+      <label class="label">PHONE</label>
+      <input class="input" name="number" value="<%= user.number || '' %>">
+    </div>
+
+    <div class="full">
+      <label class="label">ADDRESS</label>
+      <input class="input" name="address" value="<%= user.address || '' %>">
+    </div>
+  </div>
+
+  <!-- Family -->
+  <div class="section-title">FAMILY DETAILS</div>
+  <div class="grid">
+    <div>
+      <label class="label">FATHER'S NAME</label>
+      <input class="input" name="fatherName" value="<%= user.fatherName || '' %>">
+    </div>
+
+    <div>
+      <label class="label">MOTHER'S NAME</label>
+      <input class="input" name="motherName" value="<%= user.motherName || '' %>">
+    </div>
+  </div>
+
+  <button>SAVE CHANGES</button>
+
+</form>
+
+<script>
+function previewImage(event) {
+  document.getElementById("preview").src =
+    URL.createObjectURL(event.target.files[0]);
+}
+</script>
+
+</body>
+</html>
