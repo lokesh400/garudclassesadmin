@@ -15,12 +15,7 @@ const QRCode = require("qrcode");
 
 const connectDB = require("./config/db");
 const User = require("./models/User");
-
-// const {
-//   client,
-//   initSocket,
-//   waStatus,
-// } = require("./whatsapp/whatsappClient");
+const Batch = require("./models/Batch");
 
 // Routes
 const authRoutes = require("./routes/auth");
@@ -121,11 +116,15 @@ const { isLoggedIn, requireRole } = require("./middleware/auth");
 /* ---------------- PAGES ---------------- */
 app.get("/", (req, res) => res.redirect("/admin"));
 
-app.get("/admin", isLoggedIn, requireRole("superadmin"), (req, res) => {
+app.get("/admin", isLoggedIn, requireRole("superadmin"), async (req, res) => {
+  const users = await User.find({role:"student"})
+  const batch = await Batch.find()
   res.render("admin", {
     title: "Dashboard",
     pageTitle: "Dashboard",
     activePage: "dashboard",
+    students:users.length,
+    batches:batch.length
   });
 });
 

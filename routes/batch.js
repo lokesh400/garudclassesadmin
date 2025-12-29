@@ -3,6 +3,10 @@ const Batch = require("../models/Batch.js");
 const User = require("../models/User.js");
 const Form = require("../models/Form.js");
 const Marks = require("../models/Marks.js");
+const XLSX = require("xlsx");
+const fs = require("fs");
+const path = require("path");
+const ExcelJS = require("exceljs");
 const { isLoggedIn, requireRole } = require("../middleware/auth");
 
 const router = express.Router();
@@ -115,6 +119,57 @@ router.post("/:id/delete", async (req, res) => {
 });
 
 
+
+/////////////////////////////////////////////
+////////////////////////////////////////////
+//////List Of Student Details//////////////
+//////////////////////////////////////////
+/////////////////////////////////////////
+// 🧾 Download Excel template for a batch
+router.get("/data/download/:batchId", isLoggedIn, requireRole("admin"), async (req, res) => {
+  try {
+    const batchId = req.params.batchId;
+    const batch = await Batch.findById(batchId);
+    const students = await User.find({ batch: batchId }).sort({ rollNumber: 1 });
+    if (!batch) return res.status(404).send("Batch not found");
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet(`${batch.name} Marks`);    
+    const columns =
+         [
+            { header: "Name", key: "name", width: 25 },
+            { header: "Roll Number", key: "rollNumber", width: 15 },
+            { header: "Username", key: "username", width: 15 },
+            { header: "Email", key: "email", width: 15 },
+            { header: "Number", key: "number", width: 15 },
+            { header: "Father's Name", key: "fatherName", width: 15 },
+            { header: "Mother's Name", key: "motherName", width: 15 },
+            { header: "Address", key: "address", width: 15 },
+          ];
+    sheet.columns = columns;
+    students.forEach((s) => {
+      sheet.addRow({
+        name: s.name,
+        rollNumber: s.rollNumber,
+        username: s.username,
+        email:s.email,
+        number:s.number,
+        fatherName:s.fatherName,
+        motherName:s.motherName,
+        address:s.address
+      });
+    });
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${batch.name.replace(/\s+/g, "_")}_student_details.xlsx`
+    );
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error generating Excel template");
+  }
+});
 
 
 module.exports = router;

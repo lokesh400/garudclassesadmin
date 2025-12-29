@@ -84,8 +84,8 @@ router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) =
 // Admin: List students
 router.get("/all/:id", async (req, res) => {
   try {
-    const students = await User.find({ batch: req.params.id }).populate("batch");
-    res.render("batch/all-students", { students,
+    const students = await User.find({ batch: req.params.id }).populate("batch").lean();
+    res.render("batch/all-students", { users:students,
       title: 'All Students',
       pageTitle: 'All Students',
       activePage: 'students',
@@ -101,7 +101,7 @@ router.get("/all/:id", async (req, res) => {
 ///////
 router.get("/all", async (req, res) => {
   try {
-    const users = await User.find().populate("batch").lean();
+    const users = await User.find({role:"student"}).populate("batch").lean();
     res.render("students/all-students", { title: "All Students", users ,
       title: "All Students",
       pageTitle: "All Students",
@@ -117,17 +117,15 @@ router.get("/all", async (req, res) => {
 ///////////////////////////
 router.post("/edit/:id", async (req, res) => {
   try {
-    const { name, username, parent, rollNumber, role,number } = req.body;
-    console.log(req.body);
-    await User.findByIdAndUpdate(req.params.id, { name, username, parent, rollNumber, role,number });
+    const { name,email,number,fatherName,motherName,address,editAllowed } = req.body;
+    await User.findByIdAndUpdate(req.params.id, {  name,email,number,fatherName,motherName,address,editAllowed });
     res.json({ success: true, message: "User updated successfully!" });
+    console.log(req.body)
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: "Failed to update user." });
   }
 });
-
-
 
 //////////////////////////////////////
 /////////////////////////////////////

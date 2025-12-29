@@ -1,87 +1,107 @@
-<div class="max-w-7xl mx-auto">
-
-  <!-- Header -->
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-semibold text-gray-800">
-      Student Queries
-    </h1>
-
-    <a
-      href="/queries/new"
-      class="bg-green-600 hover:bg-green-700 transition text-white px-5 py-2 rounded-lg shadow"
-    >
-      + Add Query
-    </a>
+<div class="max-w-7xl mx-auto p-4">
+  <!-- Enhanced Filters -->
+  <div class="flex flex-wrap gap-4 items-end mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Query Created</label>
+      <input type="date" id="queryDateFilter" class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Latest Follow-up Date</label>
+      <input type="date" id="followUpDateFilter" class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Created By</label>
+      <input type="text" id="userFilter" placeholder="Staff name..." class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+    </div>
+    <button onclick="clearFilters()" class="text-sm text-red-500 font-medium px-2 py-2">Reset</button>
   </div>
 
-  <!-- Table Card -->
-  <div class="bg-white rounded-xl shadow overflow-x-auto">
-    <table class="min-w-full text-sm text-left text-gray-700">
-      <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+  <div class="bg-white rounded-xl shadow overflow-hidden">
+    <table class="min-w-full text-sm text-left">
+      <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
         <tr>
-          <th class="px-6 py-4">Student</th>
-          <th class="px-6 py-4">Contact</th>
+          <th class="px-6 py-4">Student & Description</th>
+          <th class="px-6 py-4">Latest Follow-up</th>
           <th class="px-6 py-4">Status</th>
           <th class="px-6 py-4">Created By</th>
           <th class="px-6 py-4">Created At</th>
-          <th class="px-6 py-4">Closed By</th>
-          <th class="px-6 py-4">Closed At</th>
           <th class="px-6 py-4 text-center">Action</th>
         </tr>
       </thead>
-
-      <tbody class="divide-y">
+      <tbody class="divide-y" id="queryTableBody">
         <% queries.forEach(q => { %>
-          <tr class="hover:bg-gray-50 transition">
+          <!-- Store dates in data attributes for JS filtering -->
+          <tr class="hover:bg-gray-50 transition query-row" 
+              data-query-date="<%= q.createdAt.toISOString().split('T')[0] %>"
+              data-followup-date="<%= q.latestFollowUp ? q.latestFollowUp.createdAt.toISOString().split('T')[0] : '' %>"
+              data-creator="<%= q.createdBy?.name.toLowerCase() %>">
             
-            <td class="px-6 py-4 font-medium text-gray-900">
-              <%= q.studentName %>
+            <td class="px-6 py-4">
+              <div class="font-bold text-gray-900"><%= q.studentName %></div>
+              <div class="text-gray-500 text-xs truncate max-w-xs"><%= q.description || 'No description' %></div>
             </td>
 
             <td class="px-6 py-4">
-              <%= q.mobileNumber %>
-            </td>
-
-            <td class="px-6 py-4">
-              <% if (q.status === "Open") { %>
-                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-semibold">
-                  Open
-                </span>
+              <% if (q.latestFollowUp) { %>
+                <div class="text-gray-800 font-medium"><%= q.latestFollowUp.note %></div>
+                <div class="text-blue-500 text-[10px] font-bold uppercase tracking-wider">
+                  Updated: <%= q.latestFollowUp.createdAt.toLocaleDateString() %>
+                </div>
               <% } else { %>
-                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">
-                  Closed
-                </span>
+                <span class="text-gray-400 italic text-xs">No follow-ups</span>
               <% } %>
             </td>
 
             <td class="px-6 py-4">
-              <%= q.createdBy?.name %>
+              <span class="<%= q.status === 'Open' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %> px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                <%= q.status %>
+              </span>
             </td>
 
-            <td class="px-6 py-4 text-gray-500">
-              <%= q.createdAt.toLocaleDateString() %>
-            </td>
-
-            <td class="px-6 py-4">
-              <%= q.closedBy?.name || "-" %>
-            </td>
-
-            <td class="px-6 py-4 text-gray-500">
-              <%= q.closedAt ? q.closedAt.toLocaleDateString() : "-" %>
-            </td>
-
+            <td class="px-6 py-4 text-gray-600"><%= q.createdBy?.name %></td>
+            <td class="px-6 py-4 text-gray-400 text-xs"><%= q.createdAt.toLocaleDateString() %></td>
             <td class="px-6 py-4 text-center">
-              <a
-                href="/queries/<%= q._id %>"
-                class="text-blue-600 hover:text-blue-800 font-medium"
-              >
-                View →
-              </a>
+              <a href="/queries/<%= q._id %>" class="bg-blue-50 text-blue-600 px-3 py-1 rounded hover:bg-blue-600 hover:text-white transition">View</a>
             </td>
-
           </tr>
         <% }) %>
       </tbody>
     </table>
   </div>
 </div>
+
+<script>
+  const queryDateInput = document.getElementById('queryDateFilter');
+  const followUpDateInput = document.getElementById('followUpDateFilter');
+  const userInput = document.getElementById('userFilter');
+  const rows = document.querySelectorAll('.query-row');
+
+  function applyFilters() {
+    const qDate = queryDateInput.value;
+    const fDate = followUpDateInput.value;
+    const uName = userInput.value.toLowerCase();
+
+    rows.forEach(row => {
+      const rowQDate = row.getAttribute('data-query-date');
+      const rowFDate = row.getAttribute('data-followup-date');
+      const rowCreator = row.getAttribute('data-creator');
+
+      const matchesQDate = !qDate || rowQDate === qDate;
+      const matchesFDate = !fDate || rowFDate === fDate;
+      const matchesUser = !uName || rowCreator.includes(uName);
+
+      row.style.display = (matchesQDate && matchesFDate && matchesUser) ? "" : "none";
+    });
+  }
+
+  function clearFilters() {
+    queryDateInput.value = "";
+    followUpDateInput.value = "";
+    userInput.value = "";
+    applyFilters();
+  }
+
+  [queryDateInput, followUpDateInput, userInput].forEach(el => {
+    el.addEventListener('input', applyFilters);
+  });
+</script>

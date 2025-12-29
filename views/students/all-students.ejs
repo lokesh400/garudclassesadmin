@@ -1,5 +1,7 @@
+<!-- Container for the User Table -->
 <div class="bg-white p-6 rounded-lg shadow">
   <div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold text-gray-800">User Management</h1>
     <input
       type="text"
       id="searchInput"
@@ -8,97 +10,150 @@
     />
   </div>
 
-  <table class="min-w-full border border-gray-200" id="usersTable">
-    <thead class="bg-gray-100">
-      <tr>
-        <th class="py-2 px-4 border">Name</th>
-        <th class="py-2 px-4 border">Username</th>
-        <th class="py-2 px-4 border">Phone</th>
-        <th class="py-2 px-4 border">F.Name</th>
-        <th class="py-2 px-4 border">Roll No</th>
-        <th class="py-2 px-4 border">Batch</th>
-        <th class="py-2 px-4 border">Role</th>
-        <th class="py-2 px-4 border text-center">Actions</th>
-      </tr>
-    </thead>
-    <tbody id="userTableBody">
-      <% users.forEach(u => { %>
-        <tr class="hover:bg-gray-50">
-          <td class="py-2 px-4 border"><%= u.name %></td>
-          <td class="py-2 px-4 border"><%= u.username %></td>
-          <td class="py-2 px-4 border"><%= u.number %></td>
-          <td class="py-2 px-4 border"><%= u.fatherName || '-' %></td>
-          <td class="py-2 px-4 border"><%= u.rollNumber || '-' %></td>
-          <td class="py-2 px-4 border"><%= u.batch ? u.batch.name : '-' %></td>
-          <td class="py-2 px-4 border capitalize"><%= u.role %></td>
-          <td class="py-2 px-4 border text-center">
-            <button
-              class="bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500"
-              onclick="openEditModal('<%= u._id %>', '<%= u.name %>', '<%= u.username %>', '<%= u.fatherName || '' %>', '<%= u.rollNumber || '' %>', '<%= u.role %>', '<%= u.number || '' %>')"
-            >
-              Edit
-            </button>
-          </td>
+  <div class="overflow-x-auto">
+    <table class="min-w-full border border-gray-200" id="usersTable">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="py-2 px-4 border text-left">S.No</th>
+          <th class="py-2 px-4 border text-left">Photo</th>
+          <th class="py-2 px-4 border text-left">Name</th>
+          <th class="py-2 px-4 border text-left">Username</th>
+          <th class="py-2 px-4 border text-left">Email</th>
+          <th class="py-2 px-4 border text-left">Phone</th>
+          <th class="py-2 px-4 border text-left">Father's Name</th>
+          <th class="py-2 px-4 border text-left">Roll No</th>
+          <th class="py-2 px-4 border text-left">Batch</th>
+          <th class="py-2 px-4 border text-left">Role</th>
+          <th class="py-2 px-4 border text-center">Actions</th>
         </tr>
-      <% }) %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody id="userTableBody">
+        <% { var i = 1 %>
+        <% users.forEach(u => { %>
+          <tr class="hover:bg-gray-50 transition">
+            <td class="py-2 px-4 border"><%= i++ %></td>
+            <td class="py-2 px-4 border"><img src="<%= u.image %>" style="height: 50px; width: 50px;" ></td>
+            <td class="py-2 px-4 border"><%= u.name %></td>
+            <td class="py-2 px-4 border text-blue-600"><%= u.username %></td>
+            <td class="py-2 px-4 border text-blue-600"><%= u.email %></td>
+            <td class="py-2 px-4 border"><%= u.number || '-' %></td>
+            <td class="py-2 px-4 border"><%= u.fatherName || '-' %></td>
+            <td class="py-2 px-4 border font-mono"><%= u.rollNumber || '-' %></td>
+            <td class="py-2 px-4 border">
+              <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                <%= u.batch ? u.batch.name : 'No Batch' %>
+              </span>
+            </td>
+            <td class="py-2 px-4 border capitalize">
+                <span class="<%= u.role === 'admin' ? 'text-red-600 font-bold' : 'text-gray-700' %>">
+                    <%= u.role %>
+                </span>
+            </td>
+            <td class="py-2 px-4 border text-center">
+              <button
+                class="bg-yellow-400 text-white px-4 py-1 rounded shadow hover:bg-yellow-500 transition"
+                onclick="openEditModal(
+                  '<%= u._id %>', 
+                  '<%= u.name %>', 
+                  '<%= u.username %>', 
+                  '<%= u.email || '' %>', 
+                  '<%= u.number || '' %>', 
+                  '<%= u.fatherName || '' %>', 
+                  '<%= u.motherName || '' %>', 
+                  '<%= u.rollNumber || '' %>', 
+                  '<%= u.address || '' %>', 
+                  '<%= u.role %>', 
+                  <%= u.editAllowed || false %>
+                )"
+              >
+                Edit
+              </button>
+            </td>
+          </tr>
+        <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- ✏️ Edit User Modal -->
 <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-  <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
-    <h2 class="text-xl font-semibold mb-4">Edit User</h2>
-    <form id="editUserForm">
+  <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8 overflow-y-auto max-h-[90vh]">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Edit User Details</h2>
+        <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+    </div>
+
+    <form id="editUserForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <!-- Hidden ID Field -->
       <input type="hidden" id="editUserId" name="id" />
 
-      <div class="mb-3">
-        <label class="block font-medium mb-1">Name</label>
-        <input type="text" id="editName" name="name" class="border border-gray-300 p-2 rounded w-full" required />
+      <div>
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Full Name *</label>
+        <input type="text" id="editName" name="name" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" required />
       </div>
 
-      <div class="mb-3">
-        <label class="block font-medium mb-1">Username</label>
-        <input type="text" id="editUsername" name="username" class="border border-gray-300 p-2 rounded w-full" required />
+      <div>
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Username *</label>
+        <input type="text" id="editUsername" name="username" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" required readonly />
       </div>
 
-      <div class="mb-3">
-        <label class="block font-medium mb-1">Phone</label>
-        <input type="text" id="editNumber" name="number" class="border border-gray-300 p-2 rounded w-full" required />
+      <div>
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Email Address</label>
+        <input type="email" id="editEmail" name="email" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" />
       </div>
 
-      <div class="mb-3">
-        <label class="block font-medium mb-1">Parent</label>
-        <input type="text" id="editParent" name="parent" class="border border-gray-300 p-2 rounded w-full" />
+      <div>
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Phone Number</label>
+        <input type="number" id="editNumber" name="number" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" />
       </div>
 
-      <div class="mb-3">
-        <label class="block font-medium mb-1">Roll Number</label>
-        <input type="text" id="editRollNumber" name="rollNumber" class="border border-gray-300 p-2 rounded w-full" />
+      <div>
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Father's Name</label>
+        <input type="text" id="editFatherName" name="fatherName" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" />
       </div>
 
-      <div class="mb-3">
-        <label class="block font-medium mb-1">Role</label>
-        <select id="editRole" name="role" class="border border-gray-300 p-2 rounded w-full">
+      <div>
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Mother's Name</label>
+        <input type="text" id="editMotherName" name="motherName" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Roll Number</label>
+        <input type="text" id="editRollNumber" name="rollNumber" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" readonly />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Role</label>
+        <select id="editRole" name="role" class="border border-gray-300 p-2.5 rounded-lg w-full bg-white focus:ring-2 focus:ring-blue-400 outline-none" readonly>
           <option value="student">Student</option>
-          <option value="teacher">Teacher</option>
-          <option value="admin">Admin</option>
         </select>
       </div>
 
-      <div class="flex justify-end gap-3">
+      <div class="md:col-span-2">
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Home Address</label>
+        <textarea id="editAddress" name="address" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" rows="2"></textarea>
+      </div>
+
+      <div class="md:col-span-2 flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
+        <input type="checkbox" id="editEditAllowed" name="editAllowed" class="w-5 h-5 accent-blue-600" />
+        <label for="editEditAllowed" class="text-sm font-medium text-gray-700">Allow user to edit their own profile details</label>
+      </div>
+
+      <div class="md:col-span-2 flex justify-end gap-4 mt-6">
         <button
           type="button"
           onclick="closeEditModal()"
-          class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded transition"
+          class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2.5 rounded-lg font-semibold transition"
         >
           Cancel
         </button>
         <button
           type="submit"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-semibold shadow-md transition"
         >
-          Save Changes
+          Update User
         </button>
       </div>
     </form>
@@ -106,7 +161,9 @@
 </div>
 
 <script>
-  // 🔍 Search Functionality
+  /** 
+   * 🔍 Live Table Search 
+   */
   document.getElementById("searchInput").addEventListener("input", function () {
     const filter = this.value.toLowerCase();
     const rows = document.querySelectorAll("#userTableBody tr");
@@ -116,47 +173,80 @@
     });
   });
 
-  // ✏️ Open Edit Modal
-  function openEditModal(id, name, username, parent, rollNumber, role,number) {
+  /** 
+   * ✏️ Open and Populate Modal 
+   */
+  function openEditModal(id, name, username, email, number, fatherName, motherName, rollNumber, address, role, editAllowed) {
+    // Mapping Schema to UI
     document.getElementById("editUserId").value = id;
     document.getElementById("editName").value = name;
     document.getElementById("editUsername").value = username;
-    document.getElementById("editParent").value = parent;
-    document.getElementById("editRollNumber").value = rollNumber;
-    document.getElementById("editRole").value = role;
+    document.getElementById("editEmail").value = email;
     document.getElementById("editNumber").value = number;
-    document.getElementById("editModal").classList.remove("hidden");
-    document.getElementById("editModal").classList.add("flex");
+    document.getElementById("editFatherName").value = fatherName;
+    document.getElementById("editMotherName").value = motherName;
+    document.getElementById("editRollNumber").value = rollNumber;
+    document.getElementById("editAddress").value = address;
+    document.getElementById("editRole").value = role;
+    
+    // Set checkbox state
+    document.getElementById("editEditAllowed").checked = (editAllowed === true || editAllowed === 'true');
+
+    // Show modal
+    const modal = document.getElementById("editModal");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
   }
 
+  /** 
+   * ❌ Close Modal 
+   */
   function closeEditModal() {
-    document.getElementById("editModal").classList.add("hidden");
+    const modal = document.getElementById("editModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
   }
 
-  // 💾 Handle Form Submission
+  /** 
+   * 💾 Handle Form Submission (AJAX) 
+   */
   document.getElementById("editUserForm").addEventListener("submit", async function (e) {
     e.preventDefault();
     const id = document.getElementById("editUserId").value;
+    
+    // Prepare Data Object based on Mongoose Schema
     const data = {
       name: document.getElementById("editName").value,
       username: document.getElementById("editUsername").value,
-      parent: document.getElementById("editParent").value,
+      email: document.getElementById("editEmail").value,
+      number: document.getElementById("editNumber").value,
+      fatherName: document.getElementById("editFatherName").value,
+      motherName: document.getElementById("editMotherName").value,
       rollNumber: document.getElementById("editRollNumber").value,
+      address: document.getElementById("editAddress").value,
       role: document.getElementById("editRole").value,
-      number: document.getElementById("editNumber").value
+      editAllowed: document.getElementById("editEditAllowed").checked
     };
 
-    const res = await fetch(`/api/students/edit/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
+    try {
+      const res = await fetch(`/api/students/edit/${id}`, {
+        method: "POST", // Or "PUT" depending on your API route
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
 
-    const result = await res.json();
-    alert(result.message);
-    if (result.success) {
-      closeEditModal();
-      location.reload();
+      const result = await res.json();
+      
+      if (result.success) {
+        alert("User information updated successfully!");
+        closeEditModal();
+        location.reload(); // Refresh to see changes
+      } else {
+        alert("Update failed: " + (result.message || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Error updating user:", err);
+      alert("An error occurred while saving. Please check your connection.");
     }
   });
 </script>
