@@ -185,7 +185,7 @@ function startKeepAlive() {
       console.warn("⏱️ Keep-alive timeout");
       req.destroy();
     });
-  }, 1000 * 60 * 1);
+  }, 10000);
 }
 
 const startServer = async () => {
