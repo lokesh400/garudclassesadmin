@@ -45,6 +45,10 @@ router.post("/login", (req, res, next) => {
         req.flash("success", "Login successful");
         return res.redirect("/admin/only");
       }
+      if (user.role === "student") {
+        req.flash("success", "Please Login to your student portal");
+        return res.redirect("/login");
+      }
       console.log("LOGIN SUCCESS:", user.username);
       req.flash("success", "Login successful");
       return res.redirect("/admin");
