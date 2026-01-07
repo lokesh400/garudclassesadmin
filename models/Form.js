@@ -15,6 +15,7 @@ const formSchema = new mongoose.Schema({
       required: { type: Boolean, default: false }
     }
   ],
+  isActive:{ type:Boolean, default:true }
 }, { timestamps: true });
 
 const Form = mongoose.models.Form || mongoose.model("Form", formSchema);

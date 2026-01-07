@@ -94,12 +94,173 @@ router.get(
   }
 )
 
+////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+//////////////////edit a form/////////////////////////
+router.get("/edit/:id", async (req, res) => {
+  try {
+    const form = await Form.findById(req.params.id);
+    if (!form) return res.redirect("/admin/forms");
+
+    res.render("forms/edit", { form ,
+      title: "Edit Form",
+      pageTitle: 'Edit Forms',
+      activePage: 'forms',
+    });
+  } catch (err) {
+    console.error(err);
+    // res.redirect("/admin/forms");
+    res.send(err)
+  }
+});
+
+// UPDATE FORM
+router.post("/edit/:id", async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      date,
+      time,
+      mobileNumber,
+      email,
+      fields,
+      isActive,
+    } = req.body;
+
+    const updatedForm = await Form.findByIdAndUpdate(
+      req.params.id,
+      {
+        title,
+        description,
+        date,
+        time,
+        mobileNumber,
+        email,
+        fields,
+        isActive,
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedForm) {
+      return res.status(404).json({
+        success: false,
+        message: "Form not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Form updated successfully",
+      form: updatedForm,
+    });
+  } catch (err) {
+    console.error("FORM UPDATE ERROR:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update form",
+    });
+  }
+});
+
 // ✅ Student: view & fill a form
 router.get('/fill/:formId', async (req, res) => {
-  const form = await Form.findById(req.params.formId)
-  if (!form) return res.status(404).send('Form not found')
-  res.render('forms/fill', { form, layout: false })
-})
+  try {
+    const form = await Form.findById(req.params.formId);
+    // ❌ Form not found
+    if (!form) {
+      return res.status(404).send('Form not found');
+    }
+
+    // 🔒 Form inactive
+    if (form.isActive !== true) {
+      return res.status(403).send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Form Inactive</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+    }
+    .card {
+      background: #fff;
+      max-width: 420px;
+      width: 90%;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      text-align: center;
+      animation: fadeIn 0.4s ease;
+    }
+    .icon {
+      font-size: 56px;
+      margin-bottom: 12px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #b91c1c;
+    }
+    p {
+      margin: 14px 0 24px;
+      color: #4b5563;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #ef4444;
+      color: #fff;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.2s ease;
+    }
+    .btn:hover {
+      background: #dc2626;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🚫</div>
+    <h1>Form Currently Inactive</h1>
+    <p>
+      This form is not accepting responses at the moment.<br/>
+      Please contact the administration or try again later.
+    </p>
+    <a href="javascript:history.back()" class="btn">Go Back</a>
+  </div>
+</body>
+</html>
+`);
+
+    }
+
+    // ✅ Render form
+    res.render('forms/fill', { form, layout: false });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
 
 // ✅ Student: submit a form
 router.post('/:formId/submit', async (req, res) => {
@@ -181,90 +342,6 @@ router.post(
     }
   }
 )
-
-//////////////////////////////////
-////////Route to Add form to a class////////
-//////////////////////////////////
-
-// router.post('/:formId/import/:batchId',isLoggedIn,requireRole('superadmin'),async (req, res) => {
-//     try {
-//       const { formId, batchId } = req.params
-//       const batch = await Batch.findById(batchId)
-//       if (!batch) {
-//         req.flash('error', 'Batch not found')
-//         return res.redirect('back')
-//       }
-//       const submissions = await Submission.find({ form: formId })
-//       if (!submissions.length) {
-//         req.flash('error', 'No submissions found for this form.')
-//         return res.redirect('back')
-//       }
-//       let createdUsers = 0
-//       let skippedUsers = 0
-
-//       console.log(submissions)
-//       const unique = [];
-//       const map = new Set();
-//       submissions.forEach(item => {
-//       const key = item.data["NAME"] 
-//             + item.data["FATHER'S NAME"] 
-//             + item.data["MOTHER'S NAME"];
-
-//        if (!map.has(key)) {
-//        map.add(key);
-//       unique.push({
-//       name: item.data["NAME"],
-//       fatherName: item.data["FATHER'S NAME"],
-//       motherName: item.data["MOTHER'S NAME"]
-//        });
-//       }
-//      });
-//      console.log(unique);
-
-//       for (const s of unique) {
-//         const exist = await User.findOne({
-//           mobileNumber: s.mobileNumber,
-//           fatherName: s.data["FATHER'S NAME"],
-//           motherName: s.data["MOTHER'S NAME"],
-//           email: s.email
-//         })
-//         if (exist) {
-//           skippedUsers++
-//           continue
-//         }
-//         const roll = await generateRollNumber(batch);
-//         const user = new User({
-//           name: s.data['NAME'],
-//           fatherName: s.data["FATHER'S NAME"],
-//           motherName: s.data["MOTHER'S NAME"],
-//           address: s.data['ADDRESS'],
-//           batch: batchId,
-//           number: s.mobileNumber,
-//           email: s.email,
-//           username: roll, // login ID
-//           rollNumber: roll,
-//           role: 'student'
-//         })
-//         const password = Math.random().toString(36).slice(-8)
-//         // await User.register(user, password)
-//         // console.log('Creating user:', user)
-//         createdUsers++
-//       }
-//       console.log(
-//         `Import Summary: Created - ${createdUsers}, Skipped - ${skippedUsers}`
-//       )
-//       req.flash(
-//         'success',
-//         `Imported Successfully! Added: ${createdUsers}, Skipped (already exists): ${skippedUsers}`
-//       )
-//       res.redirect('back')
-//     } catch (err) {
-//       console.log(err)
-//       req.flash('error', 'Something went wrong')
-//       res.redirect('back')
-//     }
-//   }
-// )
 
 router.post(
   '/:formId/import/:batchId',

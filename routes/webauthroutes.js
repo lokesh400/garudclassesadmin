@@ -99,7 +99,8 @@ router.get("/teachers/all", isLoggedIn, requireRole("superadmin"), async (req, r
     $or: [
     { role: "admin" },
     { role: "superadmin" },
-    { role: "receptionist" }
+    { role: "receptionist" },
+    { role: "teacher" }
   ]
   })
   res.render("users/list.ejs", {
@@ -162,24 +163,6 @@ router.post("/teachers/:id/edit", isLoggedIn, requireRole("superadmin"), async (
 router.post("/teachers/:id/delete", isLoggedIn, requireRole("superadmin"), async (req, res) => {
   await User.findByIdAndDelete(req.params.id);
   res.redirect("/teachers/all");
-});
-
-
-
-
-/////////////////////
-////logout
-router.get("/logout", (req, res, next) => {
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
-
-    req.session.destroy(() => {
-      req.flash("success", "Logged out successfully");
-      res.redirect("/login");
-    });
-  });
 });
 
 module.exports = router;

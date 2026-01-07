@@ -224,4 +224,8 @@ app.use('/api/query/admin',require('./routes/mobile/admin/query'))
 app.use('/api/form/admin',require('./routes/mobile/admin/form'))
 app.use('/api/fee/admin',require('./routes/mobile/admin/fee'))
 
+
+app.use("/api/studio-bookings", require("./routes/mobile/studioBooking"));
+
+
 startServer();

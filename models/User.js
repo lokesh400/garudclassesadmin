@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  isActive:{
+    type:Boolean,
+    default:true
+  },
   email: String,
   image:String,
   rollNumber: String,

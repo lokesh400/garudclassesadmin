@@ -113,14 +113,14 @@ router.get("/all", async (req, res) => {
   }
 });
 
+
 ///////////edit any student
 ///////////////////////////
 router.post("/edit/:id", async (req, res) => {
   try {
-    const { name,email,number,fatherName,motherName,address,editAllowed } = req.body;
-    await User.findByIdAndUpdate(req.params.id, {  name,email,number,fatherName,motherName,address,editAllowed });
+    const { name,email,number,fatherName,motherName,address,editAllowed,isActive } = req.body;
+    await User.findByIdAndUpdate(req.params.id, {  name,email,number,fatherName,motherName,address,editAllowed,isActive });
     res.json({ success: true, message: "User updated successfully!" });
-    console.log(req.body)
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: "Failed to update user." });
@@ -156,7 +156,7 @@ router.get('/send/details/:BatchId',isLoggedIn,requireRole('superadmin', 'admin'
           try {
             if (!result) continue
             /* ---------- EMAIL ---------- */
-            if (result.email) {
+            if (result.email && result.isActive == true ) {
               password = "Please Reset Your Password";
               await sendStudentCredentials(
                 result.email,
@@ -166,7 +166,7 @@ router.get('/send/details/:BatchId',isLoggedIn,requireRole('superadmin', 'admin'
               console.log(`📧 Email sent to ${result.email}`)
               await delay(20000)
             } else {
-              console.log('⚠️ WhatsApp client not ready or number missing')
+              console.log('⚠️ Email client not ready or number missing')
             }
           } catch (singleErr) {
             console.error(

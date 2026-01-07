@@ -1,9 +1,21 @@
 function isLoggedIn(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
+  if (!req.isAuthenticated()) {
+    return res.redirect("/login");
   }
-  return res.redirect("/login");
+  if (!req.user || req.user.isActive !== true) {
+    req.logout(function (err) {
+      if (err) return next(err);
+      req.flash(
+        "success",
+        "Your account is inactive. Please contact the administration."
+      );
+      return res.redirect("/login");
+    });
+    return;
+  }
+  next();
 }
+
 
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {

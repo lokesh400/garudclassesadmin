@@ -30,7 +30,7 @@
       <tbody id="userTableBody">
         <% { var i = 1 %>
         <% users.forEach(u => { %>
-          <tr class="hover:bg-gray-50 transition">
+          <tr class=" transition <%= u.isActive === false ? 'bg-blue-200' : 'hover:bg-gray-50' %>">
             <td class="py-2 px-4 border"><%= i++ %></td>
             <td class="py-2 px-4 border"><img src="<%= u.image %>" style="height: 50px; width: 50px;" ></td>
             <td class="py-2 px-4 border"><%= u.name %></td>
@@ -63,7 +63,8 @@
                   '<%= u.rollNumber || '' %>', 
                   '<%= u.address || '' %>', 
                   '<%= u.role %>', 
-                  <%= u.editAllowed || false %>
+                  <%= u.editAllowed || false %>,
+                  <%= u.isActive %>
                 )"
               >
                 Edit
@@ -141,6 +142,11 @@
         <label for="editEditAllowed" class="text-sm font-medium text-gray-700">Allow user to edit their own profile details</label>
       </div>
 
+      <div class="md:col-span-2 flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
+        <input type="checkbox" id="isActive" name="isActive" class="w-5 h-5 accent-blue-600" />
+        <label for="editEditAllowed" class="text-sm font-medium text-gray-700">Is this user currently active ?</label>
+      </div>
+
       <div class="md:col-span-2 flex justify-end gap-4 mt-6">
         <button
           type="button"
@@ -176,7 +182,7 @@
   /** 
    * ✏️ Open and Populate Modal 
    */
-  function openEditModal(id, name, username, email, number, fatherName, motherName, rollNumber, address, role, editAllowed) {
+  function openEditModal(id, name, username, email, number, fatherName, motherName, rollNumber, address, role, editAllowed,isActive) {
     // Mapping Schema to UI
     document.getElementById("editUserId").value = id;
     document.getElementById("editName").value = name;
@@ -188,9 +194,11 @@
     document.getElementById("editRollNumber").value = rollNumber;
     document.getElementById("editAddress").value = address;
     document.getElementById("editRole").value = role;
+    document.getElementById("isActive").value = isActive;
     
     // Set checkbox state
     document.getElementById("editEditAllowed").checked = (editAllowed === true || editAllowed === 'true');
+    document.getElementById("isActive").checked = (isActive === true || isActive === 'true');
 
     // Show modal
     const modal = document.getElementById("editModal");
@@ -225,7 +233,8 @@
       rollNumber: document.getElementById("editRollNumber").value,
       address: document.getElementById("editAddress").value,
       role: document.getElementById("editRole").value,
-      editAllowed: document.getElementById("editEditAllowed").checked
+      editAllowed: document.getElementById("editEditAllowed").checked,
+      isActive: document.getElementById("isActive").checked
     };
 
     try {

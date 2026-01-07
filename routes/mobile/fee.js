@@ -1,7 +1,7 @@
 const express = require("express");
 const Fee = require("../../models/Fee");
 const router = express.Router();
-const {isLoggedIn} = require("../../middleware/auth");
+const { isLoggedIn } = require("../../middleware/auth");
 
 // CREATE / UPDATE FEE FOR A STUDENT
 // router.post("/create", isLoggedIn, async (req, res) => {
