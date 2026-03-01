@@ -44,8 +44,13 @@ app.use(
   cors({
     origin: 8081,
     credentials: true,
+    "https://garudattendance.onrender.com": true,
+    "http://localhost:3000": true,
+    "http://localhost:8081": true,
+    "http://localhost:5000": true,
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -127,6 +132,18 @@ app.get("/admin", isLoggedIn, requireRole("superadmin"), async (req, res) => {
     batches:batch.length
   });
 });
+
+app.get("/admin/staff-management", isLoggedIn, requireRole("superadmin"), async (req, res) => {
+  res.render("admin/staffIndex", {
+    title: "Staff Management",
+    pageTitle: "Staff Management",
+    activePage: "staffManagement",
+  });
+});
+
+app.use("/admin/recruitments", require("./routes/recruitments"));
+app.use("/admin/staff", require("./routes/staff"));
+
 
 // app.get("/whatsapp", isLoggedIn, requireRole("superadmin"), async (req, res) => {
 //   const response = await axios.get("http://localhost:3000/whatsapp");
@@ -227,5 +244,37 @@ app.use('/api/fee/admin',require('./routes/mobile/admin/fee'))
 
 app.use("/api/studio-bookings", require("./routes/mobile/studioBooking"));
 
+app.get('/attendance/get/students/all', async (req, res) => {
+  try {
+    const students = await User.find({ role: "student" }).populate("batch");
+    res.json(students);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", err });
+  }
+});
+
+app.get('/api/attendance', async (req, res) => {
+  try {
+    console.log(req.query);
+    const { month, year } = req.query;
+
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!month || !year) {
+      return res.status(400).json({ message: "month and year are required" });
+    }
+
+    const userid = req.user.id;
+    const response = await axios.get(
+      `https://garudattendance.onrender.com/attendance/student/${userid}/${month}/${year}`
+    );
+    res.json(response.data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error", err });
+  }
+});
 
 startServer();

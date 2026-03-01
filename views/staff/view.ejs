@@ -1,0 +1,19 @@
+<div class="bg-white p-6 rounded shadow">
+  <h2 class="text-2xl font-semibold mb-4"><%= staff.name %></h2>
+
+  <p><strong>Department:</strong> <%= staff.department %></p>
+  <p><strong>Designation:</strong> <%= staff.designation %></p>
+  <p><strong>Email:</strong> <%= staff.email %></p>
+
+  <h3 class="text-xl font-semibold mt-6">Documents</h3>
+  <ul class="list-disc ml-6 mt-2 space-y-1">
+    <% for(let doc in staff.documents) { %>
+      <li>
+        <a href="/<%= staff.documents[doc] %>" target="_blank"
+           class="text-blue-600">
+          <%= doc %>
+        </a>
+      </li>
+    <% } %>
+  </ul>
+</div>

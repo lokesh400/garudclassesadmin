@@ -1,0 +1,38 @@
+<div class="flex justify-between mb-6">
+  <h2 class="text-2xl font-semibold">Recruitments</h2>
+  <a href="/admin/recruitments/new"
+     class="bg-blue-600 text-white px-4 py-2 rounded">
+    + Add Recruitment
+  </a>
+</div>
+
+<table class="w-full bg-white rounded shadow">
+  <thead class="bg-gray-200">
+    <tr>
+      <th class="p-3 text-left">Title</th>
+      <th>Department</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% recruitments.forEach(r => { %>
+      <tr class="border-b">
+        <td class="p-3"><%= r.title %></td>
+        <td><%= r.department %></td>
+        <td>
+          <span class="px-2 py-1 rounded text-sm 
+            <%= r.status === 'Open' ? 'bg-green-200' : 'bg-red-200' %>">
+            <%= r.status %>
+          </span>
+        </td>
+        <td class="space-x-2">
+          <a href="/admin/recruitments/<%= r._id %>" class="text-blue-600">View</a>
+          <form action="/admin/recruitments/<%= r._id %>/delete" method="POST" class="inline">
+            <button class="text-red-600">Delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
