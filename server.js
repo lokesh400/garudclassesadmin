@@ -29,6 +29,7 @@ const batchRoutes = require("./routes/batch");
 const feeRouter = require("./routes/fee");
 const webAuthRoutes = require("./routes/webauthroutes");
 const queryRoutes = require("./routes/query");
+const dataRoutes = require("./routes/data");
 
 const mobileAuthRoutes = require("./routes/mobile/auth");
 
@@ -108,6 +109,7 @@ app.use("/admitcard", admitcardRouter);
 app.use("/marks", marksRouter);
 app.use("/", webAuthRoutes);
 app.use("/", queryRoutes);
+app.use("/", dataRoutes);
 app.use("/",require('./routes/userEdit'))
 
 const resetPasswordRoute = require("./routes/password");
@@ -120,6 +122,10 @@ const { isLoggedIn, requireRole } = require("./middleware/auth");
 
 /* ---------------- PAGES ---------------- */
 app.get("/", (req, res) => res.redirect("/admin"));
+
+app.get("/data-deletion-policy", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "data-deletion-policy.html"));
+});
 
 app.get("/admin", isLoggedIn, requireRole("superadmin"), async (req, res) => {
   const users = await User.find({role:"student"})
