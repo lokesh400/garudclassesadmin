@@ -15,7 +15,7 @@ const QRCode = require("qrcode");
 
 const connectDB = require("./config/db");
 const User = require("./models/User");
-const Batch = require("./models/Batch");
+const Batch = require("./models/Batch")
 
 // Routes
 const authRoutes = require("./routes/auth");
