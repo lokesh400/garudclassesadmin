@@ -1,0 +1,36 @@
+<div class="p-6">
+  <div class="flex justify-between mb-4">
+    <h1 class="text-2xl font-bold">👥 Users</h1>
+    <a href="/teachers/new"
+       class="bg-green-600 text-white px-4 py-2 rounded">
+      + Add User
+    </a>
+  </div>
+
+  <table class="w-full bg-white shadow rounded">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="p-3">Name</th>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(u => { %>
+      <tr class="border-t">
+        <td class="p-3"><%= u.name %></td>
+        <td><%= u.username %></td>
+        <td><%= u.role %></td>
+        <td class="flex gap-2 p-3">
+          <a href="/teachers/<%= u._id %>/edit"
+             class="text-blue-600">Edit</a>
+          <form method="POST" action="/teachers/<%= u._id %>/delete">
+            <button class="text-red-600">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

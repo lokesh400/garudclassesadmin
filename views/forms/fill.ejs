@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= form.title %> - Application Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100 min-h-screen flex items-center justify-center font-sans">
+
+
+  <div class="max-w-2xl w-full bg-white/80 backdrop-blur-md p-8 shadow-2xl rounded-2xl">
+    <!-- Title -->
+    <h2 class="text-3xl font-bold mb-2 text-gray-800 text-center"><%= form.title %></h2>
+    <p class="mb-6 text-gray-600 text-center italic"><%= form.description %></p>
+
+    <!-- Form -->
+    <form method="POST" action="/forms/<%= form._id %>/submit" class="space-y-5">
+      <div>
+           <div>
+  <label class="block font-medium mb-2 text-gray-700">Contact Number</label>
+
+  <div class="flex">
+    <!-- Prefix -->
+    <span
+      class="inline-flex items-center px-4 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-600 font-medium">
+      +91
+    </span>
+
+    <!-- Number input -->
+    <input
+      type="tel"
+      name="mobileNumber"
+      pattern="[0-9]{10}"
+      maxlength="10"
+      placeholder="Enter 10-digit number"
+      class="w-full px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition"
+      required
+    >
+  </div>
+</div>
+                  <label class="block font-medium mb-2 text-gray-700">E Mail</label>
+          <input type="email" name="email"
+                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition"
+                 required >
+        </div>
+      <% form.fields.forEach(f => { %>
+        <div>
+          <label class="block font-medium mb-2 text-gray-700"><%= f.label %></label>
+          <input type="<%= f.type %>" name="<%= f.label %>" 
+                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition"
+                 <%= f.required ? "required" : "" %>>
+        </div>
+      <% }) %>
+
+      <button type="submit" 
+              class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-indigo-700 active:scale-95 transition">
+        Submit Application
+      </button>
+    </form>
+  </div>
+
+</body>
+</html>

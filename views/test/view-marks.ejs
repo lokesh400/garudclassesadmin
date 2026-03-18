@@ -1,0 +1,112 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-blue-600">
+        🧮 <%= batch.name %> — <%= testTitle %>
+      </h2>
+
+      <form action="/send/results/<%= batch._id %>/<%= testTitle %>" method="post">
+        <button
+          type="submit"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition"
+        >
+          📧 Send Results
+        </button>
+      </form>
+
+      <a href="javascript:history.back()" 
+         class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition">
+         ← Back
+      </a>
+    </div>
+
+    <!-- Summary Cards -->
+    <%
+      const numericTotals = marks.map(m => 
+        Number(m.total) || (
+          (Number(m.physics) || 0) + 
+          (Number(m.chemistry) || 0) + 
+          (Number(m.math) || 0) + 
+          (Number(m.botany) || 0) + 
+          (Number(m.zoology) || 0)
+        )
+      );
+      const validTotals = numericTotals.filter(n => !isNaN(n));
+      const grandTotal = validTotals.reduce((a, b) => a + b, 0);
+      const avg = validTotals.length ? (grandTotal / validTotals.length).toFixed(2) : 0;
+      const max = validTotals.length ? Math.max(...validTotals) : 0;
+      const min = validTotals.length ? Math.min(...validTotals) : 0;
+    %>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-blue-100 text-blue-800 rounded-xl p-4 text-center shadow">
+        <h4 class="font-semibold text-lg">Average</h4>
+        <p class="text-2xl font-bold mt-1"><%= avg %></p>
+      </div>
+      <div class="bg-green-100 text-green-800 rounded-xl p-4 text-center shadow">
+        <h4 class="font-semibold text-lg">Highest</h4>
+        <p class="text-2xl font-bold mt-1"><%= max %></p>
+      </div>
+      <div class="bg-red-100 text-red-800 rounded-xl p-4 text-center shadow">
+        <h4 class="font-semibold text-lg">Lowest</h4>
+        <p class="text-2xl font-bold mt-1"><%= min %></p>
+      </div>
+      <div class="bg-yellow-100 text-yellow-800 rounded-xl p-4 text-center shadow">
+        <h4 class="font-semibold text-lg">Grand Total</h4>
+        <p class="text-2xl font-bold mt-1"><%= grandTotal %></p>
+      </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="overflow-x-auto rounded-xl border border-gray-200 shadow">
+      <table class="w-full text-sm text-gray-700">
+        <thead class="bg-gray-800 text-white text-center">
+          <tr>
+            <th class="py-3 px-4">Roll No</th>
+            <th class="py-3 px-4 text-left">Name</th>
+            <th class="py-3 px-4">Physics</th>
+            <th class="py-3 px-4">Chemistry</th>
+            <% if (marks[0]?.examType === 'JEE') { %>
+              <th class="py-3 px-4">Math</th>
+            <% } else { %>
+              <th class="py-3 px-4">Botany</th>
+              <th class="py-3 px-4">Zoology</th>
+            <% } %>
+            <th class="py-3 px-4">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% marks.forEach((m) => { 
+              const phy = Number(m.physics) || 0;
+              const chem = Number(m.chemistry) || 0;
+              const math = Number(m.math) || 0;
+              const bot = Number(m.botany) || 0;
+              const zoo = Number(m.zoology) || 0;
+              const total = Number(m.total) || phy + chem + math + bot + zoo;
+          %>
+            <tr class="text-center border-b hover:bg-gray-50 transition">
+              <td class="py-2 px-3 font-medium"><%= m.rollNo %></td>
+              <td class="py-2 px-3 text-left"><%= m.student?.name || m.student %></td>
+              <td class="py-2 px-3"><%= phy %></td>
+              <td class="py-2 px-3"><%= chem %></td>
+              <% if (m.examType === 'JEE') { %>
+                <td class="py-2 px-3"><%= math %></td>
+              <% } else { %>
+                <td class="py-2 px-3"><%= bot %></td>
+                <td class="py-2 px-3"><%= zoo %></td>
+              <% } %>
+              <td class="py-2 px-3 font-bold text-blue-600"><%= total %></td>
+            </tr>
+          <% }) %>
+
+          <!-- Grand Total Row -->
+          <tr class="bg-gray-100 font-bold text-center">
+            <td colspan="<%= marks[0]?.examType === 'JEE' ? 6 : 7 %>" class="py-3 text-right pr-6">Grand Total:</td>
+            <td class="text-green-700"><%= grandTotal %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

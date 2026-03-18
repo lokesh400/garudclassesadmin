@@ -1,0 +1,21 @@
+<h2 class="text-2xl font-semibold mb-4">Add Recruitment</h2>
+
+<form action="/admin/recruitments/add" method="POST" enctype="multipart/form-data"
+      class="bg-white p-6 rounded shadow space-y-4">
+
+  <input name="title" placeholder="Job Title" class="w-full border p-2" required />
+  <input name="department" placeholder="Department" class="w-full border p-2" />
+  <input name="experience" placeholder="Experience (e.g. 2–4 years)" class="w-full border p-2" />
+  <input name="salaryRange" placeholder="Salary Range" class="w-full border p-2" />
+  <input name="location" placeholder="Location" class="w-full border p-2" />
+
+  <textarea name="description" placeholder="Job Description"
+            class="w-full border p-2 h-28"></textarea>
+
+  <label class="block">Job Description PDF</label>
+  <input type="file" name="jd" accept=".pdf" />
+
+  <button class="bg-blue-600 text-white px-6 py-2 rounded">
+    Save Recruitment
+  </button>
+</form>

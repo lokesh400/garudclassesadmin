@@ -1,0 +1,11 @@
+<% if (messages && messages.success && messages.success.length > 0 ) { %>
+  <p class="mb-4 text-green-600 font-medium text-center">
+    <%= messages.success %>
+  </p>
+<% } %>
+
+<% if (messages && messages.error && messages.error.length > 0 ) { %>
+  <p class="mb-4 text-red-600 font-medium text-center">
+    <%= messages.error %>
+  </p>
+<% } %>

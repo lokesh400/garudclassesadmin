@@ -1,0 +1,56 @@
+<div class="container py-5">
+  <div class="mb-4 d-flex justify-content-between align-items-center">
+    <h3 class="fw-bold mb-0">
+      🧾 Tests for Batch: <span class="text-primary"><%= batch.name %></span>
+    </h3>
+    <a href="/marks/download/<%= batch._id %>" class="btn btn-outline-primary">
+      <i class="fas fa-download me-1"></i> Download Template
+    </a>
+  </div>
+
+  <% if (tests.length > 0) { %>
+    <div class="row g-4">
+      <% tests.forEach(test => { %>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+          <div class="folder-card p-4 rounded-3 shadow-sm d-flex flex-column justify-content-between h-100">
+            <div class="d-flex align-items-center mb-3">
+              <i class="fas fa-folder fa-2x text-warning me-3"></i>
+              <span class="fw-semibold text-dark"><%= test %></span>
+            </div>
+            <a href="/marks/view/<%= batch._id %>/<%= encodeURIComponent(test) %>" 
+               class="btn btn-sm btn-primary mt-auto">
+              <i class="fas fa-eye me-1"></i> View Results
+            </a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="text-center text-muted py-5">
+      <i class="fas fa-folder-open fa-3x mb-3"></i>
+      <p class="mb-0 fs-5">No tests uploaded yet.</p>
+    </div>
+  <% } %>
+</div>
+
+<style>
+  .folder-card {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+
+  .folder-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .folder-card i.fas.fa-folder {
+    transition: transform 0.2s ease;
+  }
+
+  .folder-card:hover i.fas.fa-folder {
+    transform: scale(1.2);
+  }
+</style>

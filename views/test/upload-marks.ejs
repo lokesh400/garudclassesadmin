@@ -1,0 +1,21 @@
+<h3 class="mb-4">Upload Marks for <%= batch.name %></h3>
+
+<div class="mb-3">
+  <a href="/marks/download-template/<%= batch._id %>" class="btn btn-outline-primary">
+    Download Excel Template
+  </a>
+</div>
+
+<form action="/marks/upload/<%= batch._id %>" method="POST" enctype="multipart/form-data" class="card p-4">
+  <div class="mb-3">
+    <label class="form-label">Test Title</label>
+    <input type="text" name="testTitle" class="form-control" required />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Upload Marks Excel</label>
+    <input type="file" name="marksFile" class="form-control" accept=".xlsx,.xls" required />
+  </div>
+
+  <button type="submit" class="btn btn-success">Upload Marks</button>
+</form>

@@ -1,0 +1,41 @@
+<h2 class="text-2xl font-semibold mb-4">Add Staff</h2>
+
+<form action="/admin/staff/add" method="POST" enctype="multipart/form-data"
+      class="bg-white p-6 rounded shadow grid grid-cols-2 gap-4">
+
+  <input name="name" placeholder="Full Name" class="border p-2" required />
+  <input name="email" placeholder="Email" class="border p-2" />
+  <input name="phone" placeholder="Phone" class="border p-2" />
+  <input name="employeeId" placeholder="Employee ID" class="border p-2" />
+  <input name="department" placeholder="Department" class="border p-2" />
+  <input name="designation" placeholder="Designation" class="border p-2" />
+  <input type="date" name="joiningDate" class="border p-2" />
+  <input name="salary" placeholder="Salary" class="border p-2" />
+
+  <div>
+    <label>Aadhaar</label>
+    <input type="file" name="aadhaar" />
+  </div>
+
+  <div>
+    <label>PAN</label>
+    <input type="file" name="pan" />
+  </div>
+
+  <div>
+    <label>Resume</label>
+    <input type="file" name="resume" />
+  </div>
+
+  <div>
+    <label>Offer Letter</label>
+    <input type="file" name="offerLetter" />
+  </div>
+
+  <div class="col-span-2">
+    <button class="bg-green-600 text-white px-6 py-2 rounded">
+      Save Staff
+    </button>
+  </div>
+
+</form>

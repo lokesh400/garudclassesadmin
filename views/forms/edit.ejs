@@ -1,0 +1,97 @@
+<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow">
+  <h1 class="text-2xl font-bold mb-6">Edit Form</h1>
+
+  <form id="editForm">
+    <input type="hidden" id="formId" value="<%= form._id %>" />
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="font-semibold">Title *</label>
+        <input id="title" class="w-full border p-2 rounded" value="<%= form.title %>" required />
+      </div>
+
+      <div>
+        <label class="font-semibold">Date</label>
+        <input id="date" type="date" class="w-full border p-2 rounded" value="<%= form.date || '' %>" />
+      </div>
+
+      <div>
+        <label class="font-semibold">Time</label>
+        <input id="time" type="time" class="w-full border p-2 rounded" value="<%= form.time || '' %>" />
+      </div>
+
+    </div>
+
+    <div class="mt-4">
+      <label class="font-semibold">Description</label>
+      <textarea id="description" class="w-full border p-2 rounded"><%= form.description %></textarea>
+    </div>
+
+    <!-- Dynamic Fields -->
+    <h2 class="font-bold mt-6 mb-2">Custom Fields</h2>
+
+    <div id="fieldsContainer">
+      <% form.fields.forEach((f, i) => { %>
+        <div class="flex gap-2 mb-2">
+          <input class="border p-2 w-1/3" value="<%= f.label %>" />
+          <select class="border p-2 w-1/3">
+            <option value="text" <%= f.type === 'text' ? 'selected' : '' %>>Text</option>
+            <option value="email" <%= f.type === 'email' ? 'selected' : '' %>>Email</option>
+            <option value="number" <%= f.type === 'number' ? 'selected' : '' %>>Number</option>
+            <option value="date" <%= f.type === 'date' ? 'selected' : '' %>>Date</option>
+          </select>
+          <input type="checkbox" <%= f.required ? 'checked' : '' %> />
+        </div>
+      <% }) %>
+    </div>
+
+    <div class="flex items-center gap-2 mt-4">
+      <input type="checkbox" id="isActive" <%= form.isActive ? 'checked' : '' %> />
+      <label>Form is Active</label>
+    </div>
+
+    <div class="mt-6 flex gap-4">
+      <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded">
+        Update Form
+      </button>
+      <a href="/admin/forms" class="bg-gray-200 px-6 py-2 rounded">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.getElementById("editForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById("formId").value;
+    const fieldRows = document.querySelectorAll("#fieldsContainer > div");
+
+    const fields = Array.from(fieldRows).map(row => ({
+      label: row.children[0].value,
+      type: row.children[1].value,
+      required: row.children[2].checked
+    }));
+
+    const data = {
+      title: document.getElementById("title").value,
+      description: document.getElementById("description").value,
+      date: document.getElementById("date").value,
+      time: document.getElementById("time").value,
+      fields,
+      isActive: document.getElementById("isActive").checked
+    };
+
+    const res = await fetch(`/forms/edit/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (result.success) {
+      alert("Form updated successfully");
+      window.location.href = "/forms/list";
+    } else {
+      alert(result.message || "Update failed");
+    }
+  });
+</script>

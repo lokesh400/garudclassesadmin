@@ -1,0 +1,257 @@
+<div class="bg-white p-6 shadow rounded mt-8">
+
+  <!-- HEADER -->
+  <h1 class="text-3xl font-bold mb-6">Form Submissions</h1>
+
+  <!-- TOP ACTIONS -->
+  <div class="flex flex-wrap gap-3 mb-6 items-center">
+
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search..."
+      class="border p-2 rounded w-64 focus:outline-none focus:ring">
+
+    <button
+      id="downloadBtn"
+      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+      Download Excel
+    </button>
+
+    <form action="/admitcard/send/update/<%= form._id %>" method="post">
+      <button
+        type="submit"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        Send Notification
+      </button>
+    </form>
+
+    <button
+      onclick="openGenerateModal()"
+      class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+      Generate Admit Cards
+    </button>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full border divide-y divide-gray-200" id="submissionsTable">
+
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-4 py-2 text-center">#</th>
+          <th class="px-4 py-2 text-center">Delete</th>
+          <th class="px-4 py-2 text-center">Edit</th>
+
+          <% const keys = submissions.length ? Object.keys(submissions[0].data) : []; %>
+          <% keys.forEach(key => { %>
+            <th class="px-4 py-2 text-left"><%= key %></th>
+          <% }) %>
+
+          <th class="px-4 py-2 text-center">Attendance</th>
+          <th class="px-4 py-2 text-left">Submitted At</th>
+        </tr>
+      </thead>
+
+      <tbody id="tableBody" class="divide-y">
+
+        <% submissions.forEach((sub, i) => { %>
+        <tr data-id="<%= sub._id %>" class="<%= sub.attendance ? 'bg-green-100' : '' %>">
+
+          <td class="px-4 py-2 text-center"><%= i + 1 %></td>
+
+          <!-- DELETE -->
+          <td class="px-4 py-2 text-center">
+            <form method="POST"
+              action="/forms/<%= form._id %>/submission/<%= sub._id %>/delete"
+              onsubmit="return confirm('Delete this submission?')">
+              <button class="text-red-600 font-semibold hover:underline">
+                Delete
+              </button>
+            </form>
+          </td>
+
+          <!-- EDIT -->
+          <td class="px-4 py-2 text-center">
+            <button
+              class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+              data-id="<%= sub._id %>"
+              data-data='<%- JSON.stringify(sub.data) %>'
+              onclick="handleEditClick(this)">
+              Edit
+            </button>
+          </td>
+
+          <% keys.forEach(key => { %>
+            <td class="px-4 py-2"><%= sub.data[key] %></td>
+          <% }) %>
+
+          <!-- ATTENDANCE -->
+          <td class="px-4 py-2 text-center">
+            <span class="attendanceText block mb-1">
+              <%= sub.attendance ? 'Present' : 'Absent' %>
+            </span>
+            <input type="checkbox" class="attendanceCheckbox"
+              <%= sub.attendance ? 'checked' : '' %>>
+          </td>
+
+          <td class="px-4 py-2">
+            <%= new Date(sub.createdAt).toLocaleString() %>
+          </td>
+
+        </tr>
+        <% }) %>
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====================== -->
+<!-- EDIT SUBMISSION MODAL -->
+<!-- ====================== -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-40 hidden z-50">
+  <div class="flex items-center justify-center min-h-screen">
+    <div class="bg-white w-full max-w-2xl rounded shadow p-6">
+
+      <h2 class="text-xl font-bold mb-4">Edit Submission</h2>
+
+      <form method="POST" id="editSubmissionForm">
+        <div id="editFieldsContainer" class="space-y-4"></div>
+
+        <div class="flex justify-end gap-3 mt-6">
+          <button type="button"
+            onclick="closeEditModal()"
+            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+            Cancel
+          </button>
+
+          <button type="submit"
+            class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+            Save Changes
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- ====================== -->
+<!-- GENERATE ADMIT MODAL -->
+<!-- ====================== -->
+<div id="generateModal" class="fixed inset-0 bg-black bg-opacity-40 hidden z-50">
+  <div class="flex items-center justify-center min-h-screen">
+    <div class="bg-white w-full max-w-md rounded shadow p-6 text-center">
+
+      <h2 class="text-xl font-bold mb-4">Generate Admit Cards?</h2>
+      <p class="text-gray-600 mb-6">
+        Are you sure you want to generate admit cards?
+      </p>
+
+      <div class="flex justify-center gap-4">
+        <button onclick="closeGenerateModal()"
+          class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+          Cancel
+        </button>
+
+        <a href="/admitcard/generate/<%= form._id %>"
+          class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+          Generate
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ====================== -->
+<!-- JAVASCRIPT -->
+<!-- ====================== -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+  const socket = io();
+
+  // ---------- EDIT MODAL ----------
+  function handleEditClick(btn) {
+    const submissionId = btn.dataset.id;
+    const data = JSON.parse(btn.dataset.data);
+    openEditModal(data, submissionId);
+  }
+
+  function openEditModal(data, submissionId) {
+    const modal = document.getElementById("editModal");
+    const container = document.getElementById("editFieldsContainer");
+
+    container.innerHTML = "";
+
+    Object.keys(data).forEach(key => {
+      const value = data[key] ?? "";
+      container.innerHTML += `
+        <div>
+          <label class="block font-medium mb-1">${key}</label>
+          <input
+            type="text"
+            name="data[${key}]"
+            value="${value}"
+            class="w-full border p-2 rounded focus:ring focus:outline-none">
+        </div>
+      `;
+    });
+
+    document.getElementById("editSubmissionForm").action =
+      "/submissions/" + submissionId + "/edit";
+
+    modal.classList.remove("hidden");
+  }
+
+  function closeEditModal() {
+    document.getElementById("editModal").classList.add("hidden");
+  }
+
+  // ---------- GENERATE MODAL ----------
+  function openGenerateModal() {
+    document.getElementById("generateModal").classList.remove("hidden");
+  }
+
+  function closeGenerateModal() {
+    document.getElementById("generateModal").classList.add("hidden");
+  }
+
+  // ---------- SEARCH ----------
+  document.getElementById("searchInput").addEventListener("input", e => {
+    const val = e.target.value.toLowerCase();
+    document.querySelectorAll("#tableBody tr").forEach(row => {
+      row.style.display = row.innerText.toLowerCase().includes(val) ? "" : "none";
+    });
+  });
+
+  // ---------- ATTENDANCE ----------
+  document.getElementById("tableBody").addEventListener("change", e => {
+    if (!e.target.classList.contains("attendanceCheckbox")) return;
+
+    const row = e.target.closest("tr");
+    const checked = e.target.checked;
+
+    row.classList.toggle("bg-green-100", checked);
+    row.querySelector(".attendanceText").textContent =
+      checked ? "Present" : "Absent";
+
+    socket.emit("updateAttendance", {
+      submissionId: row.dataset.id,
+      attendance: checked
+    });
+  });
+
+  // ---------- EXCEL EXPORT ----------
+  document.getElementById("downloadBtn").addEventListener("click", () => {
+    const wb = XLSX.utils.table_to_book(
+      document.getElementById("submissionsTable"),
+      { sheet: "Submissions" }
+    );
+    XLSX.writeFile(wb, "form_submissions.xlsx");
+  });
+</script>
