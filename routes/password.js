@@ -6,21 +6,27 @@ const crypto = require("crypto");
 const { sendOtp } = require("../utils/mailer"); // update filename if different
 const Brevo = require('@getbrevo/brevo');
 
+const BREVO_API_KEY = (process.env.BREVO_API_KEY || '').trim();
+
 /* ---------------- BREVO SETUP (WORKING) ---------------- */
 const brevo = new Brevo.TransactionalEmailsApi();
 
 // ✅ Correct way to set API key
 brevo.setApiKey(
   Brevo.TransactionalEmailsApiApiKeys.apiKey,
-  process.env.BREVO_API_KEY
+  BREVO_API_KEY
 );
 
 const contactApi = new Brevo.ContactsApi();
 contactApi.setApiKey(
   Brevo.ContactsApiApiKeys.apiKey,
-  process.env.BREVO_API_KEY
+  BREVO_API_KEY
 );
 const transactionalApi = new Brevo.TransactionalEmailsApi();
+transactionalApi.setApiKey(
+  Brevo.TransactionalEmailsApiApiKeys.apiKey,
+  BREVO_API_KEY
+);
 // Function to unblock email if blacklisted
 async function unblockIfBlacklisted(email) {
   try {
@@ -171,4 +177,27 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
+
+
+
+/////////////////////////////////////////
+/////////////////////////////////////////
+//Password for garud classes attendance//
+/////////////////////////////////////////
+/////////////////////////////////////////
+
+router.post("/garud/attendance/reset-password", async (req, res) => {
+
+  try {
+    const { to,text } = req.body;
+    const email = to;
+    const otp = text;
+    await sendOtpEmail(email,otp);
+     res.json({ success: true, message: "OTP sent successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Failed to send OTP" });
+  }
+
+});
 module.exports = router;
