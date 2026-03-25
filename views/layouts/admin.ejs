@@ -30,6 +30,7 @@
         <a href="/teachers/all" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
           <i class="fas fa-chalkboard-teacher"></i> Faculty
         </a>
+
       <%}%>  
 
       <% if(currUser && (currUser.role === 'superadmin' || currUser.role === 'admin')) { %>
@@ -61,6 +62,13 @@
       <a href="/queries/new" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
         <i class="fas fa-plus-circle"></i> Add New Query
       </a>
+
+      <% if(currUser && (currUser.role === 'superadmin' || currUser.role === 'admin')) { %> 
+        <a href="https://attendance.garudclasses.com/" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
+          <i class="fas fa-plus"></i> Attendance Portal
+        </a>
+      <% } %>
+
 
     </nav>
 
