@@ -13,8 +13,14 @@
   <input name="username" placeholder="Username"
    class="border w-full p-2 mb-3 rounded">
 
-  <input type="password" name="password" placeholder="Password"
-   class="border w-full p-2 mb-4 rounded">
+  <div class="mb-4">
+    <input id="password" type="password" name="password" placeholder="Password"
+     class="border w-full p-2 rounded">
+    <button type="button" id="togglePassword"
+      class="mt-2 text-sm text-blue-600 hover:text-blue-800">
+      Show Password
+    </button>
+  </div>
 
   <button class="bg-green-600 w-full text-white py-2 rounded hover:bg-red-700">
     Login
@@ -31,5 +37,18 @@
   </a>
 </form>
 <br>
+
+<script>
+  const passwordInput = document.getElementById("password");
+  const togglePasswordButton = document.getElementById("togglePassword");
+
+  if (passwordInput && togglePasswordButton) {
+    togglePasswordButton.addEventListener("click", () => {
+      const isHidden = passwordInput.type === "password";
+      passwordInput.type = isHidden ? "text" : "password";
+      togglePasswordButton.textContent = isHidden ? "Hide Password" : "Show Password";
+    });
+  }
+</script>
 </body>
 </html>
