@@ -1,151 +1,630 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Fee Management</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
+<style>
+  .fees-dashboard {
+    --ink: #1f2937;
+    --muted: #64748b;
+    --line: #dbe3ee;
+    --card: #ffffff;
+    --brand: #14532d;
+    --brand-soft: #dcfce7;
+    --accent: #1d4ed8;
+    --danger: #b91c1c;
+    --danger-soft: #fee2e2;
+    --bg: #f7fafc;
 
-<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen p-6">
+    color: var(--ink);
+    background: linear-gradient(180deg, #f8fafc 0%, #eef3f9 100%);
+    border-radius: 14px;
+    padding: 16px;
+  }
 
-<div class="max-w-7xl mx-auto">
+  .fees-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  }
 
-  <!-- HEADER -->
-  <div class="flex justify-between items-center mb-6">
+  .metric-label {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .metric-value {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.15;
+  }
+
+  .metric-sub {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .canvas-wrap {
+    min-height: 320px;
+    position: relative;
+  }
+
+  .fees-badge-paid {
+    background: var(--brand-soft);
+    color: var(--brand);
+  }
+
+  .fees-badge-balance {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+
+  .fees-table-wrap {
+    max-height: 54vh;
+    overflow: auto;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+  }
+
+  .fees-sticky-head th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .batch-mini-table {
+    max-height: 300px;
+    overflow: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+</style>
+
+<div class="fees-dashboard space-y-5">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
     <div>
-      <h1 class="text-3xl font-bold text-gray-800">💰 Fee Management</h1>
-      <p class="text-gray-500">Student-wise fee summary & payments</p>
+      <h1 class="text-3xl font-bold text-slate-800">Fee Analytics Dashboard</h1>
+      <p class="text-slate-500">Class-wise totals, collection trends, and student fee health.</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-2">
+      <a href="/fees/export/excel" class="bg-emerald-700 hover:bg-emerald-800 text-white px-5 py-2.5 rounded-lg shadow font-semibold transition text-center">
+        Download Excel
+      </a>
+      <a href="/fees/date-wise" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg shadow font-semibold transition text-center">
+        Date-wise Table
+      </a>
+      <a href="/fees/new" class="bg-green-700 hover:bg-green-800 text-white px-5 py-2.5 rounded-lg shadow font-semibold transition text-center">
+        + Add Fee
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="fees-card p-4">
+      <p class="metric-label">Total Students</p>
+      <p class="metric-value" id="metricStudents">0</p>
+      <p class="metric-sub">Students with fee records</p>
+    </div>
+    <div class="fees-card p-4">
+      <p class="metric-label">Total Fee Planned</p>
+      <p class="metric-value text-slate-800" id="metricTotal">Rs 0</p>
+      <p class="metric-sub">Sum of all class fee plans</p>
+    </div>
+    <div class="fees-card p-4">
+      <p class="metric-label">Total Collected</p>
+      <p class="metric-value text-emerald-700" id="metricPaid">Rs 0</p>
+      <p class="metric-sub">All payments received (<span id="metricPaidPct">0%</span>)</p>
+    </div>
+    <div class="fees-card p-4">
+      <p class="metric-label">Total Pending</p>
+      <p class="metric-value text-red-700" id="metricBalance">Rs 0</p>
+      <p class="metric-sub">Outstanding dues (<span id="metricBalancePct">0%</span>)</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+    <div class="fees-card p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-bold text-slate-800">Class-wise Fee Split</h2>
+        <p class="text-xs text-slate-500">Total vs Paid vs Balance</p>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="classwiseBarChart"></canvas>
+      </div>
     </div>
 
-    <a href="/fees/new"
-       class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow transition">
-      + Add Fee
-    </a>
+    <div class="fees-card p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-bold text-slate-800">Balance Share By Class</h2>
+        <p class="text-xs text-slate-500">Where pending dues are concentrated</p>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="balanceDonutChart"></canvas>
+      </div>
+    </div>
   </div>
 
-  <!-- FILTER BAR -->
-  <div class="bg-white rounded-xl shadow p-4 mb-6 flex gap-4 sticky top-4 z-10">
-    <input
-      id="search"
-      placeholder="🔍 Search by name or roll"
-      class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none"
-    />
+  <div class="fees-card p-4 space-y-4">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <div>
+        <h2 class="text-lg font-bold text-slate-800">Batch-wise Monitor</h2>
+        <p class="text-sm text-slate-500">Pick any class to monitor only that batch in detail.</p>
+      </div>
+      <select id="batchMonitorSelect" class="border border-slate-300 rounded-lg px-3 py-2 min-w-[260px]">
+        <option value="">Select class</option>
+      </select>
+    </div>
 
-    <select
-      id="batchFilter"
-      class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500"
-    >
-      <option value="">All Batches</option>
-    </select>
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+      <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
+        <p class="metric-label">Batch Students</p>
+        <p class="text-2xl font-bold text-slate-800" id="batchStudentsMetric">0</p>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
+        <p class="metric-label">Batch Total Fee</p>
+        <p class="text-2xl font-bold text-slate-800" id="batchTotalMetric">Rs 0</p>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
+        <p class="metric-label">Batch Collected</p>
+        <p class="text-2xl font-bold text-emerald-700" id="batchPaidMetric">Rs 0</p>
+        <p class="text-xs text-slate-500 mt-1" id="batchPaidPct">0% of batch total</p>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
+        <p class="metric-label">Batch Pending</p>
+        <p class="text-2xl font-bold text-red-700" id="batchBalanceMetric">Rs 0</p>
+        <p class="text-xs text-slate-500 mt-1" id="batchBalancePct">0% of batch total</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      <div>
+        <h3 class="font-semibold text-slate-800 mb-2">Students In Selected Batch</h3>
+        <div class="batch-mini-table">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-100 text-slate-700">
+              <tr>
+                <th class="p-2 text-left">Student</th>
+                <th class="p-2">Total</th>
+                <th class="p-2">Paid</th>
+                <th class="p-2">Balance</th>
+              </tr>
+            </thead>
+            <tbody id="batchStudentsTableBody">
+              <tr>
+                <td colspan="4" class="p-3 text-center text-slate-500">Select a class to view details.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-slate-800 mb-2">Batch Student-wise Balance</h3>
+        <div class="canvas-wrap" style="min-height:300px;">
+          <canvas id="batchStudentBalanceChart"></canvas>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- TABLE CARD -->
-  <div class="bg-white rounded-xl shadow overflow-hidden">
-    <table class="w-full text-sm">
-      <thead class="bg-green-600 text-white">
-        <tr>
-          <th class="p-4 text-left">Student</th>
-          <th class="p-4">Batch</th>
-          <th class="p-4">Total</th>
-          <th class="p-4">Paid</th>
-          <th class="p-4">Balance</th>
-          <th class="p-4 text-center">Action</th>
-        </tr>
-      </thead>
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+    <div class="fees-card p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-bold text-slate-800">Monthly Collection Trend</h2>
+        <p class="text-xs text-slate-500">Based on payment dates</p>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="monthlyTrendChart"></canvas>
+      </div>
+    </div>
 
-      <tbody id="feeTable">
-        <% fees.forEach(f => {
-          const paid = f.payments.reduce((s,p)=>s+p.amount,0);
-          const balance = f.totalFee - paid;
-        %>
+    <div class="fees-card p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-bold text-slate-800">Top Pending Students</h2>
+        <p class="text-xs text-slate-500">Highest balance first</p>
+      </div>
+      <div id="topPendingList" class="space-y-2"></div>
+    </div>
+  </div>
 
-        <tr
-          class="border-b hover:bg-gray-50 transition fee-row"
-          data-name="<%= f.student.name %>"
-          data-roll="<%= f.student.rollNumber || '' %>"
-          data-batch="<%= f.student.batch?.name || '' %>"
-        >
+  <div class="fees-card p-4 space-y-3">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <h2 class="text-lg font-bold text-slate-800">Student Fee Table</h2>
+      <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+        <input id="search" placeholder="Search by name or roll" class="border border-slate-300 rounded-lg px-3 py-2 min-w-[220px]" />
+        <select id="batchFilter" class="border border-slate-300 rounded-lg px-3 py-2 min-w-[220px]">
+          <option value="">All Classes</option>
+        </select>
+      </div>
+    </div>
 
-          <!-- STUDENT -->
-          <td class="p-4">
-            <div class="font-semibold text-gray-800">
-              <%= f.student.name %>
-            </div>
-            <div class="text-xs text-gray-500">
-              Roll: <%= f.student.rollNumber || '-' %>
-            </div>
-          </td>
-
-          <!-- BATCH -->
-          <td class="p-4 text-gray-700">
-            <%= f.student.batch.name || '-' %>
-          </td>
-
-          <!-- TOTAL -->
-          <td class="p-4 font-semibold">
-            ₹ <%= f.totalFee %>
-          </td>
-
-          <!-- PAID -->
-          <td class="p-4 text-green-600 font-medium">
-            ₹ <%= paid %>
-          </td>
-
-          <!-- BALANCE -->
-          <td class="p-4">
-            <span class="px-3 py-1 rounded-full text-xs font-semibold
-              <%= balance > 0
-                ? 'bg-red-100 text-red-600'
-                : 'bg-green-100 text-green-600' %>">
-              ₹ <%= balance %>
-            </span>
-          </td>
-
-          <!-- ACTION -->
-          <td class="p-4 text-center">
-            <a
-              href="/fees/student/<%= f.student._id %>"
-              class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg shadow transition text-sm"
+    <div class="fees-table-wrap">
+      <table class="w-full text-sm">
+        <thead class="bg-green-700 text-white fees-sticky-head">
+          <tr>
+            <th class="p-3 text-left">Student</th>
+            <th class="p-3 text-left">Class</th>
+            <th class="p-3">Total</th>
+            <th class="p-3">Paid</th>
+            <th class="p-3">Balance</th>
+            <th class="p-3 text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody id="feeTable">
+          <% fees.forEach(f => {
+            const paid = f.payments.reduce((s,p)=>s+p.amount,0);
+            const balance = f.totalFee - paid;
+          %>
+            <tr
+              class="border-b hover:bg-slate-50 transition fee-row"
+              data-name="<%= f.student?.name || '' %>"
+              data-roll="<%= f.student?.rollNumber || '' %>"
+              data-batch="<%= f.student?.batch?.name || 'Unassigned' %>"
+              data-total="<%= f.totalFee || 0 %>"
+              data-paid="<%= paid || 0 %>"
+              data-balance="<%= balance || 0 %>"
+              data-payments='<%- JSON.stringify((f.payments || []).map(p => ({ amount: p.amount, date: p.date }))) %>'
             >
-              View
-            </a>
-          </td>
-
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
+              <td class="p-3">
+                <div class="font-semibold text-slate-800"><%= f.student?.name || 'Unknown' %></div>
+                <div class="text-xs text-slate-500">Roll: <%= f.student?.rollNumber || '-' %></div>
+              </td>
+              <td class="p-3 text-slate-700"><%= f.student?.batch?.name || 'Unassigned' %></td>
+              <td class="p-3 text-center font-semibold">Rs <%= f.totalFee || 0 %></td>
+              <td class="p-3 text-center">
+                <span class="fees-badge-paid px-2.5 py-1 rounded-full font-semibold">Rs <%= paid %></span>
+              </td>
+              <td class="p-3 text-center">
+                <span class="fees-badge-balance px-2.5 py-1 rounded-full font-semibold">Rs <%= balance %></span>
+              </td>
+              <td class="p-3 text-center">
+                <a href="/fees/student/<%= f.student?._id %>" class="inline-block bg-blue-700 hover:bg-blue-800 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                  View
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
   </div>
-
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const rows = document.querySelectorAll(".fee-row");
-const search = document.getElementById("search");
-const batchFilter = document.getElementById("batchFilter");
+  (function () {
+    const rows = Array.from(document.querySelectorAll(".fee-row"));
+    const search = document.getElementById("search");
+    const batchFilter = document.getElementById("batchFilter");
+    const batchMonitorSelect = document.getElementById("batchMonitorSelect");
+    const batchStudentsMetric = document.getElementById("batchStudentsMetric");
+    const batchTotalMetric = document.getElementById("batchTotalMetric");
+    const batchPaidMetric = document.getElementById("batchPaidMetric");
+    const batchBalanceMetric = document.getElementById("batchBalanceMetric");
+    const batchPaidPct = document.getElementById("batchPaidPct");
+    const batchBalancePct = document.getElementById("batchBalancePct");
+    const batchStudentsTableBody = document.getElementById("batchStudentsTableBody");
 
-// populate batch dropdown
-[...new Set([...rows].map(r => r.dataset.batch))]
-  .filter(b => b)
-  .forEach(b => batchFilter.innerHTML += `<option>${b}</option>`);
+    const inr = (value) => `Rs ${Number(value || 0).toLocaleString("en-IN")}`;
 
-function filter() {
-  const s = search.value.toLowerCase();
-  const b = batchFilter.value;
+    const batchMap = new Map();
+    const monthMap = new Map();
+    let totalStudents = 0;
+    let overallTotal = 0;
+    let overallPaid = 0;
+    let overallBalance = 0;
+    let batchStudentChart = null;
 
-  rows.forEach(r => {
-    const match =
-      (r.dataset.name.toLowerCase().includes(s) ||
-       r.dataset.roll.toLowerCase().includes(s)) &&
-      (b === "" || r.dataset.batch === b);
+    const rowData = rows.map((row) => ({
+      name: row.dataset.name || "Unknown",
+      roll: row.dataset.roll || "-",
+      batch: row.dataset.batch || "Unassigned",
+      total: Number(row.dataset.total || 0),
+      paid: Number(row.dataset.paid || 0),
+      balance: Number(row.dataset.balance || 0),
+    }));
 
-    r.style.display = match ? "" : "none";
-  });
-}
+    rows.forEach((row) => {
+      totalStudents += 1;
 
-search.addEventListener("input", filter);
-batchFilter.addEventListener("change", filter);
+      const batch = row.dataset.batch || "Unassigned";
+      const total = Number(row.dataset.total || 0);
+      const paid = Number(row.dataset.paid || 0);
+      const balance = Number(row.dataset.balance || 0);
+
+      overallTotal += total;
+      overallPaid += paid;
+      overallBalance += balance;
+
+      if (!batchMap.has(batch)) {
+        batchMap.set(batch, { total: 0, paid: 0, balance: 0, students: 0 });
+      }
+      const stat = batchMap.get(batch);
+      stat.total += total;
+      stat.paid += paid;
+      stat.balance += balance;
+      stat.students += 1;
+
+      const payments = JSON.parse(row.dataset.payments || "[]");
+      payments.forEach((payment) => {
+        if (!payment || !payment.date) return;
+        const dt = new Date(payment.date);
+        if (Number.isNaN(dt.getTime())) return;
+
+        const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`;
+        monthMap.set(key, (monthMap.get(key) || 0) + Number(payment.amount || 0));
+      });
+    });
+
+    document.getElementById("metricStudents").textContent = totalStudents;
+    document.getElementById("metricTotal").textContent = inr(overallTotal);
+    document.getElementById("metricPaid").textContent = inr(overallPaid);
+    document.getElementById("metricBalance").textContent = inr(overallBalance);
+    const overallPaidPercent = overallTotal > 0 ? ((overallPaid / overallTotal) * 100).toFixed(1) : "0.0";
+    const overallBalancePercent = overallTotal > 0 ? ((overallBalance / overallTotal) * 100).toFixed(1) : "0.0";
+    document.getElementById("metricPaidPct").textContent = `${overallPaidPercent}%`;
+    document.getElementById("metricBalancePct").textContent = `${overallBalancePercent}%`;
+
+    const batchEntries = Array.from(batchMap.entries())
+      .sort((a, b) => b[1].total - a[1].total);
+
+    const batchLabels = batchEntries.map(([name]) => name);
+    const batchTotals = batchEntries.map(([, values]) => values.total);
+    const batchPaid = batchEntries.map(([, values]) => values.paid);
+    const batchBalance = batchEntries.map(([, values]) => values.balance);
+
+    const monthlyEntries = Array.from(monthMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    const monthlyLabels = monthlyEntries.map(([key]) => {
+      const [year, month] = key.split("-");
+      return new Date(Number(year), Number(month) - 1, 1).toLocaleDateString("en-IN", {
+        month: "short",
+        year: "numeric",
+      });
+    });
+    const monthlyValues = monthlyEntries.map(([, amount]) => amount);
+
+    if (batchLabels.length) {
+      new Chart(document.getElementById("classwiseBarChart"), {
+        type: "bar",
+        data: {
+          labels: batchLabels,
+          datasets: [
+            {
+              label: "Total",
+              data: batchTotals,
+              backgroundColor: "rgba(29, 78, 216, 0.80)",
+            },
+            {
+              label: "Paid",
+              data: batchPaid,
+              backgroundColor: "rgba(22, 163, 74, 0.82)",
+            },
+            {
+              label: "Balance",
+              data: batchBalance,
+              backgroundColor: "rgba(220, 38, 38, 0.8)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "top" },
+          },
+          scales: {
+            y: { beginAtZero: true },
+          },
+        },
+      });
+
+      new Chart(document.getElementById("balanceDonutChart"), {
+        type: "doughnut",
+        data: {
+          labels: batchLabels,
+          datasets: [
+            {
+              data: batchBalance,
+              backgroundColor: [
+                "#1d4ed8",
+                "#16a34a",
+                "#dc2626",
+                "#d97706",
+                "#7c3aed",
+                "#0891b2",
+                "#475569",
+                "#be185d",
+              ],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom" },
+          },
+        },
+      });
+    }
+
+    new Chart(document.getElementById("monthlyTrendChart"), {
+      type: "line",
+      data: {
+        labels: monthlyLabels,
+        datasets: [
+          {
+            label: "Collection",
+            data: monthlyValues,
+            borderColor: "#14532d",
+            backgroundColor: "rgba(20, 83, 45, 0.15)",
+            fill: true,
+            tension: 0.3,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true },
+        },
+        scales: {
+          y: { beginAtZero: true },
+        },
+      },
+    });
+
+    const topPending = rows
+      .map((row) => ({
+        name: row.dataset.name || "Unknown",
+        roll: row.dataset.roll || "-",
+        batch: row.dataset.batch || "Unassigned",
+        balance: Number(row.dataset.balance || 0),
+      }))
+      .sort((a, b) => b.balance - a.balance)
+      .slice(0, 8);
+
+    const topPendingList = document.getElementById("topPendingList");
+    topPendingList.innerHTML = topPending
+      .map((student, index) => `
+        <div class="flex items-center justify-between border border-slate-200 rounded-lg p-2.5 bg-slate-50">
+          <div>
+            <p class="font-semibold text-slate-800">${index + 1}. ${student.name}</p>
+            <p class="text-xs text-slate-500">Roll: ${student.roll} | Class: ${student.batch}</p>
+          </div>
+          <span class="text-sm font-bold text-red-700">${inr(student.balance)}</span>
+        </div>
+      `)
+      .join("");
+
+    [...new Set(rows.map((row) => row.dataset.batch))]
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b))
+      .forEach((batch) => {
+        batchFilter.innerHTML += `<option value="${batch}">${batch}</option>`;
+        if (batchMonitorSelect) {
+          batchMonitorSelect.innerHTML += `<option value="${batch}">${batch}</option>`;
+        }
+      });
+
+    function renderBatchMonitor(batch) {
+      if (!batch) {
+        batchStudentsMetric.textContent = "0";
+        batchTotalMetric.textContent = inr(0);
+        batchPaidMetric.textContent = inr(0);
+        batchBalanceMetric.textContent = inr(0);
+        if (batchPaidPct) batchPaidPct.textContent = "0% of batch total";
+        if (batchBalancePct) batchBalancePct.textContent = "0% of batch total";
+        batchStudentsTableBody.innerHTML = `
+          <tr>
+            <td colspan="4" class="p-3 text-center text-slate-500">Select a class to view details.</td>
+          </tr>
+        `;
+        if (batchStudentChart) {
+          batchStudentChart.destroy();
+          batchStudentChart = null;
+        }
+        return;
+      }
+
+      const students = rowData.filter((item) => item.batch === batch);
+      const totals = students.reduce((acc, item) => {
+        acc.total += item.total;
+        acc.paid += item.paid;
+        acc.balance += item.balance;
+        return acc;
+      }, { total: 0, paid: 0, balance: 0 });
+
+      batchStudentsMetric.textContent = String(students.length);
+      batchTotalMetric.textContent = inr(totals.total);
+      batchPaidMetric.textContent = inr(totals.paid);
+      batchBalanceMetric.textContent = inr(totals.balance);
+      const paidPercent = totals.total > 0 ? ((totals.paid / totals.total) * 100).toFixed(1) : "0.0";
+      const balancePercent = totals.total > 0 ? ((totals.balance / totals.total) * 100).toFixed(1) : "0.0";
+      if (batchPaidPct) batchPaidPct.textContent = `${paidPercent}% of batch total`;
+      if (batchBalancePct) batchBalancePct.textContent = `${balancePercent}% of batch total`;
+
+      if (!students.length) {
+        batchStudentsTableBody.innerHTML = `
+          <tr>
+            <td colspan="4" class="p-3 text-center text-slate-500">No fee data found for this class.</td>
+          </tr>
+        `;
+      } else {
+        batchStudentsTableBody.innerHTML = students
+          .sort((a, b) => b.balance - a.balance)
+          .map((student) => `
+            <tr class="border-t border-slate-200">
+              <td class="p-2">
+                <p class="font-semibold text-slate-800">${student.name}</p>
+                <p class="text-xs text-slate-500">Roll: ${student.roll}</p>
+              </td>
+              <td class="p-2 text-center">${inr(student.total)}</td>
+              <td class="p-2 text-center text-emerald-700 font-semibold">${inr(student.paid)}</td>
+              <td class="p-2 text-center text-red-700 font-semibold">${inr(student.balance)}</td>
+            </tr>
+          `)
+          .join("");
+      }
+
+      const labels = students.map((s) => s.name);
+      const balanceData = students.map((s) => s.balance);
+
+      if (batchStudentChart) {
+        batchStudentChart.destroy();
+      }
+
+      batchStudentChart = new Chart(document.getElementById("batchStudentBalanceChart"), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Balance",
+              data: balanceData,
+              backgroundColor: "rgba(220, 38, 38, 0.8)",
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+          },
+          scales: {
+            y: { beginAtZero: true },
+          },
+        },
+      });
+    }
+
+    batchMonitorSelect?.addEventListener("change", (event) => {
+      renderBatchMonitor(event.target.value);
+    });
+
+    if (batchMonitorSelect && batchMonitorSelect.options.length > 1) {
+      batchMonitorSelect.value = batchMonitorSelect.options[1].value;
+      renderBatchMonitor(batchMonitorSelect.value);
+    } else {
+      renderBatchMonitor("");
+    }
+
+    function filterTable() {
+      const s = search.value.toLowerCase();
+      const b = batchFilter.value;
+
+      rows.forEach((row) => {
+        const visible =
+          (row.dataset.name.toLowerCase().includes(s) || row.dataset.roll.toLowerCase().includes(s)) &&
+          (!b || row.dataset.batch === b);
+
+        row.style.display = visible ? "" : "none";
+      });
+    }
+
+    search.addEventListener("input", filterTable);
+    batchFilter.addEventListener("change", filterTable);
+  })();
 </script>
-
-</body>
-</html>
