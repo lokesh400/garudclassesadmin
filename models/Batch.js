@@ -4,6 +4,10 @@ const batchSchema = new mongoose.Schema({
   name: { type: String, required: true },
   courseType: { type: String, enum: ["JEE", "NEET"], required: true },
   year: { type: String, required: true },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

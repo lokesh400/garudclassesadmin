@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const axios = require("axios");
 const Recruitment = require("../models/Recruitment");
 const RecruitmentApplication = require("../models/RecruitmentApplication");
 const { uploadJD } = require("./upload");
@@ -93,18 +94,11 @@ router.get("/:id", isAdmin, async (req, res) => {
 
   const allowedStatuses = ["New", "In Review", "Shortlisted", "Rejected", "Hired"];
   const status = req.query.status && allowedStatuses.includes(req.query.status) ? req.query.status : "All";
-  const search = (req.query.search || "").trim();
   const sort = req.query.sort === "oldest" ? "oldest" : "newest";
 
   const filter = { recruitment: req.params.id };
   if (status !== "All") {
     filter.status = status;
-  }
-  if (search) {
-    filter.$or = [
-      { fullName: { $regex: search, $options: "i" } },
-      { email: { $regex: search, $options: "i" } },
-    ];
   }
 
   const applications = await RecruitmentApplication.find(filter)
@@ -129,7 +123,6 @@ router.get("/:id", isAdmin, async (req, res) => {
     applications,
     filters: {
       status,
-      search,
       sort,
     },
     statusCounts,
@@ -137,6 +130,57 @@ router.get("/:id", isAdmin, async (req, res) => {
     pageTitle: "Recruitment Details",
     activePage: "recruitments",
   });
+});
+
+router.get("/:id/applications/:applicationId/resume", isAdmin, async (req, res) => {
+  const application = await RecruitmentApplication.findOne({
+    _id: req.params.applicationId,
+    recruitment: req.params.id,
+  }).lean();
+
+  if (!application || !application.resumeFile) {
+    return res.status(404).send("Resume not found");
+  }
+
+  const resumeUrl = application.resumeFile.startsWith("http")
+    ? application.resumeFile
+    : `${req.protocol}://${req.get("host")}/${application.resumeFile.replace(/^\/+/, "")}`;
+
+  res.render("recruitments/resume-view", {
+    resumeUrl,
+    inlineResumeUrl: `/admin/recruitments/${req.params.id}/applications/${req.params.applicationId}/resume/inline`,
+    candidateName: application.fullName || "Candidate",
+    layout: false,
+  });
+});
+
+router.get("/:id/applications/:applicationId/resume/inline", isAdmin, async (req, res) => {
+  try {
+    const application = await RecruitmentApplication.findOne({
+      _id: req.params.applicationId,
+      recruitment: req.params.id,
+    }).lean();
+
+    if (!application || !application.resumeFile) {
+      return res.status(404).send("Resume not found");
+    }
+
+    const resumeUrl = application.resumeFile.startsWith("http")
+      ? application.resumeFile
+      : `${req.protocol}://${req.get("host")}/${application.resumeFile.replace(/^\/+/, "")}`;
+
+    const response = await axios.get(resumeUrl, {
+      responseType: "arraybuffer",
+      timeout: 20000,
+    });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline; filename=resume.pdf");
+    res.setHeader("Cache-Control", "private, max-age=300");
+    return res.send(Buffer.from(response.data));
+  } catch (error) {
+    return res.status(502).send("Unable to load resume preview");
+  }
 });
 
 router.post("/:id/delete", isAdmin, async (req, res) => {

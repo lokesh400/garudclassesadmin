@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
   editAllowed:Boolean,
   role: {
     type: String,
-    enum: ["admin", "teacher", "student", "superadmin", "receptionist"],
+    enum: ["admin", "teacher", "student", "superadmin", "receptionist", "hr", "mts"],
     default: "student"
   }
 }, { timestamps: true });

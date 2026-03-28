@@ -1,14 +1,20 @@
-<div class="max-w-5xl mx-auto p-6">
+<div class="max-w-5xl mx-auto p-6 <%= batch.isActive ? '' : 'bg-rose-50 border border-rose-200 rounded-xl' %>">
 
   <%- include('../flash.ejs') %>
 
   <!-- HEADER -->
-  <h1 class="text-3xl font-bold mb-6">
+  <h1 class="text-3xl font-bold mb-2">
     <%= batch.name %>
   </h1>
 
+  <% if (!batch.isActive) { %>
+    <p class="mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold bg-rose-100 text-rose-700 border border-rose-200">
+      This batch is currently inactive
+    </p>
+  <% } %>
+
   <!-- Stats -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
 
     <!-- Students -->
     <div class="bg-blue-100 border-l-4 border-blue-600 p-4 rounded shadow">
@@ -30,6 +36,52 @@
       </p>
     </div>
 
+    <div class="bg-emerald-100 border-l-4 border-emerald-600 p-4 rounded shadow">
+      <p class="text-lg font-medium text-emerald-800">
+        Active Students
+      </p>
+      <p class="text-3xl font-bold text-emerald-900">
+        <%= activeStudentsCount %>
+      </p>
+    </div>
+
+    <div class="bg-rose-100 border-l-4 border-rose-600 p-4 rounded shadow">
+      <p class="text-lg font-medium text-rose-800">
+        Inactive Students
+      </p>
+      <p class="text-3xl font-bold text-rose-900">
+        <%= inactiveStudentsCount %>
+      </p>
+    </div>
+
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+    <div class="bg-white border border-slate-200 p-4 rounded shadow-sm">
+      <p class="font-semibold text-slate-800 mb-2">Batch Status</p>
+      <p class="text-sm text-slate-600 mb-3">
+        Current: <span class="font-semibold <%= batch.isActive ? 'text-emerald-700' : 'text-rose-700' %>"><%= batch.isActive ? 'Active' : 'Inactive' %></span>
+      </p>
+      <form action="/api/batches/<%= batch._id %>/set-active" method="POST" class="flex flex-wrap gap-2 items-center">
+        <select name="isActive" class="border border-slate-300 rounded px-3 py-2 text-sm">
+          <option value="true" <%= batch.isActive ? 'selected' : '' %>>Active</option>
+          <option value="false" <%= !batch.isActive ? 'selected' : '' %>>Inactive</option>
+        </select>
+        <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm">Update Batch Status</button>
+      </form>
+    </div>
+
+    <div class="bg-white border border-slate-200 p-4 rounded shadow-sm">
+      <p class="font-semibold text-slate-800 mb-2">Students Status (All Enrolled)</p>
+      <p class="text-sm text-slate-600 mb-3">Bulk update all students enrolled in this batch.</p>
+      <form action="/api/batches/<%= batch._id %>/students/set-active" method="POST" class="flex flex-wrap gap-2 items-center">
+        <select name="isActive" class="border border-slate-300 rounded px-3 py-2 text-sm">
+          <option value="true">Set All Active</option>
+          <option value="false">Set All Inactive</option>
+        </select>
+        <button class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded text-sm">Update All Students</button>
+      </form>
+    </div>
   </div>
 
 

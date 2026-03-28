@@ -12,14 +12,14 @@
 
   <!-- Sidebar -->
   <aside id="sidebar"
-    class="w-64 bg-gray-900 text-white flex flex-col fixed inset-y-0 left-0 transform 
+    class="w-64 bg-gray-900 text-white flex flex-col fixed inset-y-0 left-0 transform overflow-y-auto
            -translate-x-full transition-transform duration-300 z-50">
 
     <div class="p-5 text-center font-bold text-xl border-b border-gray-800">
       Garud Classes
     </div>
 
-    <nav class="flex-1 p-3 space-y-2">
+    <nav class="flex-1 p-3 space-y-2 overflow-y-auto">
       <% if( currUser && currUser.role === 'superadmin'  ) {%>
         <a href="/admin" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
           <i class="fas fa-chart-line"></i> Dashboard
@@ -72,6 +72,15 @@
       <% if(currUser && (currUser.role === 'superadmin' || currUser.role === 'admin')) { %>
         <a href="/admin/recruitments" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
           <i class="fas fa-briefcase"></i> Recruitments
+        </a>
+      <% } %>
+
+      <% if(currUser && (currUser.role === 'superadmin' || currUser.role === 'admin')) { %>
+        <a href="/admin/staff" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
+          <i class="fas fa-id-card"></i> Staff Documents
+        </a>
+        <a href="/admin/staff/new" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
+          <i class="fas fa-user-plus"></i> Add Staff Record
         </a>
       <% } %>
 

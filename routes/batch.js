@@ -79,11 +79,15 @@ router.get("/:id", async (req, res) => {
   const batchId = req.params.id;
   const batch = await Batch.findById(batchId);
   const studentsCount = await User.countDocuments({ batch: batchId });
+  const activeStudentsCount = await User.countDocuments({ batch: batchId, role: "student", isActive: true });
+  const inactiveStudentsCount = await User.countDocuments({ batch: batchId, role: "student", isActive: false });
   const totalTests = await Marks.countDocuments({ batch: batchId }); // if test schema exists
   const forms = await Form.find();
   res.render("batch/particularBatch", {
     batch,
     studentsCount,
+    activeStudentsCount,
+    inactiveStudentsCount,
     totalTests,
     forms,
     title: 'Batch Details',
@@ -91,6 +95,43 @@ router.get("/:id", async (req, res) => {
     activePage: 'batches',
     messages:req.flash(),
   });
+});
+
+router.post("/:id/set-active", isLoggedIn, requireRole("admin"), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const isActive = req.body.isActive === "true";
+
+    await Batch.findByIdAndUpdate(id, { isActive });
+    req.flash("success", `Batch status updated to ${isActive ? "Active" : "Inactive"}.`);
+    res.redirect(`/api/batches/${id}`);
+  } catch (error) {
+    console.error(error);
+    req.flash("error", "Could not update batch status.");
+    res.redirect(`/api/batches/${req.params.id}`);
+  }
+});
+
+router.post("/:id/students/set-active", isLoggedIn, requireRole("admin"), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const isActive = req.body.isActive === "true";
+
+    const result = await User.updateMany(
+      { batch: id, role: "student" },
+      { $set: { isActive } }
+    );
+
+    req.flash(
+      "success",
+      `${result.modifiedCount} student account(s) set to ${isActive ? "Active" : "Inactive"}.`
+    );
+    res.redirect(`/api/batches/${id}`);
+  } catch (error) {
+    console.error(error);
+    req.flash("error", "Could not update students status.");
+    res.redirect(`/api/batches/${req.params.id}`);
+  }
 });
 
 router.post("/:id/delete", async (req, res) => {

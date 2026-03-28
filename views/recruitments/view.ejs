@@ -49,19 +49,17 @@
 
   <%
     const statusTabs = ["All", "New", "In Review", "Shortlisted", "Rejected", "Hired"];
-    const currentFilters = filters || { status: "All", sort: "newest", search: "" };
+    const currentFilters = filters || { status: "All", sort: "newest" };
     const buildQuery = (overrides = {}) => {
       const next = {
         status: currentFilters.status || "All",
         sort: currentFilters.sort || "newest",
-        search: currentFilters.search || "",
         ...overrides,
       };
 
       const parts = [];
       if (next.status && next.status !== "All") parts.push(`status=${encodeURIComponent(next.status)}`);
       if (next.sort && next.sort !== "newest") parts.push(`sort=${encodeURIComponent(next.sort)}`);
-      if (next.search) parts.push(`search=${encodeURIComponent(next.search)}`);
       return parts.length ? `?${parts.join("&")}` : "";
     };
     const currentPath = `/admin/recruitments/${recruitment._id}`;
@@ -81,16 +79,19 @@
           <option value="newest" <%= currentFilters.sort === 'newest' ? 'selected' : '' %>>Newest</option>
           <option value="oldest" <%= currentFilters.sort === 'oldest' ? 'selected' : '' %>>Oldest</option>
         </select>
-        <input
-          type="text"
-          name="search"
-          value="<%= currentFilters.search || '' %>"
-          placeholder="Search name or email"
-          class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-56"
-        />
         <button type="submit" class="rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800">Apply</button>
         <a href="/admin/recruitments/<%= recruitment._id %>" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Reset</a>
       </form>
+    </div>
+
+    <div class="mb-4">
+      <input
+        id="applicationsSearchInput"
+        type="text"
+        placeholder="Search candidate name or email"
+        class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full md:w-80"
+      />
+      <p id="applicationsSearchMeta" class="text-xs text-slate-500 mt-1"></p>
     </div>
 
     <div class="flex flex-wrap gap-2 mb-5">
@@ -125,9 +126,13 @@
               <th class="px-4 py-3 text-left font-semibold">Action</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100 bg-white">
+          <tbody id="applicationsTableBody" class="divide-y divide-slate-100 bg-white">
             <% applications.forEach((app) => { %>
-              <tr class="hover:bg-slate-50/80 align-top">
+              <tr
+                class="hover:bg-slate-50/80 align-top application-row"
+                data-candidate-name="<%= (app.fullName || '').toLowerCase().replace(/"/g, '&quot;') %>"
+                data-candidate-email="<%= (app.email || '').toLowerCase().replace(/"/g, '&quot;') %>"
+              >
                 <td class="px-4 py-4">
                   <p class="font-semibold text-slate-900"><%= app.fullName %></p>
                   <p class="text-xs text-slate-600 mt-1"><%= app.email %></p>
@@ -141,7 +146,7 @@
                 </td>
                 <td class="px-4 py-4 text-slate-700"><%= app.noticePeriod || 'N/A' %></td>
                 <td class="px-4 py-4">
-                  <a href="<%= app.resumeFile && app.resumeFile.startsWith('http') ? app.resumeFile : `/${app.resumeFile || ''}` %>" target="_blank" class="inline-flex rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-100">View Resume</a>
+                  <a href="/admin/recruitments/<%= recruitment._id %>/applications/<%= app._id %>/resume" target="_blank" class="inline-flex rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-100">View Resume</a>
                 </td>
                 <td class="px-4 py-4 text-slate-600"><%= new Date(app.createdAt).toLocaleString() %></td>
                 <td class="px-4 py-4">
@@ -175,6 +180,7 @@
           </tbody>
         </table>
       </div>
+      <p id="applicationsNoMatch" class="hidden text-slate-500 mt-3">No applications match your search.</p>
     <% } %>
   </div>
 </div>
@@ -211,4 +217,46 @@
       setShareMessage("Could not share automatically. Please copy the public recruitment URL manually.", true);
     }
   });
+
+  const searchInput = document.getElementById("applicationsSearchInput");
+  const tableBody = document.getElementById("applicationsTableBody");
+  const noMatchLabel = document.getElementById("applicationsNoMatch");
+  const searchMeta = document.getElementById("applicationsSearchMeta");
+
+  const applicationRows = tableBody ? Array.from(tableBody.querySelectorAll(".application-row")) : [];
+  const totalRows = applicationRows.length;
+
+  const renderSearchMeta = (visibleCount, query) => {
+    if (!searchMeta) return;
+    if (!query) {
+      searchMeta.textContent = `Showing all ${totalRows} applications`;
+      return;
+    }
+    searchMeta.textContent = `Showing ${visibleCount} of ${totalRows} applications for "${query}"`;
+  };
+
+  const filterApplications = () => {
+    if (!searchInput || !tableBody) return;
+    const query = searchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+
+    applicationRows.forEach((row) => {
+      const name = row.dataset.candidateName || "";
+      const email = row.dataset.candidateEmail || "";
+      const matched = !query || name.includes(query) || email.includes(query);
+      row.classList.toggle("hidden", !matched);
+      if (matched) visibleCount += 1;
+    });
+
+    if (noMatchLabel) {
+      noMatchLabel.classList.toggle("hidden", visibleCount !== 0 || !query);
+    }
+
+    renderSearchMeta(visibleCount, query);
+  };
+
+  if (searchInput) {
+    searchInput.addEventListener("input", filterApplications);
+    renderSearchMeta(totalRows, "");
+  }
 </script>

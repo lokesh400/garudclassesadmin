@@ -1,19 +1,161 @@
-<div class="bg-white p-6 rounded shadow">
-  <h2 class="text-2xl font-semibold mb-4"><%= staff.name %></h2>
+<div class="space-y-6">
+  <div class="bg-white p-6 rounded-xl shadow border border-slate-200">
+    <div class="flex flex-wrap justify-between gap-3">
+      <div>
+        <h2 class="text-2xl font-semibold"><%= staff.name || 'Staff Profile' %></h2>
+        <p class="text-sm text-slate-500">Employee ID: <%= staff.employeeId || '-' %></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="px-3 py-1 rounded-full text-xs font-semibold <%= staff.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700' %>"><%= staff.status %></span>
+        <form action="/admin/staff/<%= staff._id %>/toggle-status" method="POST">
+          <input type="hidden" name="redirectTo" value="/admin/staff/<%= staff._id %>" />
+          <button class="px-3 py-1.5 rounded border text-xs font-semibold <%= staff.status === 'Active' ? 'border-rose-200 bg-rose-50 text-rose-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700' %>">
+            <%= staff.status === 'Active' ? 'Set Inactive' : 'Set Active' %>
+          </button>
+        </form>
+      </div>
+    </div>
 
-  <p><strong>Department:</strong> <%= staff.department %></p>
-  <p><strong>Designation:</strong> <%= staff.designation %></p>
-  <p><strong>Email:</strong> <%= staff.email %></p>
+    <div class="grid md:grid-cols-3 gap-3 mt-5 text-sm text-slate-700">
+      <p><strong>Department:</strong> <%= staff.department || '-' %></p>
+      <p><strong>Designation:</strong> <%= staff.designation || '-' %></p>
+      <p><strong>Joining Date:</strong> <%= staff.joiningDate ? new Date(staff.joiningDate).toLocaleDateString() : '-' %></p>
+      <p><strong>Mobile:</strong> <%= staff.mobileNumber || '-' %></p>
+      <p><strong>Alt Phone:</strong> <%= staff.phone || '-' %></p>
+      <p><strong>Email:</strong> <%= staff.email || '-' %></p>
+      <p><strong>Father Name:</strong> <%= staff.fatherName || '-' %></p>
+      <p><strong>Mother Name:</strong> <%= staff.motherName || '-' %></p>
+      <p><strong>Salary:</strong> <%= staff.salary ?? '-' %></p>
+      <p><strong>Aadhaar Number:</strong> <%= staff.aadhaarNumber || '-' %></p>
+      <p><strong>PAN Number:</strong> <%= staff.panNumber || '-' %></p>
+      <p><strong>Address:</strong> <%= staff.address || '-' %></p>
+    </div>
 
-  <h3 class="text-xl font-semibold mt-6">Documents</h3>
-  <ul class="list-disc ml-6 mt-2 space-y-1">
-    <% for(let doc in staff.documents) { %>
-      <li>
-        <a href="/<%= staff.documents[doc] %>" target="_blank"
-           class="text-blue-600">
-          <%= doc %>
-        </a>
-      </li>
-    <% } %>
-  </ul>
+    <h3 class="text-lg font-semibold mt-6 mb-2">Bank Details</h3>
+    <div class="grid md:grid-cols-2 gap-3 text-sm text-slate-700">
+      <p><strong>Bank Name:</strong> <%= staff.bankName || '-' %></p>
+      <p><strong>Account Holder:</strong> <%= staff.accountHolderName || '-' %></p>
+      <p><strong>Account Number:</strong> <%= staff.accountNumber || '-' %></p>
+      <p><strong>IFSC:</strong> <%= staff.ifscCode || '-' %></p>
+    </div>
+
+    <h3 class="text-lg font-semibold mt-6 mb-2">Documents</h3>
+    <div class="grid md:grid-cols-2 gap-2 text-sm">
+      <% const docs = staff.documents || {}; %>
+      <% const allDocs = [
+        { key: 'photo', label: 'Photo' },
+        { key: 'resume', label: 'Resume' },
+        { key: 'aadhaar', label: 'Aadhaar File' },
+        { key: 'pan', label: 'PAN File' },
+        { key: 'bankAccountPhoto', label: 'Bank Account Photo' },
+        { key: 'offerLetter', label: 'Offer Letter' },
+        { key: 'experienceLetter', label: 'Experience Letter' },
+        { key: 'otherDocument', label: 'Other Document' },
+      ]; %>
+
+      <% allDocs.forEach((d) => { %>
+        <div class="border border-slate-200 rounded p-2">
+          <span class="font-semibold"><%= d.label %>:</span>
+          <% if (docs[d.key]) { %>
+            <a href="/<%= docs[d.key] %>" target="_blank" class="text-blue-600 ml-1">View</a>
+          <% } else { %>
+            <span class="text-slate-400 ml-1">Not uploaded</span>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+
+    <h3 class="text-lg font-semibold mt-6 mb-2">Linked Users</h3>
+    <div class="text-sm text-slate-700">
+      <% if (staff.linkedUsers && staff.linkedUsers.length) { %>
+        <ul class="list-disc pl-5 space-y-1">
+          <% staff.linkedUsers.forEach((u) => { %>
+            <li><%= u.name %> (<%= u.username %>) - <%= u.role %></li>
+          <% }) %>
+        </ul>
+      <% } else { %>
+        <p class="text-slate-500">No linked users selected.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="bg-white p-6 rounded-xl shadow border border-slate-200">
+    <h3 class="text-xl font-semibold mb-4">Update Staff Details</h3>
+    <form action="/admin/staff/<%= staff._id %>/update" method="POST" enctype="multipart/form-data" class="space-y-5">
+      <div class="grid md:grid-cols-3 gap-4">
+        <input name="name" value="<%= staff.name || '' %>" placeholder="Full Name" class="border p-2.5 rounded" />
+        <input name="employeeId" value="<%= staff.employeeId || '' %>" placeholder="Employee ID" class="border p-2.5 rounded" />
+        <input name="fatherName" value="<%= staff.fatherName || '' %>" placeholder="Father Name" class="border p-2.5 rounded" />
+        <input name="motherName" value="<%= staff.motherName || '' %>" placeholder="Mother Name" class="border p-2.5 rounded" />
+        <input name="designation" value="<%= staff.designation || '' %>" placeholder="Designation" class="border p-2.5 rounded" />
+        <input name="department" value="<%= staff.department || '' %>" placeholder="Department" class="border p-2.5 rounded" />
+        <input type="date" name="joiningDate" value="<%= staff.joiningDate ? new Date(staff.joiningDate).toISOString().slice(0,10) : '' %>" class="border p-2.5 rounded" />
+        <input name="salary" value="<%= staff.salary ?? '' %>" placeholder="Salary" class="border p-2.5 rounded" />
+        <input name="mobileNumber" value="<%= staff.mobileNumber || '' %>" placeholder="Mobile Number" class="border p-2.5 rounded" />
+        <input name="phone" value="<%= staff.phone || '' %>" placeholder="Alternate Phone" class="border p-2.5 rounded" />
+        <input name="email" value="<%= staff.email || '' %>" placeholder="Email Address" class="border p-2.5 rounded" />
+        <input name="aadhaarNumber" value="<%= staff.aadhaarNumber || '' %>" placeholder="Aadhaar Number" class="border p-2.5 rounded" />
+        <input name="panNumber" value="<%= staff.panNumber || '' %>" placeholder="PAN Number" class="border p-2.5 rounded" />
+        <select name="status" class="border p-2.5 rounded">
+          <option value="Active" <%= staff.status === 'Active' ? 'selected' : '' %>>Active</option>
+          <option value="Inactive" <%= staff.status === 'Inactive' ? 'selected' : '' %>>Inactive</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block mb-1 text-sm font-semibold text-slate-700">Link Existing Users (Optional)</label>
+        <select name="linkedUsers" multiple class="w-full border p-2.5 rounded min-h-[140px]">
+          <% const selectedUserIds = (staff.linkedUsers || []).map((u) => String(u._id)); %>
+          <% (eligibleUsers || []).forEach((user) => { %>
+            <option value="<%= user._id %>" <%= selectedUserIds.includes(String(user._id)) ? 'selected' : '' %>>
+              <%= user.name %> (<%= user.username %>) - <%= user.role %>
+            </option>
+          <% }) %>
+        </select>
+        <p class="text-xs text-slate-500 mt-1">Hold Ctrl/Cmd to select multiple users. Leave empty if not needed.</p>
+      </div>
+
+      <textarea name="address" placeholder="Address" class="w-full border p-2.5 rounded h-24"><%= staff.address || '' %></textarea>
+
+      <h4 class="font-semibold text-slate-800">Bank Details</h4>
+      <div class="grid md:grid-cols-4 gap-4">
+        <input name="bankName" value="<%= staff.bankName || '' %>" placeholder="Bank Name" class="border p-2.5 rounded" />
+        <input name="accountHolderName" value="<%= staff.accountHolderName || '' %>" placeholder="Account Holder Name" class="border p-2.5 rounded" />
+        <input id="accountNumber" name="accountNumber" value="<%= staff.accountNumber || '' %>" placeholder="Account Number" class="border p-2.5 rounded" />
+        <input id="confirmAccountNumber" name="confirmAccountNumber" value="<%= staff.accountNumber || '' %>" placeholder="Confirm Account Number" class="border p-2.5 rounded" />
+        <input name="ifscCode" value="<%= staff.ifscCode || '' %>" placeholder="IFSC Code" class="border p-2.5 rounded" />
+      </div>
+
+      <h4 class="font-semibold text-slate-800">Upload/Replace Documents (Optional)</h4>
+      <div class="grid md:grid-cols-3 gap-4 text-sm">
+        <div><label class="block mb-1">Photo</label><input type="file" name="photo" /></div>
+        <div><label class="block mb-1">Resume</label><input type="file" name="resume" /></div>
+        <div><label class="block mb-1">Aadhaar File</label><input type="file" name="aadhaar" /></div>
+        <div><label class="block mb-1">PAN File</label><input type="file" name="pan" /></div>
+        <div><label class="block mb-1">Bank Account Photo</label><input type="file" name="bankAccountPhoto" /></div>
+        <div><label class="block mb-1">Offer Letter</label><input type="file" name="offerLetter" /></div>
+        <div><label class="block mb-1">Experience Letter</label><input type="file" name="experienceLetter" /></div>
+        <div><label class="block mb-1">Other Document</label><input type="file" name="otherDocument" /></div>
+      </div>
+
+      <button class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Update Staff</button>
+    </form>
+  </div>
 </div>
+
+<script>
+  const accountInput = document.getElementById("accountNumber");
+  const confirmInput = document.getElementById("confirmAccountNumber");
+
+  const syncAccountRequired = () => {
+    const hasAccount = Boolean(accountInput?.value?.trim());
+    const hasConfirm = Boolean(confirmInput?.value?.trim());
+
+    if (accountInput) accountInput.required = hasConfirm;
+    if (confirmInput) confirmInput.required = hasAccount;
+  };
+
+  accountInput?.addEventListener("input", syncAccountRequired);
+  confirmInput?.addEventListener("input", syncAccountRequired);
+  syncAccountRequired();
+</script>

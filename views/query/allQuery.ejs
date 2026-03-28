@@ -2,6 +2,18 @@
   <!-- Enhanced Filters -->
   <div class="flex flex-wrap gap-4 items-end mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
     <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Student Name</label>
+      <input type="text" id="studentNameFilter" placeholder="Student name..." class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
+      <select id="statusFilter" class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        <option value="">All</option>
+        <option value="Open">Open</option>
+        <option value="Closed">Closed</option>
+      </select>
+    </div>
+    <div>
       <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Query Created</label>
       <input type="date" id="queryDateFilter" class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
     </div>
@@ -34,7 +46,9 @@
           <tr class="hover:bg-gray-50 transition query-row" 
               data-query-date="<%= q.createdAt.toISOString().split('T')[0] %>"
               data-followup-date="<%= q.latestFollowUp ? q.latestFollowUp.createdAt.toISOString().split('T')[0] : '' %>"
-              data-creator="<%= q.createdBy?.name.toLowerCase() %>">
+              data-student-name="<%= (q.studentName || '').toLowerCase() %>"
+              data-creator="<%= q.createdBy?.name.toLowerCase() %>"
+              data-status="<%= q.status %>">
             
             <td class="px-6 py-4">
               <div class="font-bold text-gray-900"><%= q.studentName %></div>
@@ -71,37 +85,47 @@
 </div>
 
 <script>
+  const studentNameInput = document.getElementById('studentNameFilter');
+  const statusFilter = document.getElementById('statusFilter');
   const queryDateInput = document.getElementById('queryDateFilter');
   const followUpDateInput = document.getElementById('followUpDateFilter');
   const userInput = document.getElementById('userFilter');
   const rows = document.querySelectorAll('.query-row');
 
   function applyFilters() {
+    const studentName = studentNameInput.value.toLowerCase().trim();
+    const status = statusFilter.value;
     const qDate = queryDateInput.value;
     const fDate = followUpDateInput.value;
     const uName = userInput.value.toLowerCase();
 
     rows.forEach(row => {
+      const rowStudentName = row.getAttribute('data-student-name') || '';
+      const rowStatus = row.getAttribute('data-status') || '';
       const rowQDate = row.getAttribute('data-query-date');
       const rowFDate = row.getAttribute('data-followup-date');
-      const rowCreator = row.getAttribute('data-creator');
+      const rowCreator = row.getAttribute('data-creator') || '';
 
+      const matchesStudent = !studentName || rowStudentName.includes(studentName);
+      const matchesStatus = !status || rowStatus === status;
       const matchesQDate = !qDate || rowQDate === qDate;
       const matchesFDate = !fDate || rowFDate === fDate;
       const matchesUser = !uName || rowCreator.includes(uName);
 
-      row.style.display = (matchesQDate && matchesFDate && matchesUser) ? "" : "none";
+      row.style.display = (matchesStudent && matchesStatus && matchesQDate && matchesFDate && matchesUser) ? "" : "none";
     });
   }
 
   function clearFilters() {
+    studentNameInput.value = "";
+    statusFilter.value = "";
     queryDateInput.value = "";
     followUpDateInput.value = "";
     userInput.value = "";
     applyFilters();
   }
 
-  [queryDateInput, followUpDateInput, userInput].forEach(el => {
+  [studentNameInput, statusFilter, queryDateInput, followUpDateInput, userInput].forEach(el => {
     el.addEventListener('input', applyFilters);
   });
 </script>
