@@ -1,0 +1,78 @@
+<section class="mb-5 rounded-2xl border border-slate-200 bg-gradient-to-r from-amber-50 via-white to-teal-50 p-5 md:p-7 shadow-sm max-w-5xl">
+  <h2 class="text-3xl font-bold text-slate-900 tracking-tight">Edit Recruitment</h2>
+  <p class="mt-2 text-sm text-slate-600">Update details, status, and documents for this opening.</p>
+</section>
+
+<form action="/admin/recruitments/<%= recruitment._id %>/update" method="POST" enctype="multipart/form-data" class="max-w-5xl rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm space-y-6">
+  <div class="grid md:grid-cols-2 gap-4">
+    <div>
+      <label class="block mb-1 text-sm font-semibold text-slate-700">Job Title</label>
+      <input name="title" value="<%= recruitment.title %>" class="w-full border border-slate-300 p-2.5 rounded-lg" required />
+    </div>
+    <div>
+      <label class="block mb-1 text-sm font-semibold text-slate-700">Department</label>
+      <input name="department" value="<%= recruitment.department %>" class="w-full border border-slate-300 p-2.5 rounded-lg" />
+    </div>
+    <div>
+      <label class="block mb-1 text-sm font-semibold text-slate-700">Experience</label>
+      <input name="experience" value="<%= recruitment.experience %>" class="w-full border border-slate-300 p-2.5 rounded-lg" />
+    </div>
+    <div>
+      <label class="block mb-1 text-sm font-semibold text-slate-700">Salary Range</label>
+      <input name="salaryRange" value="<%= recruitment.salaryRange %>" class="w-full border border-slate-300 p-2.5 rounded-lg" />
+    </div>
+    <div>
+      <label class="block mb-1 text-sm font-semibold text-slate-700">Location</label>
+      <input name="location" value="<%= recruitment.location %>" class="w-full border border-slate-300 p-2.5 rounded-lg" required />
+    </div>
+
+    <div>
+      <label class="block mb-1 text-sm font-semibold text-slate-700">Employment Type</label>
+      <select name="employmentType" class="w-full border border-slate-300 p-2.5 rounded-lg">
+        <option value="Full-time" <%= recruitment.employmentType === 'Full-time' ? 'selected' : '' %>>Full-time</option>
+        <option value="Part-time" <%= recruitment.employmentType === 'Part-time' ? 'selected' : '' %>>Part-time</option>
+        <option value="Contract" <%= recruitment.employmentType === 'Contract' ? 'selected' : '' %>>Contract</option>
+        <option value="Internship" <%= recruitment.employmentType === 'Internship' ? 'selected' : '' %>>Internship</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block mb-1 text-sm font-semibold text-slate-700">Openings</label>
+      <input type="number" min="1" name="openings" value="<%= recruitment.openings || 1 %>" class="w-full border border-slate-300 p-2.5 rounded-lg" />
+    </div>
+    <div>
+      <label class="block mb-1 text-sm font-semibold text-slate-700">Last Date To Apply</label>
+      <input type="date" name="lastDateToApply" value="<%= recruitment.lastDateToApply ? new Date(recruitment.lastDateToApply).toISOString().slice(0,10) : '' %>" class="w-full border border-slate-300 p-2.5 rounded-lg" />
+    </div>
+  </div>
+
+  <div>
+    <label class="block mb-1 text-sm font-semibold text-slate-700">Job Description</label>
+    <textarea name="description" class="w-full border border-slate-300 p-3 rounded-lg h-36" required><%= recruitment.description %></textarea>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4">
+    <div>
+      <label class="block mb-1 text-sm font-semibold text-slate-700">Replace JD (PDF)</label>
+      <input type="file" name="jd" accept=".pdf" class="w-full text-sm" />
+      <% if (recruitment.jdFile) { %>
+        <a href="/<%= recruitment.jdFile %>" target="_blank" class="mt-2 inline-block text-sm text-teal-700 hover:underline">View existing JD</a>
+      <% } %>
+    </div>
+
+    <div>
+      <label class="block mb-1 text-sm font-semibold text-slate-700">Status</label>
+      <select name="status" class="w-full border border-slate-300 p-2.5 rounded-lg">
+        <option value="Open" <%= recruitment.status === 'Open' ? 'selected' : '' %>>Open</option>
+        <option value="Closed" <%= recruitment.status === 'Closed' ? 'selected' : '' %>>Closed</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-3">
+    <button class="inline-flex items-center rounded-lg bg-teal-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-teal-800" type="submit">
+      Update Recruitment
+    </button>
+    <a href="/admin/recruitments/<%= recruitment._id %>" class="inline-flex items-center rounded-lg border border-slate-300 px-6 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</a>
+  </div>
+</form>

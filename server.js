@@ -36,6 +36,7 @@ const userEditRoutes = require("./routes/userEdit");
 const resetPasswordRoute = require("./routes/password");
 
 const recruitmentsRoutes = require("./routes/recruitments");
+const recruitmentPublicRoutes = require("./routes/recruitmentPublic");
 const staffRoutes = require("./routes/staff");
 
 const mobileAuthRoutes = require("./routes/mobile/auth");
@@ -63,15 +64,18 @@ app.use(
     origin: 8081,
     credentials: true,
     "https://garudattendance.onrender.com": true,
-    "http://localhost:3000": true,
+    "https://garudclasses.com": true,
+    // "http://localhost:3000": true,
     "http://localhost:8081": true,
-    "http://localhost:5000": true,
+    // "http://localhost:5000": true,
+    // "http://localhost:8000": true
   })
 );
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* ---------------- VIEW ENGINE ---------------- */
 app.set("view engine", "ejs");
@@ -170,6 +174,7 @@ app.get("/admin/staff-management", isLoggedIn, requireRole("superadmin"), async 
 });
 
 app.use("/admin/recruitments", recruitmentsRoutes);
+app.use("/recruitments", recruitmentPublicRoutes);
 app.use("/admin/staff", staffRoutes);
 
 
