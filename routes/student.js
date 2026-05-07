@@ -76,6 +76,7 @@ router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) =
 
   } catch (err) {
     console.error(err);
+    console.log(err)
     res.status(500).json({ message: 'Server error' });
   }
 });
