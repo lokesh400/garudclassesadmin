@@ -64,6 +64,7 @@ app.use(
     origin: 8081,
     credentials: true,
     "https://garudattendance.onrender.com": true,
+    "https://p.garudclasses.com": true,
     "https://garudclasses.com": true,
     // "http://localhost:3000": true,
     "http://localhost:8081": true,
