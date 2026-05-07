@@ -73,7 +73,7 @@ router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) =
     });
     await fee.save();
     res.status(201).json({ message: 'Student added', student });
-    await sendStudentCredentials(email, student.username, password);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
