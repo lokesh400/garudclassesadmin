@@ -86,7 +86,7 @@ app.set("layout", "layouts/admin");
 /* ---------------- SESSION ---------------- */
 app.use(
   session({
-    secret: "njjhjhjhjghjghjgh",
+    secret: process.env.MONGOSECRET,
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({

@@ -366,8 +366,6 @@ router.post("/login", (req, res, next) => {
 
     // 🔒 CHECK IF USER IS ACTIVE
     if (user.isActive !== true) {
-      console.log("INACTIVE USER ATTEMPT:", user.email);
-
       return res.status(403).json({
         loggedIn: false,
         message: "Your account is inactive. Please contact the administration.",
@@ -382,6 +380,7 @@ router.post("/login", (req, res, next) => {
         user: user.email,
         userId: user.id,
         role: user.role,
+        name:req.user.name
       });
     });
   })(req, res, next);
@@ -406,13 +405,12 @@ router.get("/check", (req, res) => {
     return;
   }
 
-  console.log("USER LOGGED IN:", req.user.id);
-
   res.json({
     loggedIn: true,
     user: req.user.email,
     userId: req.user.id,
     role: req.user.role,
+    name:req.user.name
   });
 });
 
