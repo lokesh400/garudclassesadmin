@@ -21,55 +21,28 @@ const router = express.Router();
 //     activePage: "queries",
 //    });
 // });
-
 router.get("/queries", async (req, res) => {
-  if(req.user.role === 'receptionist'){
-    try {
-    const queries = await Query.find({createdBy:req.user._id}).aggregate([
-      {
-        $lookup: {
-          from: "followups", // Ensure this matches your actual collection name
-          localField: "_id",
-          foreignField: "queryId",
-          pipeline: [
-            { $sort: { createdAt: -1 } }, // Get newest first
-            { $limit: 1 }                 // Only take the latest one
-          ],
-          as: "latestFollowUp"
-        }
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "createdBy",
-          foreignField: "_id",
-          as: "createdBy"
-        }
-      },
-      { $unwind: { path: "$createdBy", preserveNullAndEmptyArrays: true } },
-      { $unwind: { path: "$latestFollowUp", preserveNullAndEmptyArrays: true } },
-      { $sort: { createdAt: -1 } }
-    ]);
-
-  res.render("query/allQuery", { queries,
-    title: "All Queries",
-    pageTitle: "All Queries",
-    activePage: "queries",
-   });
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-  }
   try {
+
+    let matchStage = {};
+
+    // If receptionist, show only their queries
+    if (req.user.role === "receptionist") {
+      matchStage = { createdBy: req.user._id };
+    }
+
     const queries = await Query.aggregate([
       {
+        $match: matchStage
+      },
+      {
         $lookup: {
-          from: "followups", // Ensure this matches your actual collection name
+          from: "followups",
           localField: "_id",
           foreignField: "queryId",
           pipeline: [
-            { $sort: { createdAt: -1 } }, // Get newest first
-            { $limit: 1 }                 // Only take the latest one
+            { $sort: { createdAt: -1 } },
+            { $limit: 1 }
           ],
           as: "latestFollowUp"
         }
@@ -82,21 +55,34 @@ router.get("/queries", async (req, res) => {
           as: "createdBy"
         }
       },
-      { $unwind: { path: "$createdBy", preserveNullAndEmptyArrays: true } },
-      { $unwind: { path: "$latestFollowUp", preserveNullAndEmptyArrays: true } },
-      { $sort: { createdAt: -1 } }
+      {
+        $unwind: {
+          path: "$createdBy",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $unwind: {
+          path: "$latestFollowUp",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $sort: { createdAt: -1 }
+      }
     ]);
 
-  res.render("query/allQuery", { queries,
-    title: "All Queries",
-    pageTitle: "All Queries",
-    activePage: "queries",
-   });
+    res.render("query/allQuery", {
+      queries,
+      title: "All Queries",
+      pageTitle: "All Queries",
+      activePage: "queries",
+    });
+
   } catch (err) {
     res.status(500).send(err.message);
   }
 });
-
 
 router.get("/queries/new",isLoggedIn, requireRole("receptionist","admin","superadmin"), (req, res) => {
   res.render("query/addQuery",{
