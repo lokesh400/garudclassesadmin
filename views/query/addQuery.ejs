@@ -1,9 +1,138 @@
-<form method="POST" class="max-w-lg bg-white p-6">
-  <input name="studentName" placeholder="Student Name" class="w-full border p-2 mb-2">
-  <input name="mobileNumber" placeholder="Mobile Number" class="w-full border p-2 mb-2">
-  <textarea name="description" placeholder="What is your query?" class="w-full border p-2"></textarea>
+ <div class="max-w-3xl mx-auto">
 
-  <button class="mt-4 bg-blue-600 text-white px-4 py-2">
-    Save
-  </button>
-</form>
+  <!-- Page Header -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">
+      Add New Query
+    </h1>
+
+    <p class="text-gray-500 mt-2">
+      Fill in the student details and query information.
+    </p>
+  </div>
+
+
+  <!-- Form Card -->
+  <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+
+    <!-- Top Gradient -->
+    <div class="h-3 bg-gradient-to-r from-indigo-500 via-blue-500 to-cyan-400"></div>
+
+    <form method="POST" class="p-6 md:p-8 space-y-6">
+
+      <!-- Student Name -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">
+          Student Name
+        </label>
+
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+            <i class="fas fa-user"></i>
+          </span>
+
+          <input
+            type="text"
+            name="studentName"
+            placeholder="Enter student name"
+            class="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition"
+            required
+          >
+        </div>
+      </div>
+
+
+      <!-- Mobile Number -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">
+          Mobile Number
+        </label>
+
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+            <i class="fas fa-phone"></i>
+          </span>
+
+          <input
+            type="tel"
+            name="mobileNumber"
+            placeholder="Enter mobile number"
+            class="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition"
+            required
+          >
+        </div>
+      </div>
+
+
+      <!-- Description -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">
+          Query Description
+        </label>
+
+        <div class="relative">
+          <span class="absolute left-4 top-5 text-gray-400">
+            <i class="fas fa-comment-dots"></i>
+          </span>
+
+          <textarea
+            name="description"
+            rows="6"
+            placeholder="Write student or parent query here..."
+            class="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition resize-none"
+            required
+          ></textarea>
+        </div>
+      </div>
+
+
+      <!-- Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 pt-2">
+
+        <button
+          type="submit"
+          class="flex-1 bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition duration-300"
+        >
+          <i class="fas fa-save mr-2"></i>
+          Save Query
+        </button>
+
+        <a
+          href="/queries"
+          class="flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-4 rounded-2xl font-semibold transition"
+        >
+          Cancel
+        </a>
+
+      </div>
+
+    </form>
+
+  </div>
+
+
+  <!-- Bottom Motivation -->
+  <div class="mt-6 bg-indigo-50 border border-indigo-100 rounded-3xl p-5">
+
+    <div class="flex gap-4 items-start">
+
+      <div class="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center shrink-0">
+        <i class="fas fa-heart text-indigo-600"></i>
+      </div>
+
+      <div>
+        <h3 class="font-bold text-indigo-700">
+          Every Query Matters 💙
+        </h3>
+
+        <p class="text-indigo-600 mt-1 text-sm leading-relaxed">
+          Helping students and parents with care builds trust and creates
+          a positive learning environment for the entire Garud family.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
