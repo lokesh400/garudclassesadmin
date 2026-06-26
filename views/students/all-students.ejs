@@ -51,7 +51,7 @@
             </td>
             <td class="py-2 px-4 border text-center">
               <button
-                class="bg-yellow-400 text-white px-4 py-1 rounded shadow hover:bg-yellow-500 transition"
+                class="bg-yellow-400 text-white px-3 py-1 rounded shadow hover:bg-yellow-500 transition"
                 onclick="openEditModal(
                   '<%= u._id %>', 
                   '<%= u.name %>', 
@@ -64,11 +64,19 @@
                   '<%= u.address || '' %>', 
                   '<%= u.role %>', 
                   <%= u.editAllowed || false %>,
-                  <%= u.isActive %>
+                  <%= u.isActive %>,
+                  <%= u.allowPhotoReupload || false %>,
+                  <%= u.allowDocumentReupload || false %>
                 )"
               >
                 Edit
               </button>
+              <a 
+                href="/api/students/documents/<%= u._id %>"
+                class="bg-blue-600 text-white px-3 py-1 rounded shadow hover:bg-blue-700 transition ml-2 inline-block text-xs font-semibold"
+              >
+                Docs
+              </a>
             </td>
           </tr>
         <% }) %>
@@ -144,7 +152,17 @@
 
       <div class="md:col-span-2 flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
         <input type="checkbox" id="isActive" name="isActive" class="w-5 h-5 accent-blue-600" />
-        <label for="editEditAllowed" class="text-sm font-medium text-gray-700">Is this user currently active ?</label>
+        <label for="isActive" class="text-sm font-medium text-gray-700">Is this user currently active ?</label>
+      </div>
+
+      <div class="md:col-span-2 flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
+        <input type="checkbox" id="editAllowPhotoReupload" name="allowPhotoReupload" class="w-5 h-5 accent-blue-600" />
+        <label for="editAllowPhotoReupload" class="text-sm font-medium text-gray-700">Allow student to re-upload Profile Photo</label>
+      </div>
+
+      <div class="md:col-span-2 flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
+        <input type="checkbox" id="editAllowDocumentReupload" name="allowDocumentReupload" class="w-5 h-5 accent-blue-600" />
+        <label for="editAllowDocumentReupload" class="text-sm font-medium text-gray-700">Allow student to re-upload Documents</label>
       </div>
 
       <div class="md:col-span-2 flex justify-end gap-4 mt-6">
@@ -182,7 +200,7 @@
   /** 
    * ✏️ Open and Populate Modal 
    */
-  function openEditModal(id, name, username, email, number, fatherName, motherName, rollNumber, address, role, editAllowed,isActive) {
+  function openEditModal(id, name, username, email, number, fatherName, motherName, rollNumber, address, role, editAllowed, isActive, allowPhotoReupload, allowDocumentReupload) {
     // Mapping Schema to UI
     document.getElementById("editUserId").value = id;
     document.getElementById("editName").value = name;
@@ -194,11 +212,12 @@
     document.getElementById("editRollNumber").value = rollNumber;
     document.getElementById("editAddress").value = address;
     document.getElementById("editRole").value = role;
-    document.getElementById("isActive").value = isActive;
     
     // Set checkbox state
     document.getElementById("editEditAllowed").checked = (editAllowed === true || editAllowed === 'true');
     document.getElementById("isActive").checked = (isActive === true || isActive === 'true');
+    document.getElementById("editAllowPhotoReupload").checked = (allowPhotoReupload === true || allowPhotoReupload === 'true');
+    document.getElementById("editAllowDocumentReupload").checked = (allowDocumentReupload === true || allowDocumentReupload === 'true');
 
     // Show modal
     const modal = document.getElementById("editModal");
@@ -234,7 +253,9 @@
       address: document.getElementById("editAddress").value,
       role: document.getElementById("editRole").value,
       editAllowed: document.getElementById("editEditAllowed").checked,
-      isActive: document.getElementById("isActive").checked
+      isActive: document.getElementById("isActive").checked,
+      allowPhotoReupload: document.getElementById("editAllowPhotoReupload").checked,
+      allowDocumentReupload: document.getElementById("editAllowDocumentReupload").checked
     };
 
     try {

@@ -119,14 +119,62 @@ router.get("/all", async (req, res) => {
 ///////////////////////////
 router.post("/edit/:id", async (req, res) => {
   try {
-    const { name,email,number,fatherName,motherName,address,editAllowed,isActive } = req.body;
-    await User.findByIdAndUpdate(req.params.id, {  name,email,number,fatherName,motherName,address,editAllowed,isActive });
+    const { name,email,number,fatherName,motherName,address,editAllowed,isActive,allowPhotoReupload,allowDocumentReupload } = req.body;
+    await User.findByIdAndUpdate(req.params.id, {  name,email,number,fatherName,motherName,address,editAllowed,isActive,allowPhotoReupload,allowDocumentReupload });
     res.json({ success: true, message: "User updated successfully!" });
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: "Failed to update user." });
   }
 });
+
+// Admin: View student documents
+router.get("/documents/:id", isLoggedIn, requireRole("superadmin", "admin", "receptionist"), async (req, res) => {
+  try {
+    const student = await User.findById(req.params.id).populate("batch").lean();
+    if (!student) {
+      return res.status(404).send("Student not found");
+    }
+    res.render("students/view-documents", {
+      title: `${student.name}'s Documents`,
+      pageTitle: `Documents - ${student.name}`,
+      activePage: "students",
+      student,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error fetching student documents");
+  }
+});
+
+// Admin: Toggle re-upload permissions
+router.post("/documents/:id/toggle-reupload", isLoggedIn, requireRole("superadmin", "admin"), async (req, res) => {
+  try {
+    const { type } = req.body; // "photo" or "document"
+    const student = await User.findById(req.params.id);
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+    if (type === "photo") {
+      student.allowPhotoReupload = !student.allowPhotoReupload;
+    } else if (type === "document") {
+      student.allowDocumentReupload = !student.allowDocumentReupload;
+    } else {
+      return res.status(400).json({ success: false, message: "Invalid type" });
+    }
+    await student.save();
+    res.json({
+      success: true,
+      allowPhotoReupload: student.allowPhotoReupload,
+      allowDocumentReupload: student.allowDocumentReupload,
+      message: "Permissions updated successfully!"
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 
 //////////////////////////////////////
 /////////////////////////////////////

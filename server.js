@@ -48,6 +48,8 @@ const mobileAdminQueryRoutes = require("./routes/mobile/admin/query");
 const mobileAdminFormRoutes = require("./routes/mobile/admin/form");
 const mobileAdminFeeRoutes = require("./routes/mobile/admin/fee");
 const studioBookingRoutes = require("./routes/mobile/studioBooking");
+const mobileUploadRoutes = require("./routes/mobile/upload");
+const mobileDocumentsRoutes = require("./routes/mobile/documents");
 
 /* ---------------- APP INIT ---------------- */
 const app = express();
@@ -146,6 +148,8 @@ app.use("/api/form/admin", mobileAdminFormRoutes);
 app.use("/api/fee/admin", mobileAdminFeeRoutes);
 
 app.use("/api/studio-bookings", studioBookingRoutes);
+app.use("/api/mobile/upload", mobileUploadRoutes);
+app.use("/api/mobile/documents", mobileDocumentsRoutes);
 
 /* ---------------- PAGES ---------------- */
 app.get("/", (req, res) => res.redirect("/admin"));

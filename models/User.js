@@ -24,11 +24,18 @@ const userSchema = new mongoose.Schema({
   motherName: String,
   address: String,
   editAllowed:Boolean,
+  allowPhotoReupload: { type: Boolean, default: false },
+  allowDocumentReupload: { type: Boolean, default: false },
   role: {
     type: String,
     enum: ["admin", "teacher", "student", "superadmin", "receptionist", "hr", "mts"],
     default: "student"
-  }
+  },
+  class10Marksheet: { url: String, publicId: String },
+  class12Marksheet: { url: String, publicId: String },
+  aadharCard: { url: String, publicId: String },
+  fatherAadharCard: { url: String, publicId: String },
+  motherAadharCard: { url: String, publicId: String }
 }, { timestamps: true });
 
 userSchema.plugin(passportLocalMongoose);
