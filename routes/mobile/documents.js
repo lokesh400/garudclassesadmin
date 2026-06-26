@@ -101,14 +101,16 @@ router.post("/upload", upload.any(), async (req, res) => {
 
     // Check if document already exists and re-upload is disallowed by admin
     if (name === "studentPhoto") {
-      if (student.image && !student.allowPhotoReupload) {
+      if (student.image && !student.allowStudentPhotoReupload) {
         return res.status(403).json({
           success: false,
           message: "Profile photo re-upload is locked. Please contact the administrator to allow re-upload."
         });
       }
     } else {
-      if (student[name] && student[name].url && !student.allowDocumentReupload) {
+      const fieldName = `allow${name.charAt(0).toUpperCase() + name.slice(1)}Reupload`;
+      const isAlreadyUploaded = student[name] && student[name].url;
+      if (isAlreadyUploaded && !student[fieldName]) {
         return res.status(403).json({
           success: false,
           message: "Document re-upload is locked. Please contact the administrator to allow re-upload."
@@ -123,12 +125,17 @@ router.post("/upload", upload.any(), async (req, res) => {
     if (name === "studentPhoto") {
       // Update image field directly
       student.image = uploadResult.secure_url;
+      // Auto-lock after successful upload
+      student.allowStudentPhotoReupload = false;
     } else {
       // Assign the subdocument properties directly to the fixed field
       student[name] = {
         url: uploadResult.secure_url,
         publicId: uploadResult.public_id,
       };
+      // Auto-lock after successful upload
+      const fieldName = `allow${name.charAt(0).toUpperCase() + name.slice(1)}Reupload`;
+      student[fieldName] = false;
     }
 
     await student.save();
@@ -140,8 +147,8 @@ router.post("/upload", upload.any(), async (req, res) => {
       message: `${name} uploaded successfully.`,
       studentPhoto: student.image || null,
       documents: buildDocumentsResponse(student),
-      allowPhotoReupload: student.allowPhotoReupload || false,
-      allowDocumentReupload: student.allowDocumentReupload || false,
+      allowPhotoReupload: student.allowStudentPhotoReupload || false,
+      allowDocumentReupload: (student.allowClass10MarksheetReupload || student.allowClass12MarksheetReupload || student.allowAadharCardReupload || student.allowFatherAadharCardReupload || student.allowMotherAadharCardReupload) || false,
     });
   } catch (error) {
     console.error("[Document Upload] Error uploading document:", error);
@@ -180,8 +187,8 @@ router.get("/:studentId", async (req, res) => {
       success: true,
       studentPhoto: student.image || null,
       documents: buildDocumentsResponse(student),
-      allowPhotoReupload: student.allowPhotoReupload || false,
-      allowDocumentReupload: student.allowDocumentReupload || false,
+      allowPhotoReupload: student.allowStudentPhotoReupload || false,
+      allowDocumentReupload: (student.allowClass10MarksheetReupload || student.allowClass12MarksheetReupload || student.allowAadharCardReupload || student.allowFatherAadharCardReupload || student.allowMotherAadharCardReupload) || false,
     });
   } catch (error) {
     console.error("[Document List] Error fetching documents:", error);

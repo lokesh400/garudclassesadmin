@@ -119,8 +119,8 @@ router.get("/all", async (req, res) => {
 ///////////////////////////
 router.post("/edit/:id", async (req, res) => {
   try {
-    const { name,email,number,fatherName,motherName,address,editAllowed,isActive,allowPhotoReupload,allowDocumentReupload } = req.body;
-    await User.findByIdAndUpdate(req.params.id, {  name,email,number,fatherName,motherName,address,editAllowed,isActive,allowPhotoReupload,allowDocumentReupload });
+    const { name,email,number,fatherName,motherName,address,editAllowed,isActive } = req.body;
+    await User.findByIdAndUpdate(req.params.id, {  name,email,number,fatherName,motherName,address,editAllowed,isActive });
     res.json({ success: true, message: "User updated successfully!" });
   } catch (error) {
     console.error(error);
@@ -147,27 +147,21 @@ router.get("/documents/:id", isLoggedIn, requireRole("superadmin", "admin", "rec
   }
 });
 
-// Admin: Toggle re-upload permissions
+// Admin: Toggle specific document re-upload permission
 router.post("/documents/:id/toggle-reupload", isLoggedIn, requireRole("superadmin", "admin"), async (req, res) => {
   try {
-    const { type } = req.body; // "photo" or "document"
+    const { type } = req.body; // e.g. "studentPhoto", "class10Marksheet", etc.
     const student = await User.findById(req.params.id);
     if (!student) {
       return res.status(404).json({ success: false, message: "Student not found" });
     }
-    if (type === "photo") {
-      student.allowPhotoReupload = !student.allowPhotoReupload;
-    } else if (type === "document") {
-      student.allowDocumentReupload = !student.allowDocumentReupload;
-    } else {
-      return res.status(400).json({ success: false, message: "Invalid type" });
-    }
+    const fieldName = `allow${type.charAt(0).toUpperCase() + type.slice(1)}Reupload`;
+    student[fieldName] = !student[fieldName];
     await student.save();
     res.json({
       success: true,
-      allowPhotoReupload: student.allowPhotoReupload,
-      allowDocumentReupload: student.allowDocumentReupload,
-      message: "Permissions updated successfully!"
+      isAllowed: student[fieldName],
+      message: "Permission updated successfully!"
     });
   } catch (err) {
     console.error(err);
