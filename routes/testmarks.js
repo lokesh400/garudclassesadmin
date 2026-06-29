@@ -9,6 +9,7 @@ const User = require("../models/User.js");
 const Marks = require("../models/Marks.js");
 const { isLoggedIn, requireRole } = require("../middleware/auth");
 
+const mongoose = require("mongoose");
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
@@ -102,7 +103,7 @@ router.post("/upload/:batchId",isLoggedIn,requireRole("admin"), upload.single("e
     } else if(type==="NEET"){
         worksheet.eachRow(async (row, rowNumber) => {
       if (rowNumber === 1) return; // skip header
-      const [studentName, rollNumber ,physics, chemistry, botany, zoology,physicsTotal,chemistryTotal,botanyTotal,zoologyTotal] = row.values.slice(1);
+      const [studentName, rollNumber, physicsTotal, physics, chemistryTotal, chemistry, botanyTotal, botany, zoologyTotal, zoology] = row.values.slice(1);
       const newResult = new Marks({
       batch: batchId,
       student:studentName,
@@ -123,36 +124,237 @@ router.post("/upload/:batchId",isLoggedIn,requireRole("admin"), upload.single("e
     await newResult.save();
     });
     }
-    res.json({ message: "Marks uploaded successfully!", data: marksData });
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes("json"))) {
+      return res.json({ message: "Marks uploaded successfully!", data: marksData });
+    } else {
+      req.flash("success", "Marks uploaded successfully!");
+      return res.redirect(`/marks/tests/${batchId}`);
+    }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error processing file", error: err.message });
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes("json"))) {
+      return res.status(500).json({ message: "Error processing file", error: err.message });
+    } else {
+      req.flash("error", `Error processing file: ${err.message}`);
+      return res.redirect("back");
+    }
   }
 });
 
 
 
-// 📄 List all tests for a batch
-router.get("/tests/:batchId",isLoggedIn,requireRole("admin"), async (req, res) => {
-  const batch = await Batch.findById(req.params.batchId);
-  const tests = await Marks.find({ batch: batch._id }).distinct("testTitle");
-  res.render("test/test-list", { batch, tests,
-    title: `Tests for ${batch.name}`,
-    pageTitle: `Tests for ${batch.name}`,
-    activePage: 'batches',
-   });
+// 📤 Render Upload Marks Page
+router.get("/upload/:batchId", isLoggedIn, requireRole("admin"), async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.batchId);
+    if (!batch) {
+      req.flash("error", "Batch not found");
+      return res.redirect("back");
+    }
+    res.render("test/upload-marks", {
+      batch,
+      title: `Upload Marks - ${batch.name}`,
+      pageTitle: `Upload Marks - ${batch.name}`,
+      activePage: 'batches',
+    });
+  } catch (err) {
+    console.error("GET UPLOAD ERROR:", err);
+    req.flash("error", "Failed to load upload page.");
+    res.redirect("back");
+  }
 });
 
+// 📄 List all tests for a batch
+router.get("/tests/:batchId", isLoggedIn, requireRole("admin"), async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.batchId);
+    if (!batch) {
+      req.flash("error", "Batch not found");
+      return res.redirect("back");
+    }
+
+    // Aggregation to compute statistics for each test dynamically
+    const testsStats = await Marks.aggregate([
+      { $match: { batch: new mongoose.Types.ObjectId(batch.id) } },
+      {
+        $addFields: {
+          calculatedTotal: {
+            $add: [
+              { $ifNull: ["$physics", 0] },
+              { $ifNull: ["$chemistry", 0] },
+              { $ifNull: ["$math", 0] },
+              { $ifNull: ["$botany", 0] },
+              { $ifNull: ["$zoology", 0] }
+            ]
+          }
+        }
+      },
+      {
+        $group: {
+          _id: "$testTitle",
+          examType: { $first: "$examType" },
+          studentCount: { $sum: 1 },
+          avgTotal: { $avg: "$calculatedTotal" },
+          maxTotal: { $max: "$calculatedTotal" },
+          minTotal: { $min: "$calculatedTotal" },
+          uploadedAt: { $max: "$uploadedAt" }
+        }
+      },
+      { $sort: { uploadedAt: -1 } }
+    ]);
+
+    res.render("test/test-list", { 
+      batch, 
+      tests: testsStats,
+      title: `Tests for ${batch.name}`,
+      pageTitle: `Tests for ${batch.name}`,
+      activePage: 'batches',
+    });
+  } catch (err) {
+    console.error("GET TESTS ERROR:", err);
+    req.flash("error", "Failed to load test list.");
+    res.redirect("back");
+  }
+});
 
 // 📊 View result of a particular test
-router.get("/view/:batchId/:testTitle",isLoggedIn,requireRole("admin"), async (req, res) => {
-  const batch = await Batch.findById(req.params.batchId);
-  const marks = await Marks.find({ batch: batch._id, testTitle: req.params.testTitle }).populate("student");
-  res.render("test/view-marks", { batch, marks, testTitle: req.params.testTitle,
-    title: `Marks - ${req.params.testTitle} - ${batch.name}`,
-    pageTitle: `Marks - ${req.params.testTitle} - ${batch.name}`,
-    activePage: 'batches',
-   });
+router.get("/view/:batchId/:testTitle", isLoggedIn, requireRole("admin"), async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.batchId);
+    if (!batch) {
+      req.flash("error", "Batch not found");
+      return res.redirect("back");
+    }
+
+    const marks = await Marks.find({ batch: batch._id, testTitle: req.params.testTitle }).populate("student");
+    res.render("test/view-marks", { 
+      batch, 
+      marks, 
+      testTitle: req.params.testTitle,
+      title: `Marks - ${req.params.testTitle} - ${batch.name}`,
+      pageTitle: `Marks - ${req.params.testTitle} - ${batch.name}`,
+      activePage: 'batches',
+    });
+  } catch (err) {
+    console.error("VIEW MARKS ERROR:", err);
+    req.flash("error", "Failed to load marks.");
+    res.redirect("back");
+  }
+});
+
+// ❌ Delete a test and all its marks
+router.post("/delete/:batchId/:testTitle", isLoggedIn, requireRole("admin"), async (req, res) => {
+  try {
+    const { batchId, testTitle } = req.params;
+    const result = await Marks.deleteMany({ batch: batchId, testTitle });
+    req.flash("success", `Successfully deleted test "${testTitle}" and ${result.deletedCount} marks entries.`);
+    res.redirect(`/marks/tests/${batchId}`);
+  } catch (err) {
+    console.error("DELETE TEST ERROR:", err);
+    req.flash("error", "Failed to delete test.");
+    res.redirect("back");
+  }
+});
+
+// 📧 Send Results via Email using Brevo
+router.post("/send/results/:batchId/:testTitle", isLoggedIn, requireRole("admin"), async (req, res) => {
+  try {
+    const { batchId, testTitle } = req.params;
+    const batch = await Batch.findById(batchId);
+    if (!batch) {
+      req.flash("error", "Batch not found");
+      return res.redirect("back");
+    }
+
+    const marksList = await Marks.find({ batch: batchId, testTitle });
+    if (!marksList.length) {
+      req.flash("error", "No marks found for this test");
+      return res.redirect("back");
+    }
+
+    // Calculate statistics
+    const numericTotals = marksList.map(m => {
+      return Number(m.total) || (
+        (Number(m.physics) || 0) + 
+        (Number(m.chemistry) || 0) + 
+        (Number(m.math) || 0) + 
+        (Number(m.botany) || 0) + 
+        (Number(m.zoology) || 0)
+      );
+    });
+    const validTotals = numericTotals.filter(n => !isNaN(n));
+    const grandTotal = validTotals.reduce((a, b) => a + b, 0);
+    const avg = validTotals.length ? (grandTotal / validTotals.length).toFixed(1) : 0;
+    const max = validTotals.length ? Math.max(...validTotals) : 0;
+    const min = validTotals.length ? Math.min(...validTotals) : 0;
+
+    const stats = { highest: max, average: avg, lowest: min };
+
+    // Get all students in the batch to get their emails
+    const students = await User.find({ batch: batchId, role: "student" });
+    const studentMap = {};
+    students.forEach(s => {
+      if (s.rollNumber) {
+        studentMap[s.rollNumber.trim().toLowerCase()] = s;
+      }
+    });
+
+    const { sendStudentResultsEmail } = require("../utils/mailer");
+
+    let sentCount = 0;
+    for (const m of marksList) {
+      const roll = (m.rollNo || "").trim().toLowerCase();
+      const studentUser = studentMap[roll];
+      if (studentUser && studentUser.email) {
+        const phy = Number(m.physics) || 0;
+        const chem = Number(m.chemistry) || 0;
+        const math = Number(m.math) || 0;
+        const bot = Number(m.botany) || 0;
+        const zoo = Number(m.zoology) || 0;
+        const total = Number(m.total) || (phy + chem + math + bot + zoo);
+
+        const phyTotal = Number(m.physicsTotal) || 0;
+        const chemTotal = Number(m.chemistryTotal) || 0;
+        const mathTotal = Number(m.mathTotal) || 0;
+        const botTotal = Number(m.botanyTotal) || 0;
+        const zooTotal = Number(m.zoologyTotal) || 0;
+        
+        const maxTotal = m.examType === 'JEE' 
+          ? (phyTotal + chemTotal + mathTotal) 
+          : (phyTotal + chemTotal + botTotal + zooTotal);
+
+        const scores = {
+          physics: phy, physicsTotal: phyTotal,
+          chemistry: chem, chemistryTotal: chemTotal,
+          math: math, mathTotal: mathTotal,
+          botany: bot, botanyTotal: botTotal,
+          zoology: zoo, zoologyTotal: zooTotal,
+          total, maxTotal
+        };
+
+        try {
+          await sendStudentResultsEmail(
+            studentUser.email,
+            studentUser.name || m.student,
+            testTitle,
+            m.examType,
+            scores,
+            stats
+          );
+          sentCount++;
+        } catch (emailErr) {
+          console.error(`Error sending email to ${studentUser.email}:`, emailErr);
+        }
+      }
+    }
+
+    req.flash("success", `Successfully emailed results to ${sentCount} students.`);
+    res.redirect("back");
+  } catch (error) {
+    console.error("SEND RESULTS ERROR:", error);
+    req.flash("error", "Failed to send results.");
+    res.redirect("back");
+  }
 });
 
 module.exports = router;

@@ -16,10 +16,21 @@ const FollowUp = require("../../../models/FollowUp");
 router.get("/queries", async (req, res) => {
   try {
     const queries = await Query.find()
-      .populate("createdBy", "name role")
-      .populate("closedBy", "name role")
       .sort({ createdAt: -1 })
       .lean();
+
+    const userIds = [];
+    queries.forEach(q => {
+      if (q.createdBy) userIds.push(q.createdBy);
+      if (q.closedBy) userIds.push(q.closedBy);
+    });
+    const users = await User.find({ _id: { $in: userIds } }, "name role").lean();
+    const userMap = {};
+    users.forEach(u => userMap[u._id.toString()] = u);
+    queries.forEach(q => {
+      if (q.createdBy) q.createdBy = userMap[q.createdBy.toString()] || null;
+      if (q.closedBy) q.closedBy = userMap[q.closedBy.toString()] || null;
+    });
 
     const queryIds = queries.map((q) => q._id);
 
@@ -101,9 +112,11 @@ try{
 
 router.get("/query/:id", async (req, res) => {
   try {
-    const lead = await Query.findById(req.params.id)
-      .populate("createdBy", "name role")
-      .populate("closedBy", "name role");
+    const lead = await Query.findById(req.params.id).lean();
+    if (lead) {
+      lead.createdBy = lead.createdBy ? await User.findById(lead.createdBy, "name role").lean() : null;
+      lead.closedBy = lead.closedBy ? await User.findById(lead.closedBy, "name role").lean() : null;
+    }
 
     if (!lead) return res.status(404).json({ success: false });
     console.log(lead);
@@ -133,10 +146,21 @@ router.get("/query/:id/followups", async (req, res) => {
 router.get("/queries/me", async (req, res) => {
   try {
 const queries = await Query.find({ createdBy: req.user.id })
-  .populate("createdBy", "name role")
-  .populate("closedBy", "name role")
   .sort({ createdAt: -1 })
   .lean();
+
+const userIds = [];
+queries.forEach(q => {
+  if (q.createdBy) userIds.push(q.createdBy);
+  if (q.closedBy) userIds.push(q.closedBy);
+});
+const users = await User.find({ _id: { $in: userIds } }, "name role").lean();
+const userMap = {};
+users.forEach(u => userMap[u._id.toString()] = u);
+queries.forEach(q => {
+  if (q.createdBy) q.createdBy = userMap[q.createdBy.toString()] || null;
+  if (q.closedBy) q.closedBy = userMap[q.closedBy.toString()] || null;
+});
 /* ---------------- NO QUERIES CASE ---------------- */
 if (!queries.length) {
   return res.json({

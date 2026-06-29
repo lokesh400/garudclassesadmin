@@ -1,110 +1,239 @@
-<div class="space-y-6">
-  <div class="bg-white p-6 rounded-xl shadow border border-slate-200">
-    <div class="flex flex-wrap justify-between gap-3">
-      <div>
-        <h2 class="text-2xl font-semibold"><%= staff.name || 'Staff Profile' %></h2>
-        <p class="text-sm text-slate-500">Employee ID: <%= staff.employeeId || '-' %></p>
+<div class="w-full px-6 py-8 space-y-6">
+
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
+
+  <!-- Top Dashboard Banner -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-white border border-slate-100 p-6 rounded-3xl shadow-sm">
+    <div>
+      <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-1">
+        <a href="/admin/staff" class="hover:text-indigo-650 transition">Staff Directory</a>
+        <span>&bull;</span>
+        <span class="text-slate-805 font-bold">Profile Details</span>
       </div>
-      <div class="flex items-center gap-2">
-        <span class="px-3 py-1 rounded-full text-xs font-semibold <%= staff.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700' %>"><%= staff.status %></span>
-        <form action="/admin/staff/<%= staff._id %>/toggle-status" method="POST">
-          <input type="hidden" name="redirectTo" value="/admin/staff/<%= staff._id %>" />
-          <button class="px-3 py-1.5 rounded border text-xs font-semibold <%= staff.status === 'Active' ? 'border-rose-200 bg-rose-50 text-rose-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700' %>">
-            <%= staff.status === 'Active' ? 'Set Inactive' : 'Set Active' %>
-          </button>
-        </form>
-      </div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+        <span>👤 <%= staff.name || 'Staff Profile' %></span>
+      </h1>
+      <p class="text-slate-500 text-sm mt-1">Employee ID: <%= staff.employeeId || '-' %> &bull; Status: <span class="font-bold text-slate-700"><%= staff.status %></span></p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-3 mt-5 text-sm text-slate-700">
-      <p><strong>Department:</strong> <%= staff.department || '-' %></p>
-      <p><strong>Designation:</strong> <%= staff.designation || '-' %></p>
-      <p><strong>Joining Date:</strong> <%= staff.joiningDate ? new Date(staff.joiningDate).toLocaleDateString() : '-' %></p>
-      <p><strong>Mobile:</strong> <%= staff.mobileNumber || '-' %></p>
-      <p><strong>Alt Phone:</strong> <%= staff.phone || '-' %></p>
-      <p><strong>Email:</strong> <%= staff.email || '-' %></p>
-      <p><strong>Father Name:</strong> <%= staff.fatherName || '-' %></p>
-      <p><strong>Mother Name:</strong> <%= staff.motherName || '-' %></p>
-      <p><strong>Salary:</strong> <%= staff.salary ?? '-' %></p>
-      <p><strong>Aadhaar Number:</strong> <%= staff.aadhaarNumber || '-' %></p>
-      <p><strong>PAN Number:</strong> <%= staff.panNumber || '-' %></p>
-      <p><strong>Address:</strong> <%= staff.address || '-' %></p>
-    </div>
-
-    <h3 class="text-lg font-semibold mt-6 mb-2">Bank Details</h3>
-    <div class="grid md:grid-cols-2 gap-3 text-sm text-slate-700">
-      <p><strong>Bank Name:</strong> <%= staff.bankName || '-' %></p>
-      <p><strong>Account Holder:</strong> <%= staff.accountHolderName || '-' %></p>
-      <p><strong>Account Number:</strong> <%= staff.accountNumber || '-' %></p>
-      <p><strong>IFSC:</strong> <%= staff.ifscCode || '-' %></p>
-    </div>
-
-    <h3 class="text-lg font-semibold mt-6 mb-2">Documents</h3>
-    <div class="grid md:grid-cols-2 gap-2 text-sm">
-      <% const docs = staff.documents || {}; %>
-      <% const allDocs = [
-        { key: 'photo', label: 'Photo' },
-        { key: 'resume', label: 'Resume' },
-        { key: 'aadhaar', label: 'Aadhaar File' },
-        { key: 'pan', label: 'PAN File' },
-        { key: 'bankAccountPhoto', label: 'Bank Account Photo' },
-        { key: 'offerLetter', label: 'Offer Letter' },
-        { key: 'experienceLetter', label: 'Experience Letter' },
-        { key: 'otherDocument', label: 'Other Document' },
-      ]; %>
-
-      <% allDocs.forEach((d) => { %>
-        <div class="border border-slate-200 rounded p-2">
-          <span class="font-semibold"><%= d.label %>:</span>
-          <% if (docs[d.key]) { %>
-            <a href="/<%= docs[d.key] %>" target="_blank" class="text-blue-600 ml-1">View</a>
-          <% } else { %>
-            <span class="text-slate-400 ml-1">Not uploaded</span>
-          <% } %>
-        </div>
-      <% }) %>
-    </div>
-
-    <h3 class="text-lg font-semibold mt-6 mb-2">Linked Users</h3>
-    <div class="text-sm text-slate-700">
-      <% if (staff.linkedUsers && staff.linkedUsers.length) { %>
-        <ul class="list-disc pl-5 space-y-1">
-          <% staff.linkedUsers.forEach((u) => { %>
-            <li><%= u.name %> (<%= u.username %>) - <%= u.role %></li>
-          <% }) %>
-        </ul>
-      <% } else { %>
-        <p class="text-slate-500">No linked users selected.</p>
-      <% } %>
+    <div class="flex gap-2">
+      <form action="/admin/staff/<%= staff._id %>/toggle-status" method="POST" class="inline">
+        <input type="hidden" name="redirectTo" value="/admin/staff/<%= staff._id %>" />
+        <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold border transition <%= staff.status === 'Active' ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-150' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-150' %>">
+          <%= staff.status === 'Active' ? 'Deactivate Account' : 'Activate Account' %>
+        </button>
+      </form>
+      <a href="/admin/staff" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs transition">
+        <i class="fas fa-arrow-left text-[10px]"></i> Back
+      </a>
     </div>
   </div>
 
-  <div class="bg-white p-6 rounded-xl shadow border border-slate-200">
-    <h3 class="text-xl font-semibold mb-4">Update Staff Details</h3>
-    <form action="/admin/staff/<%= staff._id %>/update" method="POST" enctype="multipart/form-data" class="space-y-5">
-      <div class="grid md:grid-cols-3 gap-4">
-        <input name="name" value="<%= staff.name || '' %>" placeholder="Full Name" class="border p-2.5 rounded" />
-        <input name="employeeId" value="<%= staff.employeeId || '' %>" placeholder="Employee ID" class="border p-2.5 rounded" />
-        <input name="fatherName" value="<%= staff.fatherName || '' %>" placeholder="Father Name" class="border p-2.5 rounded" />
-        <input name="motherName" value="<%= staff.motherName || '' %>" placeholder="Mother Name" class="border p-2.5 rounded" />
-        <input name="designation" value="<%= staff.designation || '' %>" placeholder="Designation" class="border p-2.5 rounded" />
-        <input name="department" value="<%= staff.department || '' %>" placeholder="Department" class="border p-2.5 rounded" />
-        <input type="date" name="joiningDate" value="<%= staff.joiningDate ? new Date(staff.joiningDate).toISOString().slice(0,10) : '' %>" class="border p-2.5 rounded" />
-        <input name="salary" value="<%= staff.salary ?? '' %>" placeholder="Salary" class="border p-2.5 rounded" />
-        <input name="mobileNumber" value="<%= staff.mobileNumber || '' %>" placeholder="Mobile Number" class="border p-2.5 rounded" />
-        <input name="phone" value="<%= staff.phone || '' %>" placeholder="Alternate Phone" class="border p-2.5 rounded" />
-        <input name="email" value="<%= staff.email || '' %>" placeholder="Email Address" class="border p-2.5 rounded" />
-        <input name="aadhaarNumber" value="<%= staff.aadhaarNumber || '' %>" placeholder="Aadhaar Number" class="border p-2.5 rounded" />
-        <input name="panNumber" value="<%= staff.panNumber || '' %>" placeholder="PAN Number" class="border p-2.5 rounded" />
-        <select name="status" class="border p-2.5 rounded">
-          <option value="Active" <%= staff.status === 'Active' ? 'selected' : '' %>>Active</option>
-          <option value="Inactive" <%= staff.status === 'Inactive' ? 'selected' : '' %>>Inactive</option>
-        </select>
+  <!-- Profile & Meta Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Profile Read-only Details (Left Column) -->
+    <div class="lg:col-span-2 bg-white border border-slate-100 rounded-3xl p-6 md:p-8 shadow-sm space-y-8">
+      
+      <!-- General Details -->
+      <div>
+        <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100 mb-4">
+          <i class="fas fa-user-circle"></i> Employee Information
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <p class="text-slate-500 font-semibold">Full Name: <span class="text-slate-850 font-bold block mt-1"><%= staff.name || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Employee ID: <span class="text-slate-850 font-bold block mt-1"><%= staff.employeeId || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Department: <span class="text-indigo-705 font-bold block mt-1"><%= staff.department || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Designation: <span class="text-slate-850 font-bold block mt-1"><%= staff.designation || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Joining Date: <span class="text-slate-850 font-bold block mt-1"><%= staff.joiningDate ? new Date(staff.joiningDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Salary / Compensation: <span class="text-slate-850 font-bold block mt-1"><%= staff.salary ?? '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Mobile Number: <span class="text-slate-850 font-bold block mt-1"><%= staff.mobileNumber || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Alternate Phone: <span class="text-slate-850 font-bold block mt-1"><%= staff.phone || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Email Address: <span class="text-slate-850 font-bold block mt-1"><%= staff.email || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Aadhaar Number: <span class="text-slate-850 font-bold block mt-1"><%= staff.aadhaarNumber || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">PAN Number: <span class="text-slate-850 font-bold block mt-1"><%= staff.panNumber || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Father's Name: <span class="text-slate-850 font-bold block mt-1"><%= staff.fatherName || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Mother's Name: <span class="text-slate-850 font-bold block mt-1"><%= staff.motherName || '-' %></span></p>
+          <p class="text-slate-500 font-semibold md:col-span-2">Residential Address: <span class="text-slate-850 font-bold block mt-1 leading-relaxed"><%= staff.address || '-' %></span></p>
+        </div>
       </div>
 
+      <!-- Bank Details -->
       <div>
-        <label class="block mb-1 text-sm font-semibold text-slate-700">Link Existing Users (Optional)</label>
-        <select name="linkedUsers" multiple class="w-full border p-2.5 rounded min-h-[140px]">
+        <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100 mb-4">
+          <i class="fas fa-university"></i> Bank Account Information
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <p class="text-slate-500 font-semibold">Bank Name: <span class="text-slate-850 font-bold block mt-1"><%= staff.bankName || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Account Holder Name: <span class="text-slate-850 font-bold block mt-1"><%= staff.accountHolderName || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">Account Number: <span class="text-slate-850 font-bold block mt-1"><%= staff.accountNumber || '-' %></span></p>
+          <p class="text-slate-500 font-semibold">IFSC Code: <span class="text-slate-850 font-bold block mt-1"><%= staff.ifscCode || '-' %></span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Portal User Links & File Attachments -->
+    <div class="space-y-6">
+      
+      <!-- Linked ERP Login Accounts -->
+      <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+        <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100 mb-4">
+          <i class="fas fa-key"></i> Linked ERP Accounts
+        </h3>
+
+        <div class="space-y-3">
+          <% if (staff.linkedUsers && staff.linkedUsers.length) { %>
+            <div class="flex flex-col gap-2">
+              <% staff.linkedUsers.forEach((u) => { %>
+                <div class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-2xl">
+                  <div class="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-150 flex items-center justify-center text-xs font-bold text-indigo-700">
+                    <%= u.username ? u.username.slice(0,2).toUpperCase() : 'GC' %>
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-slate-800"><%= u.name %> (<%= u.username %>)</p>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-0.5"><%= u.role %></p>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="text-center py-6 bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
+              <i class="fas fa-shield-alt text-slate-400 text-lg mb-1"></i>
+              <p class="text-xs font-bold text-slate-500">No login credentials linked</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- File Attachments Checklist -->
+      <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+        <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100 mb-4">
+          <i class="fas fa-paperclip"></i> Uploaded Documents
+        </h3>
+
+        <div class="space-y-2">
+          <% const docs = staff.documents || {}; %>
+          <% const allDocs = [
+            { key: 'photo', label: 'Passport Photo' },
+            { key: 'resume', label: 'Resume PDF' },
+            { key: 'aadhaar', label: 'Aadhaar Card' },
+            { key: 'pan', label: 'PAN Card' },
+            { key: 'bankAccountPhoto', label: 'Bank Passbook / Cheque' },
+            { key: 'offerLetter', label: 'Offer Letter' },
+            { key: 'experienceLetter', label: 'Experience Certificate' },
+            { key: 'otherDocument', label: 'Other Document' },
+          ]; %>
+
+          <% allDocs.forEach((d) => { %>
+            <div class="flex items-center justify-between p-2.5 bg-slate-50/50 border border-slate-100 rounded-xl text-xs">
+              <span class="font-bold text-slate-650"><%= d.label %></span>
+              <% if (docs[d.key]) { %>
+                <a href="/<%= docs[d.key] %>" target="_blank" class="inline-flex items-center gap-1 text-[10px] font-extrabold text-indigo-650 hover:underline">
+                  <i class="fas fa-external-link-alt text-[9px]"></i> View File
+                </a>
+              <% } else { %>
+                <span class="text-[10px] font-bold text-slate-400 italic">Missing</span>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Form to Edit Profile Details -->
+  <div class="bg-white border border-slate-100 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+    <h3 class="text-lg font-bold text-slate-850 pb-2 border-b border-slate-100">
+      📝 Update Staff Details
+    </h3>
+
+    <form action="/admin/staff/<%= staff._id %>/update" method="POST" enctype="multipart/form-data" class="space-y-6">
+      
+      <!-- Main Grid Inputs -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name <span class="text-red-500">*</span></label>
+          <input name="name" value="<%= staff.name || '' %>" required
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Employee ID</label>
+          <input name="employeeId" value="<%= staff.employeeId || '' %>" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Father's Name</label>
+          <input name="fatherName" value="<%= staff.fatherName || '' %>" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Mother's Name</label>
+          <input name="motherName" value="<%= staff.motherName || '' %>" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Designation</label>
+          <input name="designation" value="<%= staff.designation || '' %>" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Department</label>
+          <input name="department" value="<%= staff.department || '' %>" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Joining Date</label>
+          <input type="date" name="joiningDate" value="<%= staff.joiningDate ? new Date(staff.joiningDate).toISOString().slice(0,10) : '' %>" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Salary</label>
+          <input name="salary" value="<%= staff.salary ?? '' %>" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Mobile Number <span class="text-red-500">*</span></label>
+          <input name="mobileNumber" value="<%= staff.mobileNumber || '' %>" required
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Alternate Phone</label>
+          <input name="phone" value="<%= staff.phone || '' %>" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address</label>
+          <input type="email" name="email" value="<%= staff.email || '' %>" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Aadhaar Number</label>
+          <input name="aadhaarNumber" value="<%= staff.aadhaarNumber || '' %>" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">PAN Number</label>
+          <input name="panNumber" value="<%= staff.panNumber || '' %>" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</label>
+          <select name="status" class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none bg-white font-semibold text-slate-700 transition">
+            <option value="Active" <%= staff.status === 'Active' ? 'selected' : '' %>>Active</option>
+            <option value="Inactive" <%= staff.status === 'Inactive' ? 'selected' : '' %>>Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Assign Login Credentials -->
+      <div class="space-y-3">
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Linked ERP User Credentials</label>
+        <select name="linkedUsers" multiple class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl p-4 text-xs outline-none bg-white font-semibold text-slate-750 min-h-[140px] transition">
           <% const selectedUserIds = (staff.linkedUsers || []).map((u) => String(u._id)); %>
           <% (eligibleUsers || []).forEach((user) => { %>
             <option value="<%= user._id %>" <%= selectedUserIds.includes(String(user._id)) ? 'selected' : '' %>>
@@ -112,50 +241,118 @@
             </option>
           <% }) %>
         </select>
-        <p class="text-xs text-slate-500 mt-1">Hold Ctrl/Cmd to select multiple users. Leave empty if not needed.</p>
+        <p class="text-[10px] text-slate-400 font-bold italic">Hold Ctrl/Cmd to select multiple accounts. Leave unselected to clear.</p>
       </div>
 
-      <textarea name="address" placeholder="Address" class="w-full border p-2.5 rounded h-24"><%= staff.address || '' %></textarea>
-
-      <h4 class="font-semibold text-slate-800">Bank Details</h4>
-      <div class="grid md:grid-cols-4 gap-4">
-        <input name="bankName" value="<%= staff.bankName || '' %>" placeholder="Bank Name" class="border p-2.5 rounded" />
-        <input name="accountHolderName" value="<%= staff.accountHolderName || '' %>" placeholder="Account Holder Name" class="border p-2.5 rounded" />
-        <input id="accountNumber" name="accountNumber" value="<%= staff.accountNumber || '' %>" placeholder="Account Number" class="border p-2.5 rounded" />
-        <input id="confirmAccountNumber" name="confirmAccountNumber" value="<%= staff.accountNumber || '' %>" placeholder="Confirm Account Number" class="border p-2.5 rounded" />
-        <input name="ifscCode" value="<%= staff.ifscCode || '' %>" placeholder="IFSC Code" class="border p-2.5 rounded" />
+      <!-- Address -->
+      <div class="space-y-3">
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Residential Address</label>
+        <textarea name="address" placeholder="Write full address details..." 
+                  class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl p-4 text-xs outline-none font-semibold text-slate-750 h-24 resize-none transition"><%= staff.address || '' %></textarea>
       </div>
 
-      <h4 class="font-semibold text-slate-800">Upload/Replace Documents (Optional)</h4>
-      <div class="grid md:grid-cols-3 gap-4 text-sm">
-        <div><label class="block mb-1">Photo</label><input type="file" name="photo" /></div>
-        <div><label class="block mb-1">Resume</label><input type="file" name="resume" /></div>
-        <div><label class="block mb-1">Aadhaar File</label><input type="file" name="aadhaar" /></div>
-        <div><label class="block mb-1">PAN File</label><input type="file" name="pan" /></div>
-        <div><label class="block mb-1">Bank Account Photo</label><input type="file" name="bankAccountPhoto" /></div>
-        <div><label class="block mb-1">Offer Letter</label><input type="file" name="offerLetter" /></div>
-        <div><label class="block mb-1">Experience Letter</label><input type="file" name="experienceLetter" /></div>
-        <div><label class="block mb-1">Other Document</label><input type="file" name="otherDocument" /></div>
+      <!-- Bank details -->
+      <div class="space-y-4">
+        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider pb-1 border-b border-slate-100">
+          Bank Account Details
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Bank Name</label>
+            <input name="bankName" value="<%= staff.bankName || '' %>" 
+                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Account Holder Name</label>
+            <input name="accountHolderName" value="<%= staff.accountHolderName || '' %>" 
+                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Account Number</label>
+            <input id="accountNumber" name="accountNumber" value="<%= staff.accountNumber || '' %>" 
+                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Confirm Account Number</label>
+            <input id="confirmAccountNumber" name="confirmAccountNumber" value="<%= staff.accountNumber || '' %>" 
+                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">IFSC Code</label>
+            <input name="ifscCode" value="<%= staff.ifscCode || '' %>" 
+                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          </div>
+        </div>
       </div>
 
-      <button class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Update Staff</button>
+      <!-- Replace documents -->
+      <div class="space-y-4">
+        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider pb-1 border-b border-slate-100">
+          Upload / Replace Documents
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Passport Photo</label>
+            <input type="file" name="photo" class="text-xs text-slate-500" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Resume PDF</label>
+            <input type="file" name="resume" class="text-xs text-slate-500" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Aadhaar File</label>
+            <input type="file" name="aadhaar" class="text-xs text-slate-500" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">PAN File</label>
+            <input type="file" name="pan" class="text-xs text-slate-500" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Bank Photo</label>
+            <input type="file" name="bankAccountPhoto" class="text-xs text-slate-500" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Offer Letter</label>
+            <input type="file" name="offerLetter" class="text-xs text-slate-500" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Experience Certificate</label>
+            <input type="file" name="experienceLetter" class="text-xs text-slate-500" />
+          </div>
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Other Document</label>
+            <input type="file" name="otherDocument" class="text-xs text-slate-500" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
+        <button type="submit" class="bg-indigo-650 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition shadow-md">
+          Save Profile Updates
+        </button>
+      </div>
+
     </form>
   </div>
+
 </div>
 
 <script>
-  const accountInput = document.getElementById("accountNumber");
-  const confirmInput = document.getElementById("confirmAccountNumber");
+  (function() {
+    const accountInput = document.getElementById("accountNumber");
+    const confirmInput = document.getElementById("confirmAccountNumber");
 
-  const syncAccountRequired = () => {
-    const hasAccount = Boolean(accountInput?.value?.trim());
-    const hasConfirm = Boolean(confirmInput?.value?.trim());
+    const syncAccountRequired = () => {
+      const hasAccount = Boolean(accountInput?.value?.trim());
+      const hasConfirm = Boolean(confirmInput?.value?.trim());
 
-    if (accountInput) accountInput.required = hasConfirm;
-    if (confirmInput) confirmInput.required = hasAccount;
-  };
+      if (accountInput) accountInput.required = hasConfirm;
+      if (confirmInput) confirmInput.required = hasAccount;
+    };
 
-  accountInput?.addEventListener("input", syncAccountRequired);
-  confirmInput?.addEventListener("input", syncAccountRequired);
-  syncAccountRequired();
+    accountInput?.addEventListener("input", syncAccountRequired);
+    confirmInput?.addEventListener("input", syncAccountRequired);
+    syncAccountRequired();
+  })();
 </script>

@@ -1,112 +1,139 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Student Fee Details</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
+<div class="w-full px-6 py-8 space-y-6">
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
 
-<body class="bg-gradient-to-br from-gray-100 to-gray-200 p-6 min-h-screen">
+  <!-- Simplified Page Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-200 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">💰 Fee Ledger — <%= fee.student?.name || 'Student' %></h1>
+    </div>
+    <a href="/fees" 
+       class="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-4 py-2 rounded-xl font-bold text-xs shadow-sm transition">
+      <i class="fas fa-chevron-left text-[10px]"></i> Back
+    </a>
+  </div>
 
-<div class="max-w-5xl mx-auto space-y-6">
-
-  <!-- HEADER CARD -->
-  <div class="bg-white rounded-xl shadow p-6">
-    <a href="/fees" class="text-blue-600 text-sm">← Back</a>
-
-    <h2 class="text-2xl font-bold text-gray-800 mt-2">
-      <%= fee.student.name %>
-    </h2>
-    <p class="text-gray-500 text-sm">
-      Roll: <%= fee.student.rollNumber || '-' %>
-    </p>
-
-    <div class="grid grid-cols-3 gap-4 mt-6">
-      <div class="bg-gray-50 p-4 rounded-lg">
-        <p class="text-sm text-gray-500">Total Fee</p>
-        <p class="text-xl font-bold">₹ <%= fee.totalFee %></p>
+  <!-- Student Profile Summary & Metrics Card -->
+  <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-slate-100 gap-3">
+      <div>
+        <h2 class="text-xl font-bold text-slate-800"><%= fee.student?.name %></h2>
+        <p class="text-xs text-slate-500 font-bold font-mono mt-0.5">Roll Number: <%= fee.student?.rollNumber || '-' %> | Username: <%= fee.student?.username %></p>
       </div>
-      <div class="bg-green-50 p-4 rounded-lg">
-        <p class="text-sm text-green-600">Paid</p>
-        <p class="text-xl font-bold text-green-700">₹ <%= paid %></p>
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-150">
+        <%= fee.student?.batch ? fee.student.batch.name : 'Unassigned' %>
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div class="border border-slate-100 rounded-2xl p-4 bg-slate-50/50">
+        <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Total Fee Planned</p>
+        <p class="text-2xl font-extrabold text-slate-850 mt-1">Rs <%= fee.totalFee.toLocaleString("en-IN") %></p>
       </div>
-      <div class="bg-red-50 p-4 rounded-lg">
-        <p class="text-sm text-red-600">Balance</p>
-        <p class="text-xl font-bold text-red-700">₹ <%= balance %></p>
+
+      <div class="border border-slate-100 rounded-2xl p-4 bg-emerald-50/40">
+        <p class="text-[10px] uppercase font-bold text-emerald-700 tracking-wider">Total Collected</p>
+        <p class="text-2xl font-extrabold text-emerald-700 mt-1">Rs <%= paid.toLocaleString("en-IN") %></p>
+      </div>
+
+      <div class="border border-slate-100 rounded-2xl p-4 bg-rose-50/40">
+        <p class="text-[10px] uppercase font-bold text-rose-700 tracking-wider">Pending Dues</p>
+        <p class="text-2xl font-extrabold text-rose-700 mt-1">Rs <%= balance.toLocaleString("en-IN") %></p>
       </div>
     </div>
   </div>
 
-  <!-- PAY CARD -->
-  <div class="bg-white rounded-xl shadow p-6">
-    <h3 class="font-semibold mb-4">💳 Pay Fee</h3>
+  <!-- Pay Fee Block -->
+  <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+    <div>
+      <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+        <i class="fas fa-credit-card text-slate-400"></i> Record New Payment Transaction
+      </h3>
+      <p class="text-xs text-slate-500 mt-1">Log cash or digital transactions received from student</p>
+    </div>
 
-    <form
-      action="/fees/student/<%= fee.student._id %>/pay"
-      method="POST"
-      class="flex gap-4"
-    >
-      <input type="number" name="amount" placeholder="Amount"
-        class="border rounded-lg px-4 py-2 w-40" required>
+    <form action="/fees/student/<%= fee.student._id %>/pay" method="POST" class="flex flex-col sm:flex-row gap-3 sm:items-end">
+      <div class="space-y-1.5 flex-1 max-w-xs">
+        <label for="amount" class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Payment Amount</label>
+        <div class="relative">
+          <span class="absolute left-3.5 top-2.5 text-xs font-bold text-slate-400">Rs</span>
+          <input type="number" id="amount" name="amount" placeholder="e.g. 5000" min="1"
+                 class="w-full pl-9 pr-4 py-2 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl text-xs outline-none transition font-semibold text-slate-700" required>
+        </div>
+      </div>
 
-      <select name="mode" class="border rounded-lg px-4 py-2">
-        <option>Cash</option>
-        <option>UPI</option>
-        <option>Bank</option>
-      </select>
+      <div class="space-y-1.5 w-full sm:w-44">
+        <label for="mode" class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Payment Mode</label>
+        <select id="mode" name="mode" class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2 text-xs outline-none bg-white font-semibold text-slate-700 transition">
+          <option value="Cash">Cash</option>
+          <option value="UPI">UPI</option>
+          <option value="Bank">Bank Transfer</option>
+        </select>
+      </div>
 
-      <button
-        class="bg-green-600 hover:bg-green-700 text-white px-6 rounded-lg shadow transition">
-        Pay
+      <button class="bg-emerald-650 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-sm transition">
+        Record Payment
       </button>
     </form>
   </div>
 
-  <!-- PAYMENT HISTORY -->
-  <div class="bg-white rounded-xl shadow p-6">
-    <h3 class="font-semibold mb-4">🧾 Payment History</h3>
+  <!-- Payment History List -->
+  <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+    <div>
+      <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+        <i class="fas fa-history text-slate-400"></i> Transaction History
+      </h3>
+      <p class="text-xs text-slate-500 mt-1">Audit logs of all payments processed for this ledger</p>
+    </div>
 
-    <table class="w-full text-sm">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="p-3 text-left">Date</th>
-          <th class="p-3">Amount</th>
-          <th class="p-3">Mode</th>
-          <th class="p-3">Receipt</th>
-          <th class="p-3 text-center">Actions</th>
-        </tr>
-      </thead>
+    <div class="overflow-x-auto border border-slate-100 rounded-2xl shadow-sm">
+      <table class="w-full text-left text-sm text-slate-650">
+        <thead class="bg-slate-50 border-b border-slate-100 font-bold uppercase tracking-wider text-xs text-slate-700">
+          <tr>
+            <th class="py-4 px-6">Payment Date</th>
+            <th class="py-4 px-6">Amount Received</th>
+            <th class="py-4 px-6">Payment Mode</th>
+            <th class="py-4 px-6">Receipt Code</th>
+            <th class="py-4 px-6 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <% if (!fee.payments || fee.payments.length === 0) { %>
+            <tr>
+              <td colspan="5" class="py-8 px-6 text-center text-slate-550 font-semibold italic">No payment logs recorded yet.</td>
+            </tr>
+          <% } %>
 
-      <tbody>
-        <% fee.payments.forEach(p => { %>
-        <tr class="border-b hover:bg-gray-50">
-          <td class="p-3"><%= p.date.toDateString() %></td>
-          <td class="p-3 font-medium">₹ <%= p.amount %></td>
-          <td class="p-3">
-            <span class="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">
-              <%= p.mode %>
-            </span>
-          </td>
-          <td class="p-3 text-xs"><%= p.receiptNo %></td>
-
-          <td class="p-3 text-center flex justify-center gap-3">
-            <a href="/fees/receipt/<%= fee._id %>/<%= p._id %>"
-               class="text-green-600 hover:underline">
-              PDF
-            </a>
-
-            <form action="/fees/payment/<%= fee._id %>/<%= p._id %>/delete"
-                  method="POST">
-              <button class="text-red-600 hover:underline">
-                Delete
-              </button>
-            </form>
-          </td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
+          <% fee.payments.forEach(p => { %>
+            <tr class="hover:bg-slate-50/50 transition">
+              <td class="py-3.5 px-6 font-semibold text-slate-700"><%= p.date.toDateString() %></td>
+              <td class="py-3.5 px-6 font-extrabold text-slate-805">Rs <%= p.amount.toLocaleString("en-IN") %></td>
+              <td class="py-3.5 px-6">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-150">
+                  <%= p.mode %>
+                </span>
+              </td>
+              <td class="py-3.5 px-6 font-mono text-xs text-slate-500 font-bold"><%= p.receiptNo %></td>
+              <td class="py-3.5 px-6 text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <a href="/fees/receipt/<%= fee._id %>/<%= p._id %>" target="_blank"
+                     class="inline-flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-705 font-bold text-xs px-3 py-1.5 rounded-xl border border-emerald-150 transition">
+                    <i class="fas fa-file-pdf text-[10px]"></i> Download Receipt PDF
+                  </a>
+                  <!-- Option to delete transaction if necessary -->
+                  <!--
+                  <form action="/fees/payment/<%= fee._id %>/<%= p._id %>/delete" method="POST" onsubmit="return confirm('Delete this payment transaction entry permanently?')">
+                    <button class="inline-flex items-center gap-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs px-3 py-1.5 rounded-xl border border-rose-150 transition">
+                      Delete Log
+                    </button>
+                  </form>
+                  -->
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
   </div>
-
 </div>
-</body>
-</html>

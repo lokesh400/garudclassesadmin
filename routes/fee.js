@@ -235,7 +235,7 @@ router.get("/date-wise", isLoggedIn, requireRole("superadmin"), async (req, res)
 
 /* ADD FEE - FORM */
 router.get("/new", isLoggedIn, requireRole("superadmin"), async (req, res) => {
-  const activeStudents = await User.find({ role: "student", isActive: true })
+  const activeStudents = await User.find({ role: "student", isActive: { $ne: false } })
     .populate("batch")
     .sort({ name: 1 });
 
@@ -274,7 +274,7 @@ router.post("/new", isLoggedIn, requireRole("superadmin"), async (req, res) => {
       return res.status(400).send("Student is required");
     }
 
-    const student = await User.findOne({ _id: studentId, role: "student", isActive: true });
+    const student = await User.findOne({ _id: studentId, role: "student", isActive: { $ne: false } });
     if (!student) {
       return res.status(404).send("Active student not found");
     }
@@ -339,7 +339,7 @@ router.post("/payment/:feeId/:paymentId/edit", isLoggedIn, requireRole("superadm
   p.amount = req.body.amount;
   p.mode = req.body.mode;
   await fee.save();
-  res.redirect(`/fees/student/${req.params.studentId}`);
+  res.redirect(`/fees/student/${fee.student}`);
 });
 
 /* DELETE PAYMENT */

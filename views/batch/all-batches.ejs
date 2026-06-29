@@ -1,120 +1,140 @@
-<div class="mx-auto bg-white p-8 rounded-2xl shadow-lg mt-10">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-3xl font-bold text-gray-800">🎓 Manage Batches</h2>
-    <button
-      id="openModalBtn"
-      class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg shadow-md transition duration-200"
-    >
-      ➕ Add New Batch
+<div class="w-full px-6 py-8">
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
+
+  <!-- Top Dashboard Banner -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-gradient-to-r from-indigo-500 to-purple-650 p-6 rounded-2xl shadow-md border border-slate-100 bg-white">
+    <div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+        <span>🎓 Manage Batches</span>
+      </h1>
+      <p class="text-slate-500 text-sm mt-1">Create and configure academic streams, schedules, and grade uploads</p>
+    </div>
+
+    <button id="openModalBtn" 
+            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-sm transition">
+      <i class="fas fa-plus"></i> Add New Batch
     </button>
   </div>
 
-  <!-- Batch List -->
+  <!-- Batches Grid List -->
+  <% if (batches.length > 0) { %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <% batches.forEach(batch => { %>
+        <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between relative overflow-hidden <%= batch.isActive === false ? 'border-red-150 bg-red-50/20' : '' %>">
+          
+          <!-- Decorative subtle colored border for course type -->
+          <div class="absolute top-0 left-0 w-2 h-full <%= batch.courseType === 'JEE' ? 'bg-blue-500' : 'bg-emerald-500' %>"></div>
 
-  <div>
-  <h3 class="text-2xl font-semibold text-gray-800 mb-4">📋 All Batches</h3>
-  <ul id="batchList" class="space-y-4">
-    <% batches.forEach(batch => { %>
-      <li class="border rounded-xl p-5 hover:shadow-lg transition duration-300 <%= batch.isActive === false ? 'border-rose-300 bg-rose-50' : 'border-gray-200 bg-white' %>">
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-          <!-- Batch Info -->
-          <div>
-            <p class="text-lg font-bold text-gray-900"><%= batch.name %></p>
-            <p class="text-gray-600 text-sm"><%= batch.courseType %> • <%= batch.year %></p>
-            <% if (batch.isActive === false) { %>
-              <span class="inline-block mt-2 text-xs font-semibold px-2 py-1 rounded-full bg-rose-100 text-rose-700 border border-rose-200">
-                Inactive Batch
-              </span>
-            <% } %>
+          <div class="pl-3">
+            <!-- Header batch info -->
+            <div class="flex justify-between items-start gap-4 mb-3">
+              <div>
+                <h3 class="text-xl font-bold text-slate-800 line-clamp-1"><%= batch.name %></h3>
+                <p class="text-slate-500 text-xs mt-1 font-bold">Academic Year: <%= batch.year %></p>
+              </div>
+
+              <!-- Status Badge -->
+              <% if (batch.isActive === false) { %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-150">
+                  Inactive
+                </span>
+              <% } else { %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold <%= batch.courseType === 'JEE' ? 'bg-blue-50 text-blue-700 border border-blue-150' : 'bg-emerald-50 text-emerald-700 border border-emerald-150' %>">
+                  <%= batch.courseType %> Active
+                </span>
+              <% } %>
+            </div>
+
+            <!-- Structured Quick Action Links -->
+            <div class="grid grid-cols-2 gap-3 my-5 border-t border-b border-slate-100 py-4">
+              <!-- Manage Section -->
+              <div class="space-y-2 border-r border-slate-100 pr-2">
+                <p class="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider">Students & Classes</p>
+                <div class="flex flex-col gap-1.5">
+                  <a href="/api/batches/add/<%= batch._id %>" class="inline-flex items-center gap-1.5 text-xs text-slate-650 hover:text-indigo-650 transition">
+                    <i class="fas fa-user-plus text-slate-500 text-[10px]"></i> Add Student
+                  </a>
+                  <a href="/api/students/all/<%= batch._id %>" class="inline-flex items-center gap-1.5 text-xs text-slate-650 hover:text-indigo-650 transition">
+                    <i class="fas fa-users text-slate-500 text-[10px]"></i> View Students
+                  </a>
+                  <a href="/api/timetable/<%= batch._id %>" class="inline-flex items-center gap-1.5 text-xs text-slate-650 hover:text-indigo-650 transition">
+                    <i class="fas fa-clock text-slate-500 text-[10px]"></i> Timetable
+                  </a>
+                </div>
+              </div>
+
+              <!-- Test Marks Section -->
+              <div class="space-y-2 pl-3">
+                <p class="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider">Academic Portal</p>
+                <div class="flex flex-col gap-1.5">
+                  <a href="/marks/tests/<%= batch._id %>" class="inline-flex items-center gap-1.5 text-xs text-slate-655 hover:text-indigo-650 transition">
+                    <i class="fas fa-chart-bar text-slate-500 text-[10px]"></i> Tests Dashboard
+                  </a>
+                  <button onclick="openUploadModal('<%= batch._id %>')" class="inline-flex items-center gap-1.5 text-xs text-slate-655 hover:text-indigo-650 transition text-left outline-none">
+                    <i class="fas fa-upload text-slate-500 text-[10px]"></i> Upload Grades
+                  </button>
+                  <a href="/marks/download/<%= batch._id %>" class="inline-flex items-center gap-1.5 text-xs text-slate-655 hover:text-indigo-650 transition">
+                    <i class="fas fa-file-excel text-slate-500 text-[10px]"></i> Download Template
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Buttons -->
-          <div class="mt-4 sm:mt-0 flex flex-wrap gap-2">
-
-            <a href="/api/timetable/<%= batch._id %>"
-               class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
-              🕒 Timetable
-            </a>
-
-            <a href="/api/batches/<%= batch._id %>"
-               class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
-              View Batch
-            </a>
-
-            <a href="/api/batches/add/<%= batch._id %>"
-               class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
-              ➕ Add Student
-            </a>
-
-            <a href="/api/students/all/<%= batch._id %>"
-               class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
-              👥 View Students
-            </a>
-
-            <a href="/marks/download/<%= batch._id %>"
-               class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-4 py-2 rounded-lg shadow transition">
-              📄 Download Template
-            </a>
-
-            <button onclick="openUploadModal('<%= batch._id %>')"
-                    class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
-              ⬆️ Upload Marks
-            </button>
-
-            <a href="/marks/tests/<%= batch._id %>"
-               class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
-              🧾 View Tests
+          <!-- Card Footer Main CTA -->
+          <div class="mt-2 pl-3 flex justify-end">
+            <a href="/api/batches/<%= batch._id %>" 
+               class="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2 rounded-xl transition">
+              View Batch Dashboard <i class="fas fa-chevron-right text-[10px]"></i>
             </a>
           </div>
+
         </div>
-      </li>
-    <% }) %>
-  </ul>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <!-- Empty State -->
+    <div class="bg-white border border-dashed border-slate-200 rounded-3xl p-12 text-center max-w-xl mx-auto mt-8">
+      <div class="inline-flex items-center justify-center p-4 bg-indigo-50 text-indigo-500 rounded-full mb-4">
+        <i class="fas fa-graduation-cap text-4xl"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-800 mb-1">No Batches Configured</h3>
+      <p class="text-slate-500 text-sm mb-6">Create class batches and enrollment catalogs to configure curriculum calendars and grades sheets.</p>
+      <button id="openModalBtnEmpty" 
+              class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition">
+        <i class="fas fa-plus"></i> Create First Batch
+      </button>
+    </div>
+  <% } %>
 </div>
 
-
-</div>
-
-<!-- Modal Background -->
-<div
-  id="batchModal"
-  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
->
-  <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
-    <button
-      id="closeModalBtn"
-      class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl"
-    >
-      ✖
+<!-- Modal Create Batch -->
+<div id="batchModal" class="hidden fixed inset-0 bg-slate-950/40 flex items-center justify-center z-50 p-4 transition-all duration-300">
+  <div class="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 relative border border-slate-100">
+    <button id="closeModalBtn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-650 transition">
+      <i class="fas fa-times text-lg"></i>
     </button>
 
-    <h2 class="text-2xl font-semibold mb-5 text-gray-800 text-center">
-      ➕ Create New Batch
-    </h2>
+    <div class="text-center mb-6">
+      <span class="inline-flex p-3 bg-indigo-50 text-indigo-600 rounded-2xl mb-2">
+        <i class="fas fa-layer-group text-xl"></i>
+      </span>
+      <h2 class="text-xl font-extrabold text-slate-850">Create New Batch</h2>
+      <p class="text-slate-400 text-xs mt-1">Configure name, exam curriculum, and catalog year</p>
+    </div>
 
-    <form id="batchForm" class="space-y-5">
+    <form id="batchForm" class="space-y-4">
       <div>
-        <label for="name" class="block text-gray-700 font-medium mb-1"
-          >Batch Name</label
-        >
-        <input
-          type="text"
-          id="name"
-          placeholder="e.g. 11th JEE Alpha"
-          class="border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 rounded-lg w-full outline-none transition"
-          required
-        />
+        <label for="name" class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Batch Name</label>
+        <input type="text" id="name" placeholder="e.g. 11th JEE Alpha" 
+               class="w-full px-4 py-3 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200" required />
       </div>
 
       <div>
-        <label for="courseType" class="block text-gray-700 font-medium mb-1"
-          >Course Type</label
-        >
-        <select
-          id="courseType"
-          class="border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 rounded-lg w-full outline-none transition"
-          required
-        >
+        <label for="courseType" class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Course Type</label>
+        <select id="courseType" 
+                class="w-full px-4 py-3 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200 bg-white" required>
           <option value="">Select Course Type</option>
           <option value="JEE">JEE</option>
           <option value="NEET">NEET</option>
@@ -122,76 +142,57 @@
       </div>
 
       <div>
-        <label for="year" class="block text-gray-700 font-medium mb-1">Year</label>
-        <input
-          type="text"
-          id="year"
-          placeholder="e.g. 2025"
-          class="border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 rounded-lg w-full outline-none transition"
-          required
-        />
+        <label for="year" class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Year</label>
+        <input type="text" id="year" placeholder="e.g. 2026" 
+               class="w-full px-4 py-3 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200" required />
       </div>
 
-      <button
-        type="submit"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg w-full shadow transition duration-200"
-      >
-        Create Batch
-      </button>
+      <div class="pt-2">
+        <button type="submit" 
+                class="w-full py-3.5 bg-indigo-650 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-sm hover:shadow transition duration-200 text-sm">
+          Create Batch
+        </button>
+      </div>
     </form>
   </div>
 </div>
 
-<!-- Upload Marks Modal -->
-<div
-  id="uploadModal"
-  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
->
-  <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
-    <button
-      id="closeUploadModalBtn"
-      class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl"
-    >
-      ✖
+<!-- Modal Upload Marks -->
+<div id="uploadModal" class="hidden fixed inset-0 bg-slate-950/40 flex items-center justify-center z-50 p-4 transition-all duration-300">
+  <div class="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 relative border border-slate-100">
+    <button id="closeUploadModalBtn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-650 transition">
+      <i class="fas fa-times text-lg"></i>
     </button>
 
-    <h2 class="text-2xl font-semibold mb-5 text-gray-800 text-center">
-      📤 Upload Marks Excel
-    </h2>
+    <div class="text-center mb-6">
+      <span class="inline-flex p-3 bg-indigo-50 text-indigo-600 rounded-2xl mb-2">
+        <i class="fas fa-file-excel text-xl"></i>
+      </span>
+      <h2 class="text-xl font-extrabold text-slate-850">Upload Grades Sheet</h2>
+      <p class="text-slate-400 text-xs mt-1">Import grades using the matching batch template</p>
+    </div>
 
     <form id="uploadForm" enctype="multipart/form-data" class="space-y-4">
       <input type="hidden" id="uploadBatchId" name="batchId" />
 
       <div>
-        <label class="block text-gray-700 font-medium mb-1">Test Title</label>
-        <input
-          type="text"
-          id="testTitle"
-          name="testTitle"
-          placeholder="e.g. JEE Full Test 1"
-          class="border border-gray-300 p-3 rounded-lg w-full outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        />
+        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Test Title</label>
+        <input type="text" id="testTitle" name="testTitle" placeholder="e.g. Weekly Test 5" 
+               class="w-full px-4 py-3 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200" required />
       </div>
 
       <div>
-        <label class="block text-gray-700 font-medium mb-1">Upload Excel File</label>
-        <input
-          type="file"
-          id="excelFile"
-          name="excelFile"
-          accept=".xlsx"
-          class="border border-gray-300 p-3 rounded-lg w-full outline-none"
-          required
-        />
+        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Spreadsheet (.xlsx)</label>
+        <input type="file" id="excelFile" name="excelFile" accept=".xlsx" 
+               class="w-full px-4 py-3 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200 bg-white" required />
       </div>
 
-      <button
-        type="submit"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg w-full shadow transition duration-200"
-      >
-        Upload Marks
-      </button>
+      <div class="pt-2">
+        <button type="submit" id="uploadFormSubmitBtn"
+                class="w-full py-3.5 bg-indigo-650 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-sm hover:shadow transition duration-200 text-sm">
+          Upload Grades
+        </button>
+      </div>
     </form>
   </div>
 </div>
@@ -204,7 +205,6 @@
   function openUploadModal(batchId) {
     document.getElementById("uploadBatchId").value = batchId;
     uploadModal.classList.remove("hidden");
-    uploadModal.classList.add("flex");
   }
 
   closeUploadModalBtn.addEventListener("click", () => {
@@ -219,29 +219,61 @@
     e.preventDefault();
     const batchId = document.getElementById("uploadBatchId").value;
     const formData = new FormData(uploadForm);
+    const submitBtn = document.getElementById("uploadFormSubmitBtn");
 
-    const res = await fetch(`/marks/upload/${batchId}`, {
-      method: "POST",
-      body: formData,
-    });
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Processing File...";
 
-    const data = await res.json();
-    alert(data.message);
-    if (res.ok) uploadModal.classList.add("hidden");
+    try {
+      const res = await fetch(`/marks/upload/${batchId}`, {
+        method: "POST",
+        body: formData,
+        headers: { "Accept": "application/json" }
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        if (typeof showToast === 'function') {
+          showToast(data.message, "success");
+        } else {
+          alert(data.message);
+        }
+        uploadModal.classList.add("hidden");
+        // Reload list after a second to display updated stats
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        if (typeof showToast === 'function') {
+          showToast(data.message || "Failed to upload file", "error");
+        } else {
+          alert(data.message || "Failed to upload file");
+        }
+      }
+    } catch (err) {
+      if (typeof showToast === 'function') {
+        showToast("Error uploading file", "error");
+      } else {
+        alert("Error uploading file");
+      }
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Upload Grades";
+    }
   });
 </script>
 
-
 <script>
-  // Open and close modal
+  // Open and close batch create modal
   const modal = document.getElementById("batchModal");
   const openModalBtn = document.getElementById("openModalBtn");
+  const openModalBtnEmpty = document.getElementById("openModalBtnEmpty");
   const closeModalBtn = document.getElementById("closeModalBtn");
 
-  openModalBtn.addEventListener("click", () => {
+  const openAction = () => {
     modal.classList.remove("hidden");
-    modal.classList.add("flex");
-  });
+  };
+
+  openModalBtn?.addEventListener("click", openAction);
+  openModalBtnEmpty?.addEventListener("click", openAction);
 
   closeModalBtn.addEventListener("click", () => {
     modal.classList.add("hidden");
@@ -260,18 +292,43 @@
     const year = document.getElementById("year").value.trim();
 
     if (!name || !courseType || !year) {
-      alert("Please fill all fields before submitting.");
+      if (typeof showToast === 'function') {
+        showToast("Please fill all fields before submitting.", "error");
+      } else {
+        alert("Please fill all fields before submitting.");
+      }
       return;
     }
 
-    const res = await fetch("/api/batches/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, courseType, year }),
-    });
+    try {
+      const res = await fetch("/api/batches/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, courseType, year }),
+      });
 
-    const data = await res.json();
-    alert(data.message);
-    if (res.ok) location.reload();
+      const data = await res.json();
+      if (res.ok) {
+        if (typeof showToast === 'function') {
+          showToast("Batch created successfully!", "success");
+        } else {
+          alert("Batch created successfully!");
+        }
+        modal.classList.add("hidden");
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        if (typeof showToast === 'function') {
+          showToast(data.message || "Failed to create batch", "error");
+        } else {
+          alert(data.message || "Failed to create batch");
+        }
+      }
+    } catch (err) {
+      if (typeof showToast === 'function') {
+        showToast("Error creating batch", "error");
+      } else {
+        alert("Error creating batch");
+      }
+    }
   });
 </script>

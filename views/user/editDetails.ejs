@@ -1,253 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Edit Data</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Profile Details | Garud ERP</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Google Fonts (Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-<style>
-* {
-  box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
-  margin: 0;
-  padding: 20px;
-  background: #e5e7eb;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Form container */
-form {
-  background: #ffffff;
-  width: 100%;
-  max-width: 900px;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-}
-
-/* Header */
-h2 {
-  text-align: center;
-  margin-bottom: 5px;
-  font-size: 28px;
-  font-weight: 800;
-}
-
-.subtitle {
-  text-align: center;
-  color: #555;
-  margin-bottom: 30px;
-}
-
-/* Profile image */
-.profile-pic {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 40px;
-}
-
-.profile-pic img {
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  border: 4px solid #1d4ed8;
-  object-fit: cover;
-}
-
-.profile-pic label {
-  margin-top: 12px;
-  background: #1d4ed8;
-  color: white;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.profile-pic input {
-  display: none;
-}
-
-/* Section title */
-.section-title {
-  background: #1f2937;
-  color: white;
-  padding: 12px;
-  font-weight: bold;
-  margin-top: 40px;
-}
-
-/* Grid */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 25px;
-  margin-top: 25px;
-}
-
-.full {
-  grid-column: span 2;
-}
-
-/* Label */
-.label {
-  display: block;
-  background: #dbeafe;
-  border-left: 6px solid #1d4ed8;
-  padding: 10px 12px;
-  font-weight: 800;
-  color: #1e3a8a;
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
-}
-
-/* INPUT — BIG, BOLD, ALWAYS HIGHLIGHTED */
-.input {
-  width: 100%;
-  padding: 16px 18px;
-  font-size: 18px;
-  border-radius: 8px;
-  border: 4px solid #2563eb; /* ALWAYS VISIBLE */
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-/* Focus */
-.input:focus {
-  border-color: #1e40af;
-  box-shadow: 0 0 0 4px rgba(37,99,235,0.3);
-}
-
-/* Readonly */
-.input[readonly] {
-  background: #e5e7eb;
-  border-color: #6b7280;
-  cursor: not-allowed;
-}
-
-/* Submit */
-button {
-  margin-top: 40px;
-  padding: 16px 40px;
-  font-size: 18px;
-  font-weight: bold;
-  background: #16a34a;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #15803d;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-  .full {
-    grid-column: span 1;
-  }
-}
-</style>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+  </style>
 </head>
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased">
 
-<body>
+  <!-- Main Container -->
+  <div class="w-full px-6 py-8 space-y-6">
 
-<!-- Profile Navigation Buttons -->
-<div style="position: fixed; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000;">
-  <a href="/edit/user/details" style="background: #2563eb; color: white; padding: 10px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; cursor: pointer; display: inline-block;">
-    Edit Profile
-  </a>
-  <a href="#" style="background: #059669; color: white; padding: 10px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; cursor: pointer; display: inline-block;">
-    Add Profile
-  </a>
-</div>
+    <!-- Top Navigation Row -->
+    <div class="flex items-center justify-between gap-4 mb-6">
+      <div class="flex items-center gap-2 text-sm text-slate-500 font-medium">
+        <a href="/admin" class="hover:text-indigo-650 transition">Dashboard</a>
+        <span>&bull;</span>
+        <span class="text-slate-805 font-bold">Edit Profile</span>
+      </div>
 
-<form action="/user/profile/edit" method="POST" enctype="multipart/form-data">
+      <div class="flex items-center gap-2">
+        <a href="/admin" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl font-bold text-xs transition">
+          <i class="fas fa-chevron-left text-[10px]"></i> Back to Portal
+        </a>
+      </div>
+    </div>
 
-  <h2>EDIT PROFILE</h2>
-  <p class="subtitle">All fields are clearly marked</p>
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-indigo-650 via-purple-650 to-pink-600 rounded-3xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
+      <div class="absolute w-80 h-80 bg-white/5 rounded-full -top-10 -right-10 blur-2xl"></div>
+      <div class="relative z-10">
+        <h1 class="text-3xl font-extrabold tracking-tight">Configure User Profile</h1>
+        <p class="text-indigo-50/90 text-sm mt-1.5 font-medium">Keep your account details up to date for easy communication and records</p>
+      </div>
+    </div>
 
-  <!-- Profile Image -->
-  <div class="profile-pic">
-    <img id="preview" src="<%= user.image || '/images/default-user.png' %>">
-    <label>
-      Change Photo
-      <input type="file" name="image" onchange="previewImage(event)">
-    </label>
+    <!-- Form Container -->
+    <form action="/user/profile/edit" method="POST" enctype="multipart/form-data" 
+          class="bg-white border border-slate-100 rounded-3xl p-6 md:p-8 shadow-sm space-y-8">
+
+      <!-- Profile Image Block -->
+      <div class="flex flex-col items-center justify-center space-y-3 pb-6 border-b border-slate-100">
+        <div class="relative group">
+          <img id="preview" 
+               src="<%= user.image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=random' %>" 
+               alt="<%= user.name %>"
+               class="w-28 h-28 rounded-full border-4 border-indigo-50 shadow-md object-cover transition duration-300">
+          <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 cursor-pointer" 
+               onclick="document.getElementById('profile-pic-input').click()">
+            <i class="fas fa-camera text-white text-xl"></i>
+          </div>
+        </div>
+        
+        <label for="profile-pic-input" class="cursor-pointer bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl transition">
+          <i class="fas fa-image mr-1 text-slate-500"></i> Change Image
+        </label>
+        <input id="profile-pic-input" type="file" name="image" class="hidden" onchange="previewImage(event)">
+      </div>
+
+      <!-- Personal details -->
+      <div class="space-y-4">
+        <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5">
+          <i class="fas fa-user-circle"></i> Personal Details
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name <span class="text-red-500">*</span></label>
+            <input name="name" value="<%= user.name %>" required
+                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          </div>
+
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Username</label>
+            <input name="username" value="<%= user.username %>" readonly
+                   class="w-full border border-slate-200 bg-slate-50 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-500 cursor-not-allowed" />
+          </div>
+
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Roll Number</label>
+            <input name="rollNumber" value="<%= user.rollNumber || '' %>" readonly
+                   class="w-full border border-slate-200 bg-slate-50 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-500 cursor-not-allowed" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact details -->
+      <div class="space-y-4">
+        <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5">
+          <i class="fas fa-address-book"></i> Contact Information
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address</label>
+            <input type="email" name="email" value="<%= user.email || '' %>"
+                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          </div>
+
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Phone Number</label>
+            <input name="number" value="<%= user.number || '' %>"
+                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Home Address</label>
+            <input name="address" value="<%= user.address || '' %>"
+                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Family details -->
+      <div class="space-y-4">
+        <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5">
+          <i class="fas fa-users"></i> Family Details
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Father's Name</label>
+            <input name="fatherName" value="<%= user.fatherName || '' %>"
+                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          </div>
+
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Mother's Name</label>
+            <input name="motherName" value="<%= user.motherName || '' %>"
+                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
+        <a href="/admin" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm px-6 py-2.5 rounded-xl transition">
+          Cancel
+        </a>
+        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition shadow-md">
+          Save Changes
+        </button>
+      </div>
+
+    </form>
   </div>
 
-  <!-- Personal -->
-  <div class="section-title">PERSONAL DETAILS</div>
-  <div class="grid">
-    <div>
-      <label class="label">FULL NAME</label>
-      <input class="input" name="name" value="<%= user.name %>">
-    </div>
-
-    <div>
-      <label class="label">USERNAME</label>
-      <input class="input" name="username" value="<%= user.username %>" readonly>
-    </div>
-
-    <div>
-      <label class="label">ROLL NUMBER</label>
-      <input class="input" name="rollNumber" value="<%= user.rollNumber || '' %>" readonly>
-    </div>
-  </div>
-
-  <!-- Contact -->
-  <div class="section-title">CONTACT INFORMATION</div>
-  <div class="grid">
-    <div>
-      <label class="label">EMAIL</label>
-      <input class="input" name="email" value="<%= user.email || '' %>">
-    </div>
-
-    <div>
-      <label class="label">PHONE</label>
-      <input class="input" name="number" value="<%= user.number || '' %>">
-    </div>
-
-    <div class="full">
-      <label class="label">ADDRESS</label>
-      <input class="input" name="address" value="<%= user.address || '' %>">
-    </div>
-  </div>
-
-  <!-- Family -->
-  <div class="section-title">FAMILY DETAILS</div>
-  <div class="grid">
-    <div>
-      <label class="label">FATHER'S NAME</label>
-      <input class="input" name="fatherName" value="<%= user.fatherName || '' %>">
-    </div>
-
-    <div>
-      <label class="label">MOTHER'S NAME</label>
-      <input class="input" name="motherName" value="<%= user.motherName || '' %>">
-    </div>
-  </div>
-
-  <button>SAVE CHANGES</button>
-
-</form>
-
-<script>
-function previewImage(event) {
-  document.getElementById("preview").src =
-    URL.createObjectURL(event.target.files[0]);
-}
-</script>
+  <script>
+    function previewImage(event) {
+      if (event.target.files && event.target.files[0]) {
+        document.getElementById("preview").src = URL.createObjectURL(event.target.files[0]);
+      }
+    }
+  </script>
 
 </body>
 </html>

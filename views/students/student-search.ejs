@@ -2,21 +2,94 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Search Submissions</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admit Card Portal | Garud Classes</title>
+  <!-- Google Fonts & Font Awesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            slate: {
+              750: '#1e293b',
+              850: '#0f172a',
+            },
+            indigo: {
+              650: '#4f46e5',
+            }
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-6">
-  <div class="bg-white p-6 rounded shadow w-full max-w-md">
-    <h2 class="text-2xl font-bold mb-4">Search Admit Cards</h2>
-    <form action="/admitcard/search/results" method="GET" class="space-y-4">
-      <input type="text" name="name" placeholder="Student Name"
-             class="w-full border p-2 rounded" />
-      <input type="text" name="mobile" placeholder="Mobile Number"
-             class="w-full border p-2 rounded" />
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full">
-        Search
-      </button>
-    </form>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center min-h-screen p-4 overflow-hidden relative">
+
+  <!-- Graphic Decorative blobs -->
+  <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="relative w-full max-w-md">
+    <!-- Logo & Title -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-indigo-600/10 border border-indigo-500/30 text-indigo-400 mb-4 shadow-lg">
+        <i class="fas fa-graduation-cap text-2xl"></i>
+      </div>
+      <h1 class="text-3xl font-extrabold text-white tracking-tight">Garud Classes</h1>
+      <p class="text-indigo-200/60 text-xs mt-1 uppercase tracking-widest font-bold">Admit Card Retrieval Portal</p>
+    </div>
+
+    <!-- Search Form Card -->
+    <div class="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/15 p-6 md:p-8 shadow-2xl space-y-6">
+      <div>
+        <h2 class="text-xl font-bold text-white">Find Your Admit Card</h2>
+        <p class="text-indigo-200/50 text-xs mt-1">Enter your registered details below to search for your examination admit card.</p>
+      </div>
+
+      <form action="/admitcard/search/results" method="GET" class="space-y-4">
+        <div class="space-y-1.5">
+          <label class="block text-[10px] font-bold text-indigo-200/70 uppercase tracking-wider">Student Name</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-3 text-indigo-200/40">
+              <i class="fas fa-user text-xs"></i>
+            </span>
+            <input type="text" name="name" placeholder="e.g. Rahul Sharma" required
+                   class="w-full pl-9 pr-4 py-3 bg-white/5 border border-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-2xl text-xs outline-none text-white font-semibold transition" />
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-[10px] font-bold text-indigo-200/70 uppercase tracking-wider">Registered Mobile Number</label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-3 text-indigo-200/40">
+              <i class="fas fa-phone text-xs"></i>
+            </span>
+            <input type="text" name="mobile" placeholder="e.g. 9876543210" required
+                   class="w-full pl-9 pr-4 py-3 bg-white/5 border border-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-2xl text-xs outline-none text-white font-semibold transition" />
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-indigo-500/10 transition duration-200 text-xs flex items-center justify-center gap-2">
+            <i class="fas fa-search"></i> Search Submissions
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Back to Main Portal link -->
+    <div class="text-center mt-6">
+      <a href="/" class="text-indigo-300/60 hover:text-white transition text-xs font-semibold inline-flex items-center gap-1">
+        <i class="fas fa-chevron-left text-[9px]"></i> Back to Main Portal
+      </a>
+    </div>
   </div>
+
 </body>
 </html>

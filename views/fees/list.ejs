@@ -1,284 +1,265 @@
-<style>
-  .fees-dashboard {
-    --ink: #1f2937;
-    --muted: #64748b;
-    --line: #dbe3ee;
-    --card: #ffffff;
-    --brand: #14532d;
-    --brand-soft: #dcfce7;
-    --accent: #1d4ed8;
-    --danger: #b91c1c;
-    --danger-soft: #fee2e2;
-    --bg: #f7fafc;
+<div class="w-full px-6 py-8 space-y-6">
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
 
-    color: var(--ink);
-    background: linear-gradient(180deg, #f8fafc 0%, #eef3f9 100%);
-    border-radius: 14px;
-    padding: 16px;
-  }
-
-  .fees-card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-  }
-
-  .metric-label {
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-  }
-
-  .metric-value {
-    font-size: 28px;
-    font-weight: 800;
-    line-height: 1.15;
-  }
-
-  .metric-sub {
-    color: var(--muted);
-    font-size: 13px;
-  }
-
-  .canvas-wrap {
-    min-height: 320px;
-    position: relative;
-  }
-
-  .fees-badge-paid {
-    background: var(--brand-soft);
-    color: var(--brand);
-  }
-
-  .fees-badge-balance {
-    background: var(--danger-soft);
-    color: var(--danger);
-  }
-
-  .fees-table-wrap {
-    max-height: 54vh;
-    overflow: auto;
-    border-radius: 12px;
-    border: 1px solid var(--line);
-  }
-
-  .fees-sticky-head th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-  }
-
-  .batch-mini-table {
-    max-height: 300px;
-    overflow: auto;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-  }
-</style>
-
-<div class="fees-dashboard space-y-5">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+  <!-- Simplified Page Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-200 mb-6">
     <div>
-      <h1 class="text-3xl font-bold text-slate-800">Fee Analytics Dashboard</h1>
-      <p class="text-slate-500">Class-wise totals, collection trends, and student fee health.</p>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">💰 Fees Analytics Dashboard</h1>
     </div>
-    <div class="flex flex-col sm:flex-row gap-2">
-      <a href="/fees/export/excel" class="bg-emerald-700 hover:bg-emerald-800 text-white px-5 py-2.5 rounded-lg shadow font-semibold transition text-center">
-        Download Excel
+    <!-- Actions Panel -->
+    <div class="flex flex-wrap gap-2.5">
+      <a href="/fees/export/excel" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm transition">
+        <i class="fas fa-file-excel text-[11px]"></i> Download Excel
       </a>
-      <a href="/fees/date-wise" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg shadow font-semibold transition text-center">
-        Date-wise Table
+      <a href="/fees/date-wise" class="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm transition">
+        <i class="fas fa-calendar-alt text-[11px]"></i> Date-wise Logs
       </a>
-      <a href="/fees/new" class="bg-green-700 hover:bg-green-800 text-white px-5 py-2.5 rounded-lg shadow font-semibold transition text-center">
-        + Add Fee
+      <a href="/fees/new" class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm transition">
+        <i class="fas fa-plus text-[11px]"></i> Add Fee Record
       </a>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-    <div class="fees-card p-4">
-      <p class="metric-label">Total Students</p>
-      <p class="metric-value" id="metricStudents">0</p>
-      <p class="metric-sub">Students with fee records</p>
-    </div>
-    <div class="fees-card p-4">
-      <p class="metric-label">Total Fee Planned</p>
-      <p class="metric-value text-slate-800" id="metricTotal">Rs 0</p>
-      <p class="metric-sub">Sum of all class fee plans</p>
-    </div>
-    <div class="fees-card p-4">
-      <p class="metric-label">Total Collected</p>
-      <p class="metric-value text-emerald-700" id="metricPaid">Rs 0</p>
-      <p class="metric-sub">All payments received (<span id="metricPaidPct">0%</span>)</p>
-    </div>
-    <div class="fees-card p-4">
-      <p class="metric-label">Total Pending</p>
-      <p class="metric-value text-red-700" id="metricBalance">Rs 0</p>
-      <p class="metric-sub">Outstanding dues (<span id="metricBalancePct">0%</span>)</p>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-    <div class="fees-card p-4">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-bold text-slate-800">Class-wise Fee Split</h2>
-        <p class="text-xs text-slate-500">Total vs Paid vs Balance</p>
+  <!-- Metrics Cards Grid -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm flex items-center justify-between">
+      <div class="space-y-1">
+        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Enrolled Students</p>
+        <p class="text-3xl font-extrabold text-slate-850" id="metricStudents">0</p>
+        <p class="text-[10px] text-slate-400 font-semibold">With fee records</p>
       </div>
-      <div class="canvas-wrap">
+      <div class="p-3.5 rounded-2xl bg-indigo-50 text-indigo-500">
+        <i class="fas fa-users text-xl"></i>
+      </div>
+    </div>
+
+    <div class="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm flex items-center justify-between">
+      <div class="space-y-1">
+        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Fee Planned</p>
+        <p class="text-2xl font-extrabold text-slate-850" id="metricTotal">Rs 0</p>
+        <p class="text-[10px] text-slate-400 font-semibold">Sum of class schedules</p>
+      </div>
+      <div class="p-3.5 rounded-2xl bg-slate-50 text-slate-500">
+        <i class="fas fa-money-bill-wave text-xl"></i>
+      </div>
+    </div>
+
+    <div class="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm flex items-center justify-between">
+      <div class="space-y-1">
+        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Collected</p>
+        <p class="text-2xl font-extrabold text-emerald-700" id="metricPaid">Rs 0</p>
+        <p class="text-[10px] text-emerald-650 font-bold">Payments received (<span id="metricPaidPct">0%</span>)</p>
+      </div>
+      <div class="p-3.5 rounded-2xl bg-emerald-50 text-emerald-500">
+        <i class="fas fa-check-double text-xl"></i>
+      </div>
+    </div>
+
+    <div class="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm flex items-center justify-between">
+      <div class="space-y-1">
+        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Pending Dues</p>
+        <p class="text-2xl font-extrabold text-rose-700" id="metricBalance">Rs 0</p>
+        <p class="text-[10px] text-rose-650 font-bold">Outstanding balance (<span id="metricBalancePct">0%</span>)</p>
+      </div>
+      <div class="p-3.5 rounded-2xl bg-rose-50 text-rose-500">
+        <i class="fas fa-exclamation-triangle text-xl"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- Charts Block -->
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Class-wise Fee Split</h2>
+          <p class="text-xs text-slate-450 mt-0.5">Planned vs Paid vs Balance</p>
+        </div>
+      </div>
+      <div class="h-80 relative">
         <canvas id="classwiseBarChart"></canvas>
       </div>
     </div>
 
-    <div class="fees-card p-4">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-bold text-slate-800">Balance Share By Class</h2>
-        <p class="text-xs text-slate-500">Where pending dues are concentrated</p>
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Balance Share By Class</h2>
+          <p class="text-xs text-slate-450 mt-0.5">Where pending dues are concentrated</p>
+        </div>
       </div>
-      <div class="canvas-wrap">
+      <div class="h-80 relative">
         <canvas id="balanceDonutChart"></canvas>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="fees-card p-4 space-y-4">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+  <!-- Batch-wise Monitor Block -->
+  <section class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm mb-8 space-y-6">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
       <div>
-        <h2 class="text-lg font-bold text-slate-800">Batch-wise Monitor</h2>
-        <p class="text-sm text-slate-500">Pick any class to monitor only that batch in detail.</p>
+        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <i class="fas fa-sliders-h text-slate-400"></i> Batch-wise Monitor
+        </h2>
+        <p class="text-xs text-slate-450 mt-0.5">Filter fee performance variables by specific batches</p>
       </div>
-      <select id="batchMonitorSelect" class="border border-slate-300 rounded-lg px-3 py-2 min-w-[260px]">
+      
+      <select id="batchMonitorSelect" 
+              class="border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-xs outline-none bg-white font-semibold text-slate-700 min-w-[260px] shadow-sm">
         <option value="">Select class</option>
       </select>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-      <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
-        <p class="metric-label">Batch Students</p>
-        <p class="text-2xl font-bold text-slate-800" id="batchStudentsMetric">0</p>
+    <!-- Batch-specific Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="border border-slate-100 rounded-2xl p-4 bg-slate-50/50">
+        <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Batch Students</p>
+        <p class="text-2xl font-extrabold text-slate-850 mt-1" id="batchStudentsMetric">0</p>
       </div>
-      <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
-        <p class="metric-label">Batch Total Fee</p>
-        <p class="text-2xl font-bold text-slate-800" id="batchTotalMetric">Rs 0</p>
+      <div class="border border-slate-100 rounded-2xl p-4 bg-slate-50/50">
+        <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Batch Total Fee</p>
+        <p class="text-2xl font-extrabold text-slate-850 mt-1" id="batchTotalMetric">Rs 0</p>
       </div>
-      <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
-        <p class="metric-label">Batch Collected</p>
-        <p class="text-2xl font-bold text-emerald-700" id="batchPaidMetric">Rs 0</p>
-        <p class="text-xs text-slate-500 mt-1" id="batchPaidPct">0% of batch total</p>
+      <div class="border border-slate-100 rounded-2xl p-4 bg-slate-50/50">
+        <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Batch Collected</p>
+        <p class="text-2xl font-extrabold text-emerald-700 mt-1" id="batchPaidMetric">Rs 0</p>
+        <p class="text-[10px] text-slate-400 font-semibold mt-1.5" id="batchPaidPct">0% of batch total</p>
       </div>
-      <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
-        <p class="metric-label">Batch Pending</p>
-        <p class="text-2xl font-bold text-red-700" id="batchBalanceMetric">Rs 0</p>
-        <p class="text-xs text-slate-500 mt-1" id="batchBalancePct">0% of batch total</p>
+      <div class="border border-slate-100 rounded-2xl p-4 bg-slate-50/50">
+        <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Batch Pending Dues</p>
+        <p class="text-2xl font-extrabold text-rose-700 mt-1" id="batchBalanceMetric">Rs 0</p>
+        <p class="text-[10px] text-slate-400 font-semibold mt-1.5" id="batchBalancePct">0% of batch total</p>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-      <div>
-        <h3 class="font-semibold text-slate-800 mb-2">Students In Selected Batch</h3>
-        <div class="batch-mini-table">
-          <table class="w-full text-sm">
-            <thead class="bg-slate-100 text-slate-700">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+      <!-- Students Mini Table -->
+      <div class="space-y-3">
+        <h3 class="font-bold text-slate-800 text-sm">Students In Selected Batch</h3>
+        <div class="max-h-72 overflow-y-auto border border-slate-150 rounded-2xl shadow-inner bg-slate-50/30">
+          <table class="w-full text-left text-xs text-slate-650">
+            <thead class="bg-slate-50 border-b border-slate-100 font-bold uppercase tracking-wider text-[9px] text-slate-700">
               <tr>
-                <th class="p-2 text-left">Student</th>
-                <th class="p-2">Total</th>
-                <th class="p-2">Paid</th>
-                <th class="p-2">Balance</th>
+                <th class="p-3">Student Name</th>
+                <th class="p-3 text-center">Total</th>
+                <th class="p-3 text-center">Collected</th>
+                <th class="p-3 text-center">Pending</th>
               </tr>
             </thead>
-            <tbody id="batchStudentsTableBody">
+            <tbody id="batchStudentsTableBody" class="divide-y divide-slate-100">
               <tr>
-                <td colspan="4" class="p-3 text-center text-slate-500">Select a class to view details.</td>
+                <td colspan="4" class="p-4 text-center text-slate-400 font-medium">Select a class to view details.</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <div>
-        <h3 class="font-semibold text-slate-800 mb-2">Batch Student-wise Balance</h3>
-        <div class="canvas-wrap" style="min-height:300px;">
+      <!-- Student balance chart -->
+      <div class="space-y-3">
+        <h3 class="font-bold text-slate-800 text-sm">Batch Student-wise Balance</h3>
+        <div class="h-72 relative border border-slate-150 rounded-2xl p-4 bg-slate-50/30">
           <canvas id="batchStudentBalanceChart"></canvas>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-    <div class="fees-card p-4">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-bold text-slate-800">Monthly Collection Trend</h2>
-        <p class="text-xs text-slate-500">Based on payment dates</p>
+  <!-- Collection Trends & Top Pending -->
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Monthly Collection Trend</h2>
+          <p class="text-xs text-slate-450 mt-0.5">Based on payment transaction logs</p>
+        </div>
       </div>
-      <div class="canvas-wrap">
+      <div class="h-80 relative">
         <canvas id="monthlyTrendChart"></canvas>
       </div>
     </div>
 
-    <div class="fees-card p-4">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-bold text-slate-800">Top Pending Students</h2>
-        <p class="text-xs text-slate-500">Highest balance first</p>
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+      <div class="mb-4">
+        <h2 class="text-lg font-bold text-slate-800">Top Outstanding Balances</h2>
+        <p class="text-xs text-slate-450 mt-0.5">Active accounts sorted by highest dues</p>
       </div>
-      <div id="topPendingList" class="space-y-2"></div>
+      <div id="topPendingList" class="space-y-2.5 max-h-[300px] overflow-y-auto pr-1"></div>
     </div>
-  </div>
+  </section>
 
-  <div class="fees-card p-4 space-y-3">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-      <h2 class="text-lg font-bold text-slate-800">Student Fee Table</h2>
-      <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
-        <input id="search" placeholder="Search by name or roll" class="border border-slate-300 rounded-lg px-3 py-2 min-w-[220px]" />
-        <select id="batchFilter" class="border border-slate-300 rounded-lg px-3 py-2 min-w-[220px]">
+  <!-- Student Fee Table Master Section -->
+  <section class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div>
+        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <i class="fas fa-wallet text-slate-400"></i> Student Fee Table
+        </h2>
+        <p class="text-xs text-slate-450 mt-0.5">Search and inspect complete payments ledgers</p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+        <input id="search" placeholder="Search by name or roll..." 
+               class="border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-xs outline-none transition w-full sm:w-60 bg-slate-50/50 focus:bg-white" />
+        <select id="batchFilter" 
+                class="border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-xs outline-none bg-white font-semibold text-slate-700 min-w-[200px]">
           <option value="">All Classes</option>
         </select>
       </div>
     </div>
 
-    <div class="fees-table-wrap">
-      <table class="w-full text-sm">
-        <thead class="bg-green-700 text-white fees-sticky-head">
+    <div class="overflow-x-auto border border-slate-100 rounded-2xl shadow-sm">
+      <table class="w-full text-left text-sm text-slate-650">
+        <thead class="bg-slate-50 border-b border-slate-100 font-bold uppercase tracking-wider text-xs text-slate-700">
           <tr>
-            <th class="p-3 text-left">Student</th>
-            <th class="p-3 text-left">Class</th>
-            <th class="p-3">Total</th>
-            <th class="p-3">Paid</th>
-            <th class="p-3">Balance</th>
-            <th class="p-3 text-center">Action</th>
+            <th class="py-4 px-6">Student Name</th>
+            <th class="py-4 px-6">Assigned Batch</th>
+            <th class="py-4 px-6 text-center">Total Planned</th>
+            <th class="py-4 px-6 text-center">Collected</th>
+            <th class="py-4 px-6 text-center">Pending Balance</th>
+            <th class="py-4 px-6 text-center">Actions</th>
           </tr>
         </thead>
-        <tbody id="feeTable">
+        <tbody id="feeTable" class="divide-y divide-slate-100">
           <% fees.forEach(f => {
             const paid = f.payments.reduce((s,p)=>s+p.amount,0);
             const balance = f.totalFee - paid;
           %>
-            <tr
-              class="border-b hover:bg-slate-50 transition fee-row"
-              data-name="<%= f.student?.name || '' %>"
-              data-roll="<%= f.student?.rollNumber || '' %>"
-              data-batch="<%= f.student?.batch?.name || 'Unassigned' %>"
-              data-total="<%= f.totalFee || 0 %>"
-              data-paid="<%= paid || 0 %>"
-              data-balance="<%= balance || 0 %>"
-              data-payments='<%- JSON.stringify((f.payments || []).map(p => ({ amount: p.amount, date: p.date }))) %>'
-            >
-              <td class="p-3">
-                <div class="font-semibold text-slate-800"><%= f.student?.name || 'Unknown' %></div>
-                <div class="text-xs text-slate-500">Roll: <%= f.student?.rollNumber || '-' %></div>
+            <tr class="hover:bg-slate-50/50 transition fee-row"
+                data-name="<%= f.student?.name || '' %>"
+                data-roll="<%= f.student?.rollNumber || '' %>"
+                data-batch="<%= f.student?.batch?.name || 'Unassigned' %>"
+                data-total="<%= f.totalFee || 0 %>"
+                data-paid="<%= paid || 0 %>"
+                data-balance="<%= balance || 0 %>"
+                data-payments='<%- JSON.stringify((f.payments || []).map(p => ({ amount: p.amount, date: p.date }))) %>'>
+              
+              <td class="py-3.5 px-6">
+                <div class="font-bold text-slate-850"><%= f.student?.name || 'Unknown' %></div>
+                <div class="text-xs text-slate-450 font-mono mt-0.5">Roll No: <%= f.student?.rollNumber || '-' %></div>
               </td>
-              <td class="p-3 text-slate-700"><%= f.student?.batch?.name || 'Unassigned' %></td>
-              <td class="p-3 text-center font-semibold">Rs <%= f.totalFee || 0 %></td>
-              <td class="p-3 text-center">
-                <span class="fees-badge-paid px-2.5 py-1 rounded-full font-semibold">Rs <%= paid %></span>
+              
+              <td class="py-3.5 px-6">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-150">
+                  <%= f.student?.batch?.name || 'Unassigned' %>
+                </span>
               </td>
-              <td class="p-3 text-center">
-                <span class="fees-badge-balance px-2.5 py-1 rounded-full font-semibold">Rs <%= balance %></span>
+
+              <td class="py-3.5 px-6 text-center font-bold text-slate-800">Rs <%= f.totalFee || 0 %></td>
+              
+              <td class="py-3.5 px-6 text-center">
+                <span class="inline-flex px-3 py-1 text-xs font-bold bg-emerald-50 text-emerald-700 rounded-full border border-emerald-150">Rs <%= paid %></span>
               </td>
-              <td class="p-3 text-center">
-                <a href="/fees/student/<%= f.student?._id %>" class="inline-block bg-blue-700 hover:bg-blue-800 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
-                  View
+
+              <td class="py-3.5 px-6 text-center">
+                <span class="inline-flex px-3 py-1 text-xs font-bold bg-rose-50 text-rose-700 rounded-full border border-rose-150">Rs <%= balance %></span>
+              </td>
+
+              <td class="py-3.5 px-6 text-center">
+                <a href="/fees/student/<%= f.student?._id %>" 
+                   class="inline-flex items-center gap-1 bg-indigo-55 hover:bg-indigo-100 text-indigo-750 font-bold text-xs px-3.5 py-1.5 rounded-xl transition">
+                  <i class="fas fa-folder-open text-[10px]"></i> View Ledger
                 </a>
               </td>
             </tr>
@@ -286,7 +267,7 @@
         </tbody>
       </table>
     </div>
-  </div>
+  </section>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -389,19 +370,22 @@
           labels: batchLabels,
           datasets: [
             {
-              label: "Total",
+              label: "Planned",
               data: batchTotals,
-              backgroundColor: "rgba(29, 78, 216, 0.80)",
+              backgroundColor: "rgba(99, 102, 241, 0.85)",
+              borderRadius: 6
             },
             {
-              label: "Paid",
+              label: "Collected",
               data: batchPaid,
-              backgroundColor: "rgba(22, 163, 74, 0.82)",
+              backgroundColor: "rgba(16, 185, 129, 0.85)",
+              borderRadius: 6
             },
             {
-              label: "Balance",
+              label: "Outstanding",
               data: batchBalance,
-              backgroundColor: "rgba(220, 38, 38, 0.8)",
+              backgroundColor: "rgba(244, 63, 94, 0.85)",
+              borderRadius: 6
             },
           ],
         },
@@ -425,14 +409,14 @@
             {
               data: batchBalance,
               backgroundColor: [
-                "#1d4ed8",
-                "#16a34a",
-                "#dc2626",
-                "#d97706",
-                "#7c3aed",
-                "#0891b2",
-                "#475569",
-                "#be185d",
+                "rgba(99, 102, 241, 0.85)",
+                "rgba(16, 185, 129, 0.85)",
+                "rgba(244, 63, 94, 0.85)",
+                "rgba(245, 158, 11, 0.85)",
+                "rgba(139, 92, 246, 0.85)",
+                "rgba(6, 182, 212, 0.85)",
+                "rgba(100, 116, 139, 0.85)",
+                "rgba(236, 72, 153, 0.85)",
               ],
             },
           ],
@@ -447,32 +431,34 @@
       });
     }
 
-    new Chart(document.getElementById("monthlyTrendChart"), {
-      type: "line",
-      data: {
-        labels: monthlyLabels,
-        datasets: [
-          {
-            label: "Collection",
-            data: monthlyValues,
-            borderColor: "#14532d",
-            backgroundColor: "rgba(20, 83, 45, 0.15)",
-            fill: true,
-            tension: 0.3,
+    if (monthlyLabels.length) {
+      new Chart(document.getElementById("monthlyTrendChart"), {
+        type: "line",
+        data: {
+          labels: monthlyLabels,
+          datasets: [
+            {
+              label: "Monthly Collection",
+              data: monthlyValues,
+              borderColor: "rgb(99, 102, 241)",
+              backgroundColor: "rgba(99, 102, 241, 0.1)",
+              fill: true,
+              tension: 0.3,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
           },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: true },
+          scales: {
+            y: { beginAtZero: true },
+          },
         },
-        scales: {
-          y: { beginAtZero: true },
-        },
-      },
-    });
+      });
+    }
 
     const topPending = rows
       .map((row) => ({
@@ -487,12 +473,12 @@
     const topPendingList = document.getElementById("topPendingList");
     topPendingList.innerHTML = topPending
       .map((student, index) => `
-        <div class="flex items-center justify-between border border-slate-200 rounded-lg p-2.5 bg-slate-50">
+        <div class="flex items-center justify-between border border-slate-100 rounded-2xl p-3 bg-slate-50/50 hover:bg-slate-50 transition">
           <div>
-            <p class="font-semibold text-slate-800">${index + 1}. ${student.name}</p>
-            <p class="text-xs text-slate-500">Roll: ${student.roll} | Class: ${student.batch}</p>
+            <p class="font-bold text-slate-800 text-sm">${index + 1}. ${student.name}</p>
+            <p class="text-xs text-slate-400 font-semibold mt-0.5">Roll No: ${student.roll} | Batch: ${student.batch}</p>
           </div>
-          <span class="text-sm font-bold text-red-700">${inr(student.balance)}</span>
+          <span class="text-sm font-extrabold text-rose-750">${inr(student.balance)}</span>
         </div>
       `)
       .join("");
@@ -517,7 +503,7 @@
         if (batchBalancePct) batchBalancePct.textContent = "0% of batch total";
         batchStudentsTableBody.innerHTML = `
           <tr>
-            <td colspan="4" class="p-3 text-center text-slate-500">Select a class to view details.</td>
+            <td colspan="4" class="p-4 text-center text-slate-400 font-semibold">Select a class to view details.</td>
           </tr>
         `;
         if (batchStudentChart) {
@@ -547,21 +533,21 @@
       if (!students.length) {
         batchStudentsTableBody.innerHTML = `
           <tr>
-            <td colspan="4" class="p-3 text-center text-slate-500">No fee data found for this class.</td>
+            <td colspan="4" class="p-4 text-center text-slate-400 font-medium">No fee data found for this class.</td>
           </tr>
         `;
       } else {
         batchStudentsTableBody.innerHTML = students
           .sort((a, b) => b.balance - a.balance)
           .map((student) => `
-            <tr class="border-t border-slate-200">
-              <td class="p-2">
-                <p class="font-semibold text-slate-800">${student.name}</p>
-                <p class="text-xs text-slate-500">Roll: ${student.roll}</p>
+            <tr class="hover:bg-slate-50/50 transition">
+              <td class="p-3">
+                <p class="font-bold text-slate-800">${student.name}</p>
+                <p class="text-[10px] text-slate-450 font-mono mt-0.5">Roll: ${student.roll}</p>
               </td>
-              <td class="p-2 text-center">${inr(student.total)}</td>
-              <td class="p-2 text-center text-emerald-700 font-semibold">${inr(student.paid)}</td>
-              <td class="p-2 text-center text-red-700 font-semibold">${inr(student.balance)}</td>
+              <td class="p-3 text-center font-bold text-slate-700">${inr(student.total)}</td>
+              <td class="p-3 text-center text-emerald-700 font-extrabold">${inr(student.paid)}</td>
+              <td class="p-3 text-center text-rose-700 font-extrabold">${inr(student.balance)}</td>
             </tr>
           `)
           .join("");
@@ -580,9 +566,9 @@
           labels,
           datasets: [
             {
-              label: "Balance",
+              label: "Outstanding Balance",
               data: balanceData,
-              backgroundColor: "rgba(220, 38, 38, 0.8)",
+              backgroundColor: "rgba(244, 63, 94, 0.85)",
               borderRadius: 6,
             },
           ],

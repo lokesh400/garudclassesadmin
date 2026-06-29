@@ -365,7 +365,7 @@ router.post("/login", (req, res, next) => {
     }
 
     // 🔒 CHECK IF USER IS ACTIVE
-    if (user.isActive !== true) {
+    if (user.isActive === false) {
       return res.status(403).json({
         loggedIn: false,
         message: "Your account is inactive. Please contact the administration.",
@@ -394,7 +394,7 @@ router.get("/check", (req, res) => {
   }
 
   // 🔒 ACTIVE CHECK
-  if (!req.user || req.user.isActive !== true) {
+  if (!req.user || req.user.isActive === false) {
     req.logout(function (err) {
       if (err) console.error(err);
       return res.json({

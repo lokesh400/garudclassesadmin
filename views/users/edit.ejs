@@ -1,16 +1,88 @@
-<form method="POST" class="max-w-lg mx-auto bg-white p-6 shadow rounded" action="/teachers/<%= id %>/edit">
-  <h2 class="text-xl font-bold mb-4">Edit User</h2>
+<div class="w-full px-6 py-8 space-y-6">
 
-  <input name="name" value="<%= user.name %>" class="input">
-  
-  <select name="role" class="input">
-    <option <%= user.role==='admin'?'selected':'' %>>admin</option>
-    <option <%= user.role==='superadmin'?'selected':'' %>>superadmin</option>
-    <option <%= user.role==='receptionist'?'selected':'' %>>receptionist</option>
-    <option <%= user.role==='teacher'?'selected':'' %>>teacher</option>
-  </select>
+  <!-- Simplified Page Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-200">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+        <span>👤 Edit User Account</span>
+      </h1>
+    </div>
 
-  <button class="bg-blue-600 text-white px-4 py-2 rounded mt-3">
-    Update
-  </button>
-</form>
+    <a href="/teachers/all" 
+       class="inline-flex items-center gap-1.5 bg-white hover:bg-slate-55 text-slate-700 border border-slate-300 px-4 py-2 rounded-xl font-bold text-xs shadow-sm transition">
+      <i class="fas fa-chevron-left text-[10px]"></i> Back
+    </a>
+  </div>
+
+  <!-- Form Card -->
+  <div class="bg-white border border-slate-100 rounded-3xl p-6 md:p-8 shadow-sm max-w-2xl">
+    <form method="POST" action="/teachers/<%= id %>/edit" class="space-y-6">
+      
+      <!-- Name Field -->
+      <div>
+        <label for="name" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Full Name</label>
+        <input 
+          type="text"
+          id="name"
+          name="name" 
+          value="<%= user.name %>" 
+          placeholder="e.g. Rahul Sharma" 
+          class="w-full px-4 py-3 border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs outline-none transition duration-200 font-semibold text-slate-700" 
+          required>
+      </div>
+
+      <!-- Username Field -->
+      <div>
+        <label for="username" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Username</label>
+        <input 
+          type="text"
+          id="username"
+          name="username" 
+          value="<%= user.username %>" 
+          placeholder="e.g. rahul_sharma" 
+          class="w-full px-4 py-3 border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs outline-none transition duration-200 font-semibold text-slate-700" 
+          required>
+      </div>
+
+      <!-- Email Field -->
+      <div>
+        <label for="email" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address</label>
+        <input 
+          type="email"
+          id="email"
+          name="email" 
+          value="<%= user.email || '' %>" 
+          placeholder="e.g. rahul@example.com" 
+          class="w-full px-4 py-3 border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs outline-none transition duration-200 font-semibold text-slate-700" 
+          required>
+      </div>
+
+      <!-- Role Field -->
+      <div>
+        <label for="role" class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">User Role</label>
+        <select 
+          id="role"
+          name="role" 
+          class="w-full px-4 py-3 border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs outline-none transition duration-200 font-semibold text-slate-700 bg-white cursor-pointer">
+          <option value="admin" <%= user.role==='admin'?'selected':'' %>>Admin</option>
+          <option value="superadmin" <%= user.role==='superadmin'?'selected':'' %>>Super Admin</option>
+          <option value="receptionist" <%= user.role==='receptionist'?'selected':'' %>>Receptionist</option>
+          <option value="teacher" <%= user.role==='teacher'?'selected':'' %>>Teacher</option>
+        </select>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+        <a href="/teachers/all" 
+           class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-50 transition">
+          Cancel
+        </a>
+        <button type="submit" 
+                class="bg-indigo-650 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-sm transition">
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>

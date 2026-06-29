@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { queryConnection } = require("../config/connections");
 
 const querySchema = new mongoose.Schema(
   {
@@ -25,4 +26,4 @@ const querySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Query", querySchema);
+module.exports = queryConnection.model("Query", querySchema);

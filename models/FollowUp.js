@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { queryConnection } = require("../config/connections");
 
 const FollowUpSchema = new mongoose.Schema({
   queryId: {
@@ -9,4 +10,4 @@ const FollowUpSchema = new mongoose.Schema({
   note: String
 }, { timestamps: true });
 
-module.exports = mongoose.model("FollowUp", FollowUpSchema);
+module.exports = queryConnection.model("FollowUp", FollowUpSchema);

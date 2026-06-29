@@ -68,10 +68,7 @@ app.use(
     "https://garudattendance.onrender.com": true,
     "https://p.garudclasses.com": true,
     "https://garudclasses.com": true,
-    // "http://localhost:3000": true,
     "http://localhost:8081": true,
-    // "http://localhost:5000": true,
-    // "http://localhost:8000": true
   })
 );
 
@@ -114,6 +111,7 @@ app.use(flash());
 app.use((req, res, next) => {
   res.locals.currUser = req.user || null;
   res.locals.isAuthenticated = req.isAuthenticated();
+  res.locals.messages = req.flash();
   next();
 });
 
@@ -293,12 +291,16 @@ function startKeepAlive() {
   }, 10000);
 }
 
+const { migrateData } = require("./utils/dbMigrator");
+
 async function startServer() {
   await connectDB();
 
   server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     startKeepAlive();
+    // Run migration asynchronously
+    migrateData().catch(err => console.error("❌ Migration error:", err));
   });
 }
 

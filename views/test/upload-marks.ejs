@@ -1,21 +1,112 @@
-<h3 class="mb-4">Upload Marks for <%= batch.name %></h3>
+<div class="w-full px-6 py-8 space-y-6">
 
-<div class="mb-3">
-  <a href="/marks/download-template/<%= batch._id %>" class="btn btn-outline-primary">
-    Download Excel Template
-  </a>
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
+
+  <!-- Simplified Page Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-200 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">📤 Import Grade Sheet</h1>
+      <p class="text-sm text-slate-500 mt-0.5 font-medium"><%= batch.name %> &bull; <%= batch.courseType %></p>
+    </div>
+    <a href="/marks/tests/<%= batch._id %>" 
+       class="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-4 py-2 rounded-xl font-bold text-xs shadow-sm transition">
+      <i class="fas fa-chevron-left text-[10px]"></i> Back to Tests
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Left column: template download -->
+    <div class="lg:col-span-1 space-y-6">
+      <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-lg">
+          <i class="fas fa-file-download"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-850 text-base">Get Excel Template</h3>
+          <p class="text-slate-500 text-xs mt-1 leading-relaxed">Download the matching structured spreadsheet filled with all enrolled student usernames and roll numbers to ensure mistake-free upload.</p>
+        </div>
+        <a href="/marks/download/<%= batch._id %>" 
+           class="w-full inline-flex items-center justify-center gap-1.5 bg-indigo-650 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-xs shadow-sm transition">
+          <i class="fas fa-download"></i> Download Template (.xlsx)
+        </a>
+      </div>
+
+      <!-- Guidelines -->
+      <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+        <h3 class="font-bold text-slate-855 text-sm flex items-center gap-1.5 pb-2 border-b border-slate-100">
+          <i class="fas fa-info-circle text-indigo-500"></i> Import Guidelines
+        </h3>
+        <ul class="space-y-3 text-xs text-slate-600 font-semibold">
+          <li class="flex items-start gap-2">
+            <span class="text-indigo-600 font-extrabold">&bull;</span>
+            <span>Do not alter or rearrange the first row columns (Headers) or sheet naming.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-indigo-600 font-extrabold">&bull;</span>
+            <span>Ensure all scores entered are numeric values. Empty values default to zero.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-indigo-600 font-extrabold">&bull;</span>
+            <span>Double-check that student roll numbers match their account credentials.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Right column: Upload form -->
+    <div class="lg:col-span-2">
+      <div class="bg-white border border-slate-100 rounded-3xl p-6 md:p-8 shadow-sm">
+        <form action="/marks/upload/<%= batch._id %>" method="POST" enctype="multipart/form-data" class="space-y-6">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Test Title / Description</label>
+            <input type="text" name="testTitle" 
+                   placeholder="e.g. Weekly Assessment Test 4" 
+                   class="w-full px-4 py-3 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs outline-none transition duration-200 font-semibold text-slate-700" 
+                   required />
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Marks spreadsheet (Excel)</label>
+            <div class="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-indigo-400 transition cursor-pointer relative group bg-slate-50/50">
+              <input type="file" name="excelFile" accept=".xlsx" 
+                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                     id="excelFileSelector" onchange="updateSelectedFileLabel()" required />
+              <div class="space-y-2.5">
+                <span class="inline-flex p-3.5 bg-white text-slate-500 rounded-2xl group-hover:bg-indigo-50 group-hover:text-indigo-600 transition shadow-sm">
+                  <i class="fas fa-cloud-upload-alt text-2xl"></i>
+                </span>
+                <p class="text-slate-700 font-bold text-sm" id="fileSelectorLabel">Click or drag Excel sheet here to upload</p>
+                <p class="text-[10px] text-slate-450 font-bold">Supported formats: Microsoft Excel (.xlsx) only</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+            <a href="/marks/tests/<%= batch._id %>" 
+               class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-750 font-bold text-xs hover:bg-slate-50 transition">
+              Cancel
+            </a>
+            <button type="submit" 
+                    class="bg-indigo-650 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-sm transition">
+              Upload Marks
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<form action="/marks/upload/<%= batch._id %>" method="POST" enctype="multipart/form-data" class="card p-4">
-  <div class="mb-3">
-    <label class="form-label">Test Title</label>
-    <input type="text" name="testTitle" class="form-control" required />
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">Upload Marks Excel</label>
-    <input type="file" name="marksFile" class="form-control" accept=".xlsx,.xls" required />
-  </div>
-
-  <button type="submit" class="btn btn-success">Upload Marks</button>
-</form>
+<script>
+  function updateSelectedFileLabel() {
+    const fileSelector = document.getElementById("excelFileSelector");
+    const label = document.getElementById("fileSelectorLabel");
+    if (fileSelector.files && fileSelector.files.length > 0) {
+      label.innerHTML = `Selected File: <span class="text-indigo-650 font-bold">${fileSelector.files[0].name}</span>`;
+    } else {
+      label.innerText = "Click or drag Excel sheet here to upload";
+    }
+  }
+</script>

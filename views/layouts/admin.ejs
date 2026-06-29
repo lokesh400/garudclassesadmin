@@ -1,134 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title || "Admin Panel" %></title>
+  <title><%= title || "Admin Portal | Garud Classes" %></title>
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Google Fonts (Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+  </style>
 </head>
 
-<body class="bg-gray-100 flex h-screen">
+<body class="bg-slate-50 flex h-full text-slate-800">
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
 
   <!-- Sidebar -->
   <aside id="sidebar"
-    class="w-64 bg-gray-900 text-white flex flex-col fixed inset-y-0 left-0 transform overflow-y-auto
-           -translate-x-full transition-transform duration-300 z-50">
+    class="w-64 bg-slate-950 border-r border-slate-900 text-slate-400 flex flex-col fixed inset-y-0 left-0 transform overflow-y-auto
+           -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50 no-scrollbar">
 
-    <div class="p-5 text-center font-bold text-xl border-b border-gray-800">
-      Garud Classes
+    <!-- Sidebar Branding -->
+    <div class="p-4 border-b border-slate-900 flex items-center gap-3 justify-center">
+      <img src="/logo.png" alt="Garud Classes" class="h-9 w-9 rounded-lg object-contain bg-white p-0.5">
+      <span class="font-extrabold text-white tracking-wider text-base">GARUD CLASSES</span>
     </div>
 
-    <nav class="flex-1 p-3 space-y-2 overflow-y-auto">
+    <!-- Navigation List -->
+    <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto no-scrollbar">
       <% if( currUser && currUser.role === 'superadmin'  ) {%>
-        <a href="/admin" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-          <i class="fas fa-chart-line"></i> Dashboard
+        <a href="/admin" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm">
+          <i class="fas fa-chart-line text-base w-5"></i> Dashboard
         </a>
-        <a href="/api/students/all" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-          <i class="fas fa-user-graduate"></i> All Students
+        <a href="/api/students/all" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm">
+          <i class="fas fa-user-graduate text-base w-5"></i> All Students
         </a>
-        <a href="/teachers/all" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-          <i class="fas fa-chalkboard-teacher"></i> Faculty
+        <a href="/teachers/all" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm">
+          <i class="fas fa-chalkboard-teacher text-base w-5"></i> Faculty
         </a>
-
       <%}%>  
 
       <% if(currUser && (currUser.role === 'superadmin' || currUser.role === 'admin')) { %>
-        <a href="/api/batches/" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-          <i class="fas fa-layer-group"></i> All Batches
+        <a href="/api/batches/" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm">
+          <i class="fas fa-layer-group text-base w-5"></i> All Batches
         </a>
       <%}%>
 
       <% if(currUser && currUser.role === 'superadmin') { %> 
-        <a href="/fees" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-          <i class="fas fa-money-bill"></i> Fees
+        <a href="/fees" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm">
+          <i class="fas fa-money-bill text-base w-5"></i> Fees
         </a>
       <%}%> 
 
-      <a href="/forms/list" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-        <i class="fas fa-file"></i> Forms
+      <a href="/forms/list" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm">
+        <i class="fas fa-file text-base w-5"></i> Forms
       </a>
 
       <% if(currUser && (currUser.role === 'superadmin' || currUser.role === 'admin')) { %> 
-        <a href="/forms/create" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-          <i class="fas fa-plus"></i> New Form
+        <a href="/forms/create" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm">
+          <i class="fas fa-plus text-base w-5"></i> New Form
         </a>
       <% } %>
 
-      <a href="/queries" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-        <i class="fas fa-question-circle"></i> All Queries
+      <a href="/queries" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm">
+        <i class="fas fa-question-circle text-base w-5"></i> All Queries
       </a>
 
-      <a href="/queries/new" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-        <i class="fas fa-plus-circle"></i> Add New Query
+      <a href="/queries/new" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm">
+        <i class="fas fa-plus-circle text-base w-5"></i> Add New Query
       </a>
 
       <% if(currUser && (currUser.role === 'superadmin' || currUser.role === 'admin')) { %> 
-        <a href="https://attendance.garudclasses.com/" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-          <i class="fas fa-plus"></i> Attendance Portal
+        <a href="https://attendance.garudclasses.com/" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm" target="_blank">
+          <i class="fas fa-calendar-check text-base w-5"></i> Attendance Portal
         </a>
       <% } %>
 
       <% if(currUser && (currUser.role === 'superadmin' || currUser.role === 'admin')) { %>
-        <a href="/admin/recruitments" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-          <i class="fas fa-briefcase"></i> Recruitments
+        <a href="/admin/recruitments" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm">
+          <i class="fas fa-briefcase text-base w-5"></i> Recruitments
         </a>
       <% } %>
 
       <% if(currUser && (currUser.role === 'superadmin' || currUser.role === 'admin')) { %>
-        <a href="/admin/staff" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-          <i class="fas fa-id-card"></i> Staff Documents
+        <a href="/admin/staff" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm">
+          <i class="fas fa-id-card text-base w-5"></i> Staff Documents
         </a>
-        <a href="/admin/staff/new" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-          <i class="fas fa-user-plus"></i> Add Staff Record
+        <a href="/admin/staff/new" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition duration-200 text-sm">
+          <i class="fas fa-user-plus text-base w-5"></i> Add Staff Record
         </a>
       <% } %>
-
-
     </nav>
 
-    <div class="p-3 border-t border-gray-700">
-      <a href="/logout" class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-800">
-        <i class="fas fa-sign-out-alt"></i> Logout
+    <!-- Sidebar Footer (Logout) -->
+    <div class="p-4 border-t border-slate-900">
+      <a href="/logout" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition duration-200 text-sm">
+        <i class="fas fa-sign-out-alt text-base w-5"></i> Logout
       </a>
     </div>
 
   </aside>
 
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col lg:pl-64 h-full">
 
-  <!-- Main Content -->
-  <main class="flex-1 p-6 overflow-y-auto bg-white">
-
-    <!-- Top bar -->
-    <header class="flex justify-between items-center mb-6">
-
-      <!-- Hamburger Button -->
-      <button id="menuBtn" class="text-gray-700 text-2xl">
+    <!-- Top bar Header -->
+    <header class="h-16 bg-white border-b border-slate-100 flex justify-between items-center px-6 sticky top-0 z-40">
+      
+      <!-- Hamburger Toggle Menu (Mobile) -->
+      <button id="menuBtn" class="text-slate-600 text-xl hover:text-indigo-650 transition lg:hidden">
         <i class="fas fa-bars"></i>
       </button>
 
-      <h1 class="text-2xl font-semibold">
-        <%= pageTitle || "Dashboard" %>
-      </h1>
+      <!-- Logo + Page Title -->
+      <div class="flex items-center gap-3">
+        <img src="/logo.png" alt="Garud Classes" class="h-8 w-8 rounded-md object-contain hidden lg:block">
+        <h1 class="text-lg font-bold text-slate-800 hidden sm:block">
+          <%= pageTitle || "Garud Classes ERP" %>
+        </h1>
+      </div>
 
-      <div class="flex items-center space-x-4">
-        <span class="text-gray-700 font-medium hidden sm:block">
-          Welcome, <%= currUser?.name || "Admin" %>
+      <div class="flex items-center gap-4 ml-auto">
+        <span class="text-slate-500 font-semibold text-sm">
+          <%= currUser?.name || "Admin User" %>
         </span>
-        <img src="https://ui-avatars.com/api/?name=Admin"
-             alt="Admin"
-             class="w-8 h-8 rounded-full border">
+        <div class="relative">
+          <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(currUser?.name || 'Admin') %>&background=random"
+               alt="User profile"
+               class="w-9 h-9 rounded-full ring-2 ring-indigo-50 border border-slate-200 shadow-sm">
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+        </div>
       </div>
     </header>
 
-    <!-- Dynamic Content -->
-    <%- body %>
+    <!-- Scrollable main page container -->
+    <main class="flex-1 overflow-y-auto">
+      <%- body %>
+    </main>
 
-  </main>
+  </div>
 
-
-  <!-- Background Overlay -->
-  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-40"></div>
+  <!-- Background Overlay for Mobile Sidebar Drawer -->
+  <div id="overlay" class="fixed inset-0 bg-slate-950/40 hidden z-40 transition-opacity duration-300"></div>
 
 <script>
   const sidebar = document.getElementById("sidebar");
@@ -144,6 +178,64 @@
     sidebar.classList.add("-translate-x-full");
     overlay.classList.add("hidden");
   });
+
+  // Client-side Active Sidebar Nav Highlight
+  const currentPath = window.location.pathname;
+  const navLinks = document.querySelectorAll("nav a");
+  navLinks.forEach(link => {
+    const href = link.getAttribute("href");
+    // Match dashboard and exact matches, or subroutes
+    if (href === currentPath || (href !== "/admin" && href !== "/api/batches/" && currentPath.startsWith(href))) {
+      link.classList.remove("text-slate-400");
+      link.classList.add("bg-indigo-650/10", "text-indigo-400", "border-l-4", "border-indigo-500", "font-bold");
+    } else {
+      link.classList.add("text-slate-400", "hover:bg-slate-900/50", "hover:text-slate-200");
+    }
+  });
+
+  // Global Toast Notification Helper
+  function showToast(message, type = 'success') {
+    const container = document.getElementById("toast-container");
+    if (!container) return;
+
+    const toast = document.createElement("div");
+    toast.className = `p-4 rounded-2xl shadow-xl border backdrop-blur-md transition-all duration-300 transform translate-x-12 opacity-0 pointer-events-auto flex items-center gap-3 w-full`;
+    
+    if (type === 'success') {
+      toast.classList.add("bg-emerald-50/90", "border-emerald-200", "text-emerald-950");
+      toast.innerHTML = `
+        <i class="fas fa-check-circle text-emerald-500 text-lg flex-shrink-0"></i>
+        <div class="flex-1 text-sm font-semibold">${message}</div>
+        <button class="text-emerald-700/60 hover:text-emerald-950 transition outline-none" onclick="this.parentElement.remove()">
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      `;
+    } else {
+      toast.classList.add("bg-rose-50/90", "border-rose-200", "text-rose-950");
+      toast.innerHTML = `
+        <i class="fas fa-exclamation-circle text-rose-500 text-lg flex-shrink-0"></i>
+        <div class="flex-1 text-sm font-semibold">${message}</div>
+        <button class="text-rose-700/60 hover:text-rose-950 transition outline-none" onclick="this.parentElement.remove()">
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      `;
+    }
+
+    container.appendChild(toast);
+
+    // Trigger transition
+    setTimeout(() => {
+      toast.classList.remove("translate-x-12", "opacity-0");
+    }, 10);
+
+    // Auto-remove
+    setTimeout(() => {
+      toast.classList.add("translate-x-12", "opacity-0");
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 4000);
+  }
 </script>
 
 </body>

@@ -1,112 +1,288 @@
-<div class="min-h-screen bg-gray-50 p-6">
-  <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl p-6">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold text-blue-600">
-        🧮 <%= batch.name %> — <%= testTitle %>
-      </h2>
+<div class="w-full px-6 py-8 space-y-6">
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
 
-      <form action="/send/results/<%= batch._id %>/<%= testTitle %>" method="post">
-        <button
-          type="submit"
-          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition"
-        >
-          📧 Send Results
+  <!-- Simplified Page Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-200 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">🧮 <%= testTitle %></h1>
+      <p class="text-sm text-slate-500 mt-0.5 font-medium">Batch: <%= batch.name %> &bull; <%= batch.courseType %></p>
+    </div>
+
+    <!-- Actions Panel -->
+    <div class="flex flex-wrap items-center gap-2.5">
+      <!-- Send Results -->
+      <form action="/marks/send/results/<%= batch._id %>/<%= encodeURIComponent(testTitle) %>" method="POST" id="sendResultsForm" onsubmit="handleSendResultsSubmit(event)">
+        <button type="submit" id="sendResultsBtn"
+                class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm transition">
+          <i class="fas fa-paper-plane text-[10px]" id="sendResultsIcon"></i>
+          <span id="sendResultsText">Email Results</span>
         </button>
       </form>
 
-      <a href="javascript:history.back()" 
-         class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition">
-         ← Back
+      <!-- Delete Test -->
+      <form action="/marks/delete/<%= batch._id %>/<%= encodeURIComponent(testTitle) %>" method="POST"
+            onsubmit="return confirm('Are you sure you want to delete this test permanently? This will remove all student marks for this test.')">
+        <button type="submit" 
+                class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-4 py-2.5 rounded-xl font-bold text-xs transition">
+          <i class="fas fa-trash-alt text-[10px]"></i> Delete Test
+        </button>
+      </form>
+
+      <a href="/marks/tests/<%= batch._id %>" 
+         class="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm transition">
+        <i class="fas fa-chevron-left text-[10px]"></i> Back
       </a>
     </div>
+  </div>
 
-    <!-- Summary Cards -->
-    <%
-      const numericTotals = marks.map(m => 
-        Number(m.total) || (
-          (Number(m.physics) || 0) + 
-          (Number(m.chemistry) || 0) + 
-          (Number(m.math) || 0) + 
-          (Number(m.botany) || 0) + 
-          (Number(m.zoology) || 0)
-        )
-      );
-      const validTotals = numericTotals.filter(n => !isNaN(n));
-      const grandTotal = validTotals.reduce((a, b) => a + b, 0);
-      const avg = validTotals.length ? (grandTotal / validTotals.length).toFixed(2) : 0;
-      const max = validTotals.length ? Math.max(...validTotals) : 0;
-      const min = validTotals.length ? Math.min(...validTotals) : 0;
-    %>
+  <!-- Summary Stats calculations -->
+  <%
+    const sortedMarks = [...marks].map(m => {
+      const phy = Number(m.physics) || 0;
+      const chem = Number(m.chemistry) || 0;
+      const math = Number(m.math) || 0;
+      const bot = Number(m.botany) || 0;
+      const zoo = Number(m.zoology) || 0;
+      const totalScore = Number(m.total) || (phy + chem + math + bot + zoo);
+      return { ...m, computedTotal: totalScore };
+    }).sort((a, b) => b.computedTotal - a.computedTotal);
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <div class="bg-blue-100 text-blue-800 rounded-xl p-4 text-center shadow">
-        <h4 class="font-semibold text-lg">Average</h4>
-        <p class="text-2xl font-bold mt-1"><%= avg %></p>
+    const validTotals = sortedMarks.map(m => m.computedTotal).filter(n => !isNaN(n));
+    const grandTotal = validTotals.reduce((a, b) => a + b, 0);
+    const avg = validTotals.length ? (grandTotal / validTotals.length).toFixed(1) : 0;
+    const max = validTotals.length ? Math.max(...validTotals) : 0;
+    const min = validTotals.length ? Math.min(...validTotals) : 0;
+
+    // Get top performers
+    const topPerformers = sortedMarks.slice(0, 3);
+  %>
+
+  <!-- Statistical Panels -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-blue-50 border border-blue-150 rounded-2xl p-5 shadow-sm text-center">
+      <div class="inline-flex p-3 bg-blue-100 text-blue-700 rounded-2xl mb-2">
+        <i class="fas fa-chart-line text-xl"></i>
       </div>
-      <div class="bg-green-100 text-green-800 rounded-xl p-4 text-center shadow">
-        <h4 class="font-semibold text-lg">Highest</h4>
-        <p class="text-2xl font-bold mt-1"><%= max %></p>
+      <p class="text-xs uppercase font-bold text-slate-500">Class Average</p>
+      <p class="text-3xl font-extrabold text-blue-900 mt-1"><%= avg %></p>
+    </div>
+    
+    <div class="bg-emerald-50 border border-emerald-150 rounded-2xl p-5 shadow-sm text-center">
+      <div class="inline-flex p-3 bg-emerald-100 text-emerald-700 rounded-2xl mb-2">
+        <i class="fas fa-award text-xl"></i>
       </div>
-      <div class="bg-red-100 text-red-800 rounded-xl p-4 text-center shadow">
-        <h4 class="font-semibold text-lg">Lowest</h4>
-        <p class="text-2xl font-bold mt-1"><%= min %></p>
-      </div>
-      <div class="bg-yellow-100 text-yellow-800 rounded-xl p-4 text-center shadow">
-        <h4 class="font-semibold text-lg">Grand Total</h4>
-        <p class="text-2xl font-bold mt-1"><%= grandTotal %></p>
-      </div>
+      <p class="text-xs uppercase font-bold text-slate-500">Highest Score</p>
+      <p class="text-3xl font-extrabold text-emerald-900 mt-1"><%= max %></p>
     </div>
 
-    <!-- Results Table -->
-    <div class="overflow-x-auto rounded-xl border border-gray-200 shadow">
-      <table class="w-full text-sm text-gray-700">
-        <thead class="bg-gray-800 text-white text-center">
+    <div class="bg-rose-50 border border-rose-150 rounded-2xl p-5 shadow-sm text-center">
+      <div class="inline-flex p-3 bg-rose-100 text-rose-700 rounded-2xl mb-2">
+        <i class="fas fa-arrow-down text-xl"></i>
+      </div>
+      <p class="text-xs uppercase font-bold text-slate-500">Lowest Score</p>
+      <p class="text-3xl font-extrabold text-rose-900 mt-1"><%= min %></p>
+    </div>
+
+    <div class="bg-indigo-50 border border-indigo-150 rounded-2xl p-5 shadow-sm text-center">
+      <div class="inline-flex p-3 bg-indigo-100 text-indigo-700 rounded-2xl mb-2">
+        <i class="fas fa-users text-xl"></i>
+      </div>
+      <p class="text-xs uppercase font-bold text-slate-500">Total Graded</p>
+      <p class="text-3xl font-extrabold text-indigo-900 mt-1"><%= marks.length %> s</p>
+    </div>
+  </div>
+
+  <!-- Leaderboard / Top 3 Performers -->
+  <% if (topPerformers.length > 0) { %>
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-md mb-8">
+      <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+        <i class="fas fa-crown text-amber-500"></i> Top Performers Leaderboard
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <% topPerformers.forEach((p, idx) => { %>
+          <% 
+            let rankColor = '';
+            let rankName = '';
+            let avatarRing = '';
+            if (idx === 0) {
+              rankColor = 'bg-amber-50 border-amber-200 text-amber-850';
+              rankName = '🏆 1st Rank';
+              avatarRing = 'ring-amber-400';
+            } else if (idx === 1) {
+              rankColor = 'bg-slate-50 border-slate-200 text-slate-800';
+              rankName = '🥈 2nd Rank';
+              avatarRing = 'ring-slate-300';
+            } else {
+              rankColor = 'bg-amber-50/50 border-amber-100 text-amber-700';
+              rankName = '🥉 3rd Rank';
+              avatarRing = 'ring-amber-600';
+            }
+          %>
+          <div class="border rounded-2xl p-5 flex items-center gap-4 shadow-sm bg-gradient-to-br from-white to-slate-50 border-slate-100">
+            <div class="relative">
+              <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(p.student?.name || p.student) %>&background=random" 
+                   alt="<%= p.student?.name || p.student %>" 
+                   class="w-14 h-14 rounded-full ring-4 <%= avatarRing %> shadow-sm">
+              <span class="absolute -top-2 -left-2 text-lg">
+                <%= idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉' %>
+              </span>
+            </div>
+            <div>
+              <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-bold <%= rankColor %> mb-1">
+                <%= rankName %>
+              </span>
+              <p class="font-bold text-slate-800 text-base line-clamp-1"><%= p.student?.name || p.student %></p>
+              <p class="text-sm text-slate-500 mt-0.5">Roll: <span class="font-semibold text-slate-700"><%= p.rollNo %></span></p>
+              <p class="text-sm font-extrabold text-indigo-650 mt-1">Score: <%= p.computedTotal %> marks</p>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Search and Table Container -->
+  <div class="bg-white border border-slate-100 rounded-3xl shadow-sm overflow-hidden">
+    <!-- Filter bar -->
+    <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="w-full max-w-md relative">
+        <span class="absolute left-4 top-3.5 text-slate-500">
+          <i class="fas fa-search"></i>
+        </span>
+        <input type="text" id="searchInput" onkeyup="filterTable()" 
+               placeholder="Search by student name or roll number..." 
+               class="pl-11 pr-4 py-3 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm w-full outline-none transition duration-200 font-semibold text-slate-700">
+      </div>
+      <span class="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+        💡 Click on table headers (Roll No, Name, Total) to sort
+      </span>
+    </div>
+
+    <!-- Table content -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-slate-650" id="marksTable">
+        <thead class="bg-slate-50 text-slate-700 border-b border-slate-100 font-bold uppercase tracking-wider text-xs">
           <tr>
-            <th class="py-3 px-4">Roll No</th>
-            <th class="py-3 px-4 text-left">Name</th>
-            <th class="py-3 px-4">Physics</th>
-            <th class="py-3 px-4">Chemistry</th>
+            <th class="py-4 px-6 text-center cursor-pointer select-none hover:bg-slate-100 transition" onclick="sortTable(0)">
+              Roll No <span class="sort-icon ml-1 text-slate-500">&#8645;</span>
+            </th>
+            <th class="py-4 px-6 text-left cursor-pointer select-none hover:bg-slate-100 transition" onclick="sortTable(1)">
+              Student Name <span class="sort-icon ml-1 text-slate-500">&#8645;</span>
+            </th>
+            <th class="py-4 px-6 text-center">Physics</th>
+            <th class="py-4 px-6 text-center">Chemistry</th>
             <% if (marks[0]?.examType === 'JEE') { %>
-              <th class="py-3 px-4">Math</th>
+              <th class="py-4 px-6 text-center">Math</th>
             <% } else { %>
-              <th class="py-3 px-4">Botany</th>
-              <th class="py-3 px-4">Zoology</th>
+              <th class="py-4 px-6 text-center">Botany</th>
+              <th class="py-4 px-6 text-center">Zoology</th>
             <% } %>
-            <th class="py-3 px-4">Total</th>
+            <th class="py-4 px-6 text-center cursor-pointer select-none hover:bg-slate-100 transition" onclick="sortTable(<%= marks[0]?.examType === 'JEE' ? 5 : 6 %>)">
+              Total Score <span class="sort-icon ml-1 text-slate-500">&#8645;</span>
+            </th>
           </tr>
         </thead>
-        <tbody>
-          <% marks.forEach((m) => { 
+        <tbody class="divide-y divide-slate-100" id="marksTableBody">
+          <% sortedMarks.forEach((m) => { 
               const phy = Number(m.physics) || 0;
               const chem = Number(m.chemistry) || 0;
               const math = Number(m.math) || 0;
               const bot = Number(m.botany) || 0;
               const zoo = Number(m.zoology) || 0;
-              const total = Number(m.total) || phy + chem + math + bot + zoo;
           %>
-            <tr class="text-center border-b hover:bg-gray-50 transition">
-              <td class="py-2 px-3 font-medium"><%= m.rollNo %></td>
-              <td class="py-2 px-3 text-left"><%= m.student?.name || m.student %></td>
-              <td class="py-2 px-3"><%= phy %></td>
-              <td class="py-2 px-3"><%= chem %></td>
+            <tr class="hover:bg-slate-50/50 transition font-semibold">
+              <td class="py-3.5 px-6 font-bold text-slate-800 text-center"><%= m.rollNo %></td>
+              <td class="py-3.5 px-6 font-bold text-slate-900 text-left">
+                <div class="flex items-center gap-3">
+                  <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(pName = m.student?.name || m.student) %>&background=random" 
+                       class="w-8 h-8 rounded-full border border-slate-100 shadow-sm" alt="<%= pName %>">
+                  <span><%= pName %></span>
+                </div>
+              </td>
+              <td class="py-3.5 px-6 text-center font-bold text-slate-800"><%= phy %> <span class="text-xs text-slate-500">/<%= m.physicsTotal %></span></td>
+              <td class="py-3.5 px-6 text-center font-bold text-slate-800"><%= chem %> <span class="text-xs text-slate-500">/<%= m.chemistryTotal %></span></td>
               <% if (m.examType === 'JEE') { %>
-                <td class="py-2 px-3"><%= math %></td>
+                <td class="py-3.5 px-6 text-center font-bold text-slate-800"><%= math %> <span class="text-xs text-slate-500">/<%= m.mathTotal %></span></td>
               <% } else { %>
-                <td class="py-2 px-3"><%= bot %></td>
-                <td class="py-2 px-3"><%= zoo %></td>
+                <td class="py-3.5 px-6 text-center font-bold text-slate-800"><%= bot %> <span class="text-xs text-slate-500">/<%= m.botanyTotal %></span></td>
+                <td class="py-3.5 px-6 text-center font-bold text-slate-800"><%= zoo %> <span class="text-xs text-slate-500">/<%= m.zoologyTotal %></span></td>
               <% } %>
-              <td class="py-2 px-3 font-bold text-blue-600"><%= total %></td>
+              <td class="py-3.5 px-6 text-center font-extrabold text-indigo-700 bg-indigo-50/30"><%= m.computedTotal %></td>
             </tr>
           <% }) %>
-
-          <!-- Grand Total Row -->
-          <tr class="bg-gray-100 font-bold text-center">
-            <td colspan="<%= marks[0]?.examType === 'JEE' ? 6 : 7 %>" class="py-3 text-right pr-6">Grand Total:</td>
-            <td class="text-green-700"><%= grandTotal %></td>
-          </tr>
         </tbody>
       </table>
     </div>
   </div>
 </div>
+
+<script>
+  // Simple Client-side Table Filter
+  function filterTable() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toLowerCase();
+    const rows = document.getElementById("marksTableBody").getElementsByTagName("tr");
+
+    for (let i = 0; i < rows.length; i++) {
+      const rollCell = rows[i].getElementsByTagName("td")[0];
+      const nameCell = rows[i].getElementsByTagName("td")[1];
+      if (rollCell || nameCell) {
+        const rollText = rollCell.textContent || rollCell.innerText;
+        const nameText = nameCell.textContent || nameCell.innerText;
+        if (rollText.toLowerCase().indexOf(filter) > -1 || nameText.toLowerCase().indexOf(filter) > -1) {
+          rows[i].style.display = "";
+        } else {
+          rows[i].style.display = "none";
+        }
+      }
+    }
+  }
+
+  // Simple client-side sorting helper
+  let currentSortCol = -1;
+  let sortDirection = false; // false = desc, true = asc
+
+  function sortTable(colIndex) {
+    const tableBody = document.getElementById("marksTableBody");
+    const rows = Array.from(tableBody.getElementsByTagName("tr"));
+
+    if (currentSortCol === colIndex) {
+      sortDirection = !sortDirection;
+    } else {
+      currentSortCol = colIndex;
+      sortDirection = true; // default to ascending on first click
+    }
+
+    rows.sort((a, b) => {
+      let aVal = a.getElementsByTagName("td")[colIndex].innerText.trim();
+      let bVal = b.getElementsByTagName("td")[colIndex].innerText.trim();
+
+      // Check if sorting numerical values (Roll numbers or Marks)
+      let aNum = parseFloat(aVal.split('/')[0]);
+      let bNum = parseFloat(bVal.split('/')[0]);
+
+      if (!isNaN(aNum) && !isNaN(bNum)) {
+        return sortDirection ? aNum - bNum : bNum - aNum;
+      }
+
+      // String sort
+      return sortDirection ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    });
+
+    // Re-append sorted rows
+    rows.forEach(row => tableBody.appendChild(row));
+  }
+
+  // Email results button spinner state
+  function handleSendResultsSubmit(e) {
+    const btn = document.getElementById("sendResultsBtn");
+    const icon = document.getElementById("sendResultsIcon");
+    const text = document.getElementById("sendResultsText");
+
+    btn.disabled = true;
+    btn.classList.add("opacity-75", "cursor-not-allowed");
+    icon.className = "fas fa-spinner fa-spin";
+    text.innerText = "Emailing Results...";
+  }
+</script>

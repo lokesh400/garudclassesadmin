@@ -158,8 +158,8 @@ router.get("/teachers/:id/edit", isLoggedIn, requireRole("superadmin"), async (r
 
 /* UPDATE USER */
 router.post("/teachers/:id/edit", isLoggedIn, requireRole("superadmin"), async (req, res) => {
-  const { name, role } = req.body;
-  await User.findByIdAndUpdate(req.params.id, { name, role });
+  const { name, username, email, role } = req.body;
+  await User.findByIdAndUpdate(req.params.id, { name, username, email, role });
   res.redirect("/teachers/all");
 });
 

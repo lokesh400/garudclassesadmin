@@ -1,6 +1,7 @@
 const express = require("express");
 const Query = require("../models/Query");
 const FollowUp = require("../models/FollowUp");
+const User = require("../models/User");
 const { isLoggedIn,requireRole } = require("../middleware/auth");
 
 const router = express.Router();
@@ -48,20 +49,6 @@ router.get("/queries", async (req, res) => {
         }
       },
       {
-        $lookup: {
-          from: "users",
-          localField: "createdBy",
-          foreignField: "_id",
-          as: "createdBy"
-        }
-      },
-      {
-        $unwind: {
-          path: "$createdBy",
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
         $unwind: {
           path: "$latestFollowUp",
           preserveNullAndEmptyArrays: true
@@ -71,6 +58,19 @@ router.get("/queries", async (req, res) => {
         $sort: { createdAt: -1 }
       }
     ]);
+
+    // Manually map createdBy users from primary DB
+    const userIds = [...new Set(queries.map(q => q.createdBy).filter(Boolean))];
+    const users = await User.find({ _id: { $in: userIds } }).lean();
+    const userMap = {};
+    users.forEach(u => {
+      userMap[u._id.toString()] = u;
+    });
+    queries.forEach(q => {
+      if (q.createdBy) {
+        q.createdBy = userMap[q.createdBy.toString()] || null;
+      }
+    });
 
     res.render("query/allQuery", {
       queries,
@@ -104,9 +104,11 @@ router.post("/queries/new", isLoggedIn, requireRole("receptionist","admin","supe
 });
 
 router.get("/queries/:id",isLoggedIn, requireRole("receptionist","admin","superadmin"), async (req, res) => {
-  const query = await Query.findById(req.params.id)
-    .populate("createdBy")
-    .populate("closedBy");
+  let query = await Query.findById(req.params.id).lean();
+  if (query) {
+    query.createdBy = query.createdBy ? await User.findById(query.createdBy).lean() : null;
+    query.closedBy = query.closedBy ? await User.findById(query.closedBy).lean() : null;
+  }
   const followUps = await FollowUp.find({ queryId: req.params.id }).sort({ createdAt: -1 }); 
   res.render("query/viewQuery", { query,
     followUps,

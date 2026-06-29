@@ -1,230 +1,176 @@
-<div class="space-y-6">
+<div class="w-full px-6 py-8 space-y-6">
 
   <!-- Welcome Banner -->
-  <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 rounded-3xl p-6 md:p-8 text-white shadow-xl overflow-hidden relative">
-
-    <div class="absolute top-0 right-0 opacity-10 text-[180px] font-bold leading-none">
-      GC
-    </div>
+  <div class="bg-gradient-to-r from-indigo-650 via-blue-650 to-cyan-600 rounded-3xl p-6 md:p-8 text-white shadow-lg overflow-hidden relative">
+    <div class="absolute -top-10 -right-10 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-20 right-20 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
 
     <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-
       <div>
-        <p class="uppercase tracking-[3px] text-sm text-blue-100 mb-2">
-          Reception Dashboard
+        <p class="uppercase tracking-[3px] text-xs font-extrabold text-blue-105 mb-2">
+          Reception Control Center
         </p>
 
-        <h2 class="text-3xl md:text-4xl font-bold leading-tight">
+        <h2 class="text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
           Welcome, <%= currUser?.name %> 👋
         </h2>
 
-        <p class="text-blue-100 mt-3 max-w-2xl text-sm md:text-base leading-relaxed">
-          Manage admissions, student queries, forms and daily activities with ease.
-          Thank you for helping students and parents every day.
+        <p class="text-blue-50/90 mt-3 max-w-2xl text-sm md:text-base font-medium">
+          Manage student admissions, address parent queries, handle registrations, and organize daily activities in one clean console.
         </p>
       </div>
 
-      <div class="bg-white/20 backdrop-blur-lg border border-white/20 px-6 py-5 rounded-3xl min-w-[220px]">
-        <p class="text-sm text-blue-100 mb-1">
+      <div class="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-5 rounded-3xl min-w-[220px]">
+        <p class="text-xs uppercase font-extrabold text-blue-105 mb-1 tracking-wider">
           Today's Date
         </p>
 
-        <h3 class="text-xl font-semibold">
+        <h3 class="text-lg font-bold">
           <%= new Date().toDateString() %>
         </h3>
 
-        <div class="mt-4 flex items-center gap-2 text-sm text-blue-100">
-          <span class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
-          System Active
+        <div class="mt-4 flex items-center gap-2 text-xs text-blue-105 font-bold">
+          <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
+          ERP SESSION ACTIVE
         </div>
       </div>
-
     </div>
-
   </div>
 
-
   <!-- Motivational Family Quote -->
-  <div class="bg-white border border-gray-100 shadow-sm rounded-3xl p-6 md:p-7">
-
+  <div class="bg-white border border-slate-100 shadow-sm rounded-3xl p-6 md:p-8">
     <div class="flex gap-5 items-start">
-
-      <div class="w-16 h-16 rounded-2xl bg-indigo-100 flex items-center justify-center shrink-0">
-        <i class="fas fa-heart text-indigo-600 text-3xl"></i>
+      <div class="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center shrink-0">
+        <i class="fas fa-heart text-indigo-650 text-2xl"></i>
       </div>
 
       <div>
-
-        <h3 class="text-2xl font-bold text-gray-800">
+        <h3 class="text-xl font-bold text-slate-850">
           You Are An Important Part Of The Garud Family 💙
         </h3>
 
-        <p class="text-gray-600 mt-3 leading-relaxed text-[15px]">
-          Every student you guide, every parent you help, and every query you solve
-          creates trust and positivity. Your hard work is not just administration —
-          it is support, care and motivation for hundreds of students chasing their dreams.
+        <p class="text-slate-500 mt-2 leading-relaxed text-xs font-semibold">
+          Every student you guide, parent you help, and query you solve creates trust and positivity. Your dedication represents care, support, and motivation for hundreds of students chasing their dreams.
         </p>
 
-        <div class="mt-5 bg-indigo-50 border border-indigo-100 rounded-2xl p-4">
-          <p class="text-indigo-700 italic font-medium">
-            “Great things in education are never done by one person —
-            they are achieved together as a family.”
+        <div class="mt-4 bg-indigo-50/50 border border-indigo-100 rounded-2xl p-4">
+          <p class="text-indigo-755 italic font-bold text-xs">
+            “Great things in education are never done by one person — they are achieved together as a family.”
           </p>
         </div>
-
       </div>
-
     </div>
-
   </div>
-
 
   <!-- Main Grid -->
   <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-
     <!-- Quick Actions -->
-    <div class="xl:col-span-2 bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-
+    <div class="xl:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h2 class="text-2xl font-bold text-gray-800">
+          <h2 class="text-xl font-bold text-slate-850">
             Quick Actions
           </h2>
-
-          <p class="text-gray-500 text-sm mt-1">
+          <p class="text-slate-500 text-xs mt-1">
             Frequently used receptionist operations
           </p>
         </div>
 
-        <div class="hidden md:flex items-center gap-2 text-sm text-green-600 font-medium">
-          <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-          All Systems Running
+        <div class="hidden md:flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-150 px-3 py-1 rounded-full font-bold">
+          <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+          All Systems Online
         </div>
       </div>
 
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- All Forms -->
         <a href="/forms/list"
-          class="group bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-3xl p-6 transition duration-300 hover:shadow-lg">
-
-          <div class="w-16 h-16 rounded-2xl bg-blue-500 text-white flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition">
+          class="group bg-blue-50/40 hover:bg-blue-50 border border-blue-100 rounded-3xl p-6 transition duration-300 hover:shadow-sm">
+          <div class="w-14 h-14 rounded-2xl bg-blue-500 text-white flex items-center justify-center text-2xl mb-5 group-hover:scale-105 transition">
             <i class="fas fa-file-alt"></i>
           </div>
-
-          <h3 class="text-lg font-bold text-gray-800">
+          <h3 class="text-base font-bold text-slate-850">
             All Forms
           </h3>
-
-          <p class="text-sm text-gray-500 mt-2">
-            View and manage all student forms.
+          <p class="text-xs text-slate-500 font-semibold mt-2 leading-relaxed">
+            View and manage all student admission forms.
           </p>
-
         </a>
-
 
         <!-- Add Query -->
         <a href="/queries/new"
-          class="group bg-green-50 hover:bg-green-100 border border-green-100 rounded-3xl p-6 transition duration-300 hover:shadow-lg">
-
-          <div class="w-16 h-16 rounded-2xl bg-green-500 text-white flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition">
+          class="group bg-emerald-50/40 hover:bg-emerald-55 border border-emerald-100 rounded-3xl p-6 transition duration-300 hover:shadow-sm">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl mb-5 group-hover:scale-105 transition">
             <i class="fas fa-circle-question"></i>
           </div>
-
-          <h3 class="text-lg font-bold text-gray-800">
+          <h3 class="text-base font-bold text-slate-850">
             Add Query
           </h3>
-
-          <p class="text-sm text-gray-500 mt-2">
+          <p class="text-xs text-slate-500 font-semibold mt-2 leading-relaxed">
             Register a new student or parent query.
           </p>
-
         </a>
-
 
         <!-- All Queries -->
         <a href="/queries"
-          class="group bg-yellow-50 hover:bg-yellow-100 border border-yellow-100 rounded-3xl p-6 transition duration-300 hover:shadow-lg">
-
-          <div class="w-16 h-16 rounded-2xl bg-yellow-500 text-white flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition">
+          class="group bg-amber-50/40 hover:bg-amber-55 border border-amber-100 rounded-3xl p-6 transition duration-300 hover:shadow-sm">
+          <div class="w-14 h-14 rounded-2xl bg-amber-505 text-white flex items-center justify-center text-2xl mb-5 group-hover:scale-105 transition">
             <i class="fas fa-comments"></i>
           </div>
-
-          <h3 class="text-lg font-bold text-gray-800">
+          <h3 class="text-base font-bold text-slate-850">
             All Queries
           </h3>
-
-          <p class="text-sm text-gray-500 mt-2">
-            Track and manage all submitted queries.
+          <p class="text-xs text-slate-500 font-semibold mt-2 leading-relaxed">
+            Track and manage all submitted query tickets.
           </p>
-
         </a>
-
       </div>
-
     </div>
-
-
 
     <!-- Right Side Panel -->
     <div class="space-y-6">
 
       <!-- User Card -->
-      <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 flex flex-col items-center text-center">
+        <img
+          src="https://ui-avatars.com/api/?background=4f46e5&color=fff&name=<%= currUser?.name %>"
+          class="w-20 h-20 rounded-full shadow-md border-4 border-indigo-50"
+          alt="<%= currUser?.name %>"
+        />
 
-        <div class="flex flex-col items-center text-center">
+        <h3 class="mt-4 text-lg font-bold text-slate-850">
+          <%= currUser?.name %>
+        </h3>
 
-          <img
-            src="https://ui-avatars.com/api/?background=4f46e5&color=fff&name=<%= currUser?.name %>"
-            class="w-24 h-24 rounded-full shadow-md border-4 border-indigo-100"
-          />
-
-          <h3 class="mt-4 text-xl font-bold text-gray-800">
-            <%= currUser?.name %>
-          </h3>
-
-          <p class="text-indigo-600 font-medium">
-            Receptionist
-          </p>
-
-          <div class="mt-5 w-full bg-gray-100 rounded-2xl p-4">
-
-            <div class="flex justify-between text-sm mb-2">
-              <span class="text-gray-500">Daily Productivity</span>
-              <span class="font-semibold text-indigo-600">92%</span>
-            </div>
-
-            <div class="w-full bg-gray-200 rounded-full h-3">
-              <div class="bg-indigo-600 h-3 rounded-full w-[92%]"></div>
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-
-      <!-- Small Quote Card -->
-      <div class="bg-gradient-to-br from-indigo-500 to-blue-500 rounded-3xl p-6 text-white shadow-lg">
-
-        <i class="fas fa-quote-left text-3xl opacity-40"></i>
-
-        <p class="mt-4 leading-relaxed text-sm">
-          Small acts of kindness and support can change a student's entire future.
+        <p class="text-indigo-650 text-xs font-bold uppercase tracking-wider mt-1">
+          Receptionist Account
         </p>
 
-        <div class="mt-5 text-blue-100 text-sm">
-          Garud Classes Team
-        </div>
+        <div class="mt-6 w-full bg-slate-50 border border-slate-100 rounded-2xl p-4">
+          <div class="flex justify-between text-xs mb-2">
+            <span class="text-slate-500 font-semibold">Daily Productivity</span>
+            <span class="font-bold text-indigo-650">92%</span>
+          </div>
 
+          <div class="w-full bg-slate-200 rounded-full h-2">
+            <div class="bg-indigo-600 h-2 rounded-full w-[92%]"></div>
+          </div>
+        </div>
       </div>
 
-    </div>
+      <!-- Small Quote Card -->
+      <div class="bg-gradient-to-br from-indigo-650 to-blue-650 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
+        <div class="absolute -bottom-10 -right-10 w-24 h-24 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
+        <i class="fas fa-quote-left text-3xl opacity-20"></i>
 
+        <p class="mt-3 leading-relaxed text-xs font-bold">
+          “Small acts of kindness and professional guidance can change a student's entire academic future.”
+        </p>
+
+        <div class="mt-4 text-blue-105 font-bold text-xs uppercase tracking-wider">
+          Garud Classes Team
+        </div>
+      </div>
   </div>
-
 </div>

@@ -115,16 +115,7 @@ router.get("/admin/:batchId", async (req, res) => {
   }
 });
 
-// Student: Fetch timetable JSON
-router.get("/student/:batchId", async (req, res) => {
-  try {
-    const timetable = await Timetable.find({ batch: req.params.batchId });
-    res.json({ success: true, timetable });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Error fetching timetable" });
-  }
-});
+
 
 ///////Stuudent Routes /////////////
 // Student timetable view (read-only)

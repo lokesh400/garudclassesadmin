@@ -1,82 +1,76 @@
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<div class="w-full px-6 py-8">
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
 
-<div class="w-full px-2 lg:px-4">
-
-  <!-- ========================= -->
-  <!-- FILTERS -->
-  <!-- ========================= -->
-
-  <div class="flex flex-wrap gap-3 items-end mb-4 bg-white p-3 lg:p-4 rounded-2xl shadow-sm border border-gray-100">
-
-    <!-- Student -->
+  <!-- Simplified Page Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-200 mb-6">
     <div>
-      <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">
-        Student
-      </label>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+        <span>❓ Student Query Management</span>
+      </h1>
+    </div>
 
+    <a href="/queries/new" 
+       class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm transition">
+      <i class="fas fa-plus text-[10px]"></i> Add New Query
+    </a>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 bg-white p-5 rounded-3xl shadow-sm border border-slate-100 items-end">
+    <!-- Student Filter -->
+    <div class="space-y-1.5 col-span-2 md:col-span-1">
+      <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Student Name</label>
       <input
         type="text"
         id="studentNameFilter"
-        placeholder="Student name..."
-        class="border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        placeholder="Search student..."
+        class="w-full px-3.5 py-2 border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl text-xs outline-none transition"
+      >
     </div>
 
-    <!-- Status -->
-    <div>
-      <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">
-        Status
-      </label>
-
+    <!-- Status Filter -->
+    <div class="space-y-1.5">
+      <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</label>
       <select
         id="statusFilter"
-        class="border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-
-        <option value="">All</option>
+        class="w-full px-3.5 py-2 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl text-xs outline-none bg-white transition"
+      >
+        <option value="">All Status</option>
         <option value="Open">Open</option>
         <option value="Closed">Closed</option>
-
       </select>
     </div>
 
-    <!-- Query Date -->
-    <div>
-      <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">
-        Query Date
-      </label>
-
+    <!-- Query Date Filter -->
+    <div class="space-y-1.5">
+      <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Query Date</label>
       <input
         type="date"
         id="queryDateFilter"
-        class="border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        class="w-full px-3.5 py-2 border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl text-xs outline-none transition"
+      >
     </div>
 
-    <!-- Follow-up Date -->
-    <div>
-      <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">
-        Follow-up Date
-      </label>
-
+    <!-- Follow-up Date Filter -->
+    <div class="space-y-1.5">
+      <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Follow-up Date</label>
       <input
         type="date"
         id="followUpDateFilter"
-        class="border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        class="w-full px-3.5 py-2 border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl text-xs outline-none transition"
+      >
     </div>
 
-    <!-- Staff Filter -->
+    <!-- Staff Filter (conditional) -->
     <% if(currUser.role === 'admin' || currUser.role === 'superadmin'){ %>
-
-      <div>
-        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">
-          Staff
-        </label>
-
+      <div class="space-y-1.5">
+        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Created By</label>
         <select
           id="userFilter"
-          class="border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-
+          class="w-full px-3.5 py-2 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl text-xs outline-none bg-white transition"
+        >
           <option value="">All Staff</option>
-
           <% 
             const uniqueUsers = [...new Map(
               queries
@@ -84,574 +78,253 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
                 .map(q => [q.createdBy.name, q.createdBy])
             ).values()];
           %>
-
           <% uniqueUsers.forEach(user => { %>
-
-            <option value="<%= user.name.toLowerCase() %>">
-              <%= user.name %>
-            </option>
-
+            <option value="<%= user.name.toLowerCase() %>"><%= user.name %></option>
           <% }) %>
-
         </select>
       </div>
-
     <% } %>
 
-    <!-- Reset -->
-    <button
-      onclick="clearFilters()"
-      class="bg-red-50 hover:bg-red-100 text-red-500 px-4 py-2 rounded-xl text-sm font-semibold transition">
-
-      Reset
-
-    </button>
-
+    <!-- Reset Filters Button -->
+    <div class="col-span-2 md:col-span-1">
+      <button
+        onclick="clearFilters()"
+        class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl text-xs font-bold transition outline-none"
+      >
+        <i class="fas fa-undo mr-1 text-[10px]"></i> Reset Filters
+      </button>
+    </div>
   </div>
 
-
-
-  <!-- ========================= -->
-  <!-- DESKTOP TABLE -->
-  <!-- ========================= -->
-
-  <div class="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-
-    <table class="min-w-full text-sm">
-
-      <thead class="bg-gray-50 border-b">
-
-        <tr class="text-left text-gray-600 uppercase text-xs">
-
-          <th class="px-5 py-4">Student</th>
-          <th class="px-5 py-4">Mobile</th>
-          <th class="px-5 py-4">Description</th>
-          <th class="px-5 py-4">Latest Follow-up</th>
-          <th class="px-5 py-4">Status</th>
-
+  <!-- DESKTOP DATA TABLE -->
+  <div class="hidden lg:block bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+    <table class="w-full text-left text-sm text-slate-650">
+      <thead class="bg-slate-50 border-b border-slate-100 font-bold uppercase tracking-wider text-xs text-slate-700">
+        <tr>
+          <th class="py-4 px-6">Student</th>
+          <th class="py-4 px-6">Mobile Number</th>
+          <th class="py-4 px-6">Issue Description</th>
+          <th class="py-4 px-6">Latest Follow-up</th>
+          <th class="py-4 px-6 text-center">Status</th>
           <% if(currUser.role === 'admin' || currUser.role === 'superadmin'){ %>
-            <th class="px-5 py-4">Created By</th>
+            <th class="py-4 px-6">Recorded By</th>
           <% } %>
-
-          <th class="px-5 py-4">Created At</th>
-          <th class="px-5 py-4 text-center">Actions</th>
-
+          <th class="py-4 px-6">Created Date</th>
+          <th class="py-4 px-6 text-center">Actions</th>
         </tr>
-
       </thead>
-
-      <tbody class="divide-y divide-gray-100">
-
+      <tbody class="divide-y divide-slate-100">
         <% queries.forEach(q => { %>
-
-          <tr
-            class="hover:bg-gray-50 transition query-item"
-
-            data-student-name="<%= (q.studentName || '').toLowerCase() %>"
-            data-status="<%= q.status %>"
-            data-query-date="<%= new Date(q.createdAt).toISOString().split('T')[0] %>"
-            data-followup-date="<%= q.latestFollowUp ? new Date(q.latestFollowUp.createdAt).toISOString().split('T')[0] : '' %>"
-            data-creator="<%= q.createdBy?.name?.toLowerCase() || '' %>">
-
+          <tr class="hover:bg-slate-50/50 transition query-item"
+              data-student-name="<%= (q.studentName || '').toLowerCase() %>"
+              data-status="<%= q.status %>"
+              data-query-date="<%= new Date(q.createdAt).toISOString().split('T')[0] %>"
+              data-followup-date="<%= q.latestFollowUp ? new Date(q.latestFollowUp.createdAt).toISOString().split('T')[0] : '' %>"
+              data-creator="<%= q.createdBy?.name?.toLowerCase() || '' %>">
+            
             <!-- Student -->
-            <td class="px-5 py-4">
-
-              <div class="font-bold text-gray-800">
-                <%= q.studentName %>
-              </div>
-
+            <td class="py-4 px-6">
+              <div class="font-bold text-slate-850"><%= q.studentName %></div>
             </td>
 
             <!-- Mobile -->
-            <td class="px-5 py-4">
-
-              <div class="flex items-center gap-3">
-
-                <span class="font-semibold text-blue-700">
-                  <%= q.mobileNumber || 'N/A' %>
-                </span>
-
+            <td class="py-4 px-6">
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-slate-700"><%= q.mobileNumber || 'N/A' %></span>
                 <% if(q.mobileNumber){ %>
-
-                  <a
-                    href="tel:<%= q.mobileNumber %>"
-                    class="text-green-600 hover:text-green-700">
-
-                    <i class="fas fa-phone"></i>
-
+                  <a href="tel:<%= q.mobileNumber %>" class="text-indigo-650 hover:text-indigo-700 transition">
+                    <i class="fas fa-phone-alt text-[10px]"></i>
                   </a>
-
                 <% } %>
-
               </div>
-
             </td>
 
             <!-- Description -->
-            <td class="px-5 py-4 max-w-sm">
-
-              <div class="text-gray-600 line-clamp-2">
-                <%= q.description || 'No description available.' %>
-              </div>
-
+            <td class="py-4 px-6 max-w-xs">
+              <p class="text-slate-650 text-xs line-clamp-2 leading-relaxed"><%= q.description || 'No description available.' %></p>
             </td>
 
             <!-- Follow-up -->
-            <td class="px-5 py-4">
-
+            <td class="py-4 px-6">
               <% if(q.latestFollowUp){ %>
-
-                <div class="bg-green-50 border border-green-200 rounded-xl p-3">
-
-                  <div class="flex items-center justify-between mb-2">
-
-                    <div class="text-[10px] uppercase font-bold text-green-700">
-                      Latest Follow-up
-                    </div>
-
-                    <div class="text-[10px] text-green-600 font-semibold">
-                      <%= new Date(q.latestFollowUp.createdAt).toLocaleDateString() %>
-                    </div>
-
+                <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-2.5 max-w-[200px]">
+                  <div class="flex justify-between items-center gap-2 mb-1">
+                    <span class="text-[8px] uppercase font-bold text-emerald-700 tracking-wider">Latest Update</span>
+                    <span class="text-[9px] text-emerald-600 font-bold"><%= new Date(q.latestFollowUp.createdAt).toLocaleDateString() %></span>
                   </div>
-
-                  <div class="text-sm text-green-900 line-clamp-2">
-                    <%= q.latestFollowUp.note %>
-                  </div>
-
+                  <p class="text-[11px] text-emerald-950 line-clamp-2 font-bold"><%= q.latestFollowUp.note %></p>
                 </div>
-
               <% } else { %>
-
-                <div class="bg-gray-50 rounded-xl px-3 py-2 text-xs text-gray-400 italic">
-                  No follow-up
-                </div>
-
+                <span class="text-xs text-slate-500 italic font-semibold">No updates logged</span>
               <% } %>
-
             </td>
 
             <!-- Status -->
-            <td class="px-5 py-4">
-
-              <span class="<%= q.status === 'Open'
-                ? 'bg-yellow-100 text-yellow-700'
-                : 'bg-green-100 text-green-700' %>
-                px-3 py-1 rounded-full text-xs font-bold">
-
+            <td class="py-4 px-6 text-center">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold <%= q.status === 'Open' ? 'bg-amber-50 text-amber-750 border border-amber-150' : 'bg-emerald-50 text-emerald-750 border border-emerald-150' %>">
                 <%= q.status %>
-
               </span>
-
             </td>
 
             <!-- Created By -->
             <% if(currUser.role === 'admin' || currUser.role === 'superadmin'){ %>
-
-              <td class="px-5 py-4">
-
-                <div class="inline-flex items-center gap-2 bg-purple-50 text-purple-700 px-3 py-2 rounded-xl">
-
-                  <i class="fas fa-user text-xs"></i>
-
-                  <div>
-
-                    <div class="text-[10px] uppercase font-bold">
-                      Staff
-                    </div>
-
-                    <div class="text-xs font-semibold">
-                      <%= q.createdBy?.name || 'Unknown' %>
-                    </div>
-
-                  </div>
-
-                </div>
-
+              <td class="py-4 px-6">
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-150">
+                  <i class="fas fa-user-tie text-[10px]"></i> <%= q.createdBy?.name || 'Staff' %>
+                </span>
               </td>
-
             <% } %>
 
             <!-- Created Date -->
-            <td class="px-5 py-4">
-
-              <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-2 rounded-xl">
-
-                <i class="fas fa-calendar-alt text-xs"></i>
-
-                <div>
-
-                  <div class="text-[10px] uppercase font-bold">
-                    Created
-                  </div>
-
-                  <div class="text-xs font-semibold">
-                    <%= new Date(q.createdAt).toLocaleDateString() %>
-                  </div>
-
-                </div>
-
-              </div>
-
+            <td class="py-4 px-6 text-slate-555 font-semibold text-xs">
+              <%= new Date(q.createdAt).toLocaleDateString() %>
             </td>
 
             <!-- Actions -->
-            <td class="px-5 py-4">
-
-              <div class="flex justify-center items-center gap-2">
-
-                <a
-                  href="/queries/<%= q._id %>"
-                  class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">
-
-                  View
-
+            <td class="py-4 px-6">
+              <div class="flex items-center justify-center gap-2">
+                <a href="/queries/<%= q._id %>" 
+                   class="inline-flex items-center gap-1 bg-indigo-55 hover:bg-indigo-100 text-indigo-700 font-bold text-xs px-3.5 py-1.5 rounded-xl transition">
+                  <i class="fas fa-eye text-[10px]"></i> View
                 </a>
-
                 <% if(q.mobileNumber){ %>
-
-                  <a
-                    href="https://wa.me/91<%= q.mobileNumber %>"
-                    target="_blank"
-                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-xl transition">
-
-                    <i class="fab fa-whatsapp"></i>
-
+                  <a href="https://wa.me/91<%= q.mobileNumber %>" target="_blank" 
+                     class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-50 text-emerald-750 hover:bg-emerald-100 transition border border-emerald-150 shadow-sm">
+                    <i class="fab fa-whatsapp text-lg"></i>
                   </a>
-
                 <% } %>
-
               </div>
-
             </td>
-
           </tr>
-
         <% }) %>
-
       </tbody>
-
     </table>
-
   </div>
 
-
-
-  <!-- ========================= -->
   <!-- MOBILE CARDS -->
-  <!-- ========================= -->
-
-  <div class="grid grid-cols-1 gap-3 lg:hidden">
-
+  <div class="grid grid-cols-1 gap-4 lg:hidden">
     <% queries.forEach(q => { %>
-
-      <div
-        class="query-item bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden w-full"
-
-        data-student-name="<%= (q.studentName || '').toLowerCase() %>"
-        data-status="<%= q.status %>"
-        data-query-date="<%= new Date(q.createdAt).toISOString().split('T')[0] %>"
-        data-followup-date="<%= q.latestFollowUp ? new Date(q.latestFollowUp.createdAt).toISOString().split('T')[0] : '' %>"
-        data-creator="<%= q.createdBy?.name?.toLowerCase() || '' %>">
-
-        <div class="p-3">
-
-          <!-- Top -->
-          <div class="flex justify-between items-start mb-3">
-
-            <div>
-
-              <h2 class="text-[15px] font-bold text-gray-800 leading-tight">
-                <%= q.studentName %>
-              </h2>
-
-              <div class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded-lg mt-1">
-
-                <i class="fas fa-calendar-alt text-[9px]"></i>
-
-                <span class="text-[10px] font-semibold">
-                  <%= new Date(q.createdAt).toLocaleDateString() %>
-                </span>
-
-              </div>
-
-            </div>
-
-            <span class="<%= q.status === 'Open'
-              ? 'bg-yellow-100 text-yellow-700'
-              : 'bg-green-100 text-green-700' %>
-              text-[10px] font-bold px-2.5 py-1 rounded-full">
-
-              <%= q.status %>
-
-            </span>
-
+      <div class="query-item bg-white border border-slate-100 rounded-3xl p-5 shadow-sm relative overflow-hidden"
+           data-student-name="<%= (q.studentName || '').toLowerCase() %>"
+           data-status="<%= q.status %>"
+           data-query-date="<%= new Date(q.createdAt).toISOString().split('T')[0] %>"
+           data-followup-date="<%= q.latestFollowUp ? new Date(q.latestFollowUp.createdAt).toISOString().split('T')[0] : '' %>"
+           data-creator="<%= q.createdBy?.name?.toLowerCase() || '' %>">
+        
+        <div class="flex justify-between items-start gap-4 mb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-800"><%= q.studentName %></h3>
+            <p class="text-slate-500 text-[10px] font-bold mt-0.5">Recorded: <%= new Date(q.createdAt).toLocaleDateString() %></p>
           </div>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold <%= q.status === 'Open' ? 'bg-amber-50 text-amber-700 border border-amber-150' : 'bg-emerald-50 text-emerald-700 border border-emerald-150' %>">
+            <%= q.status %>
+          </span>
+        </div>
 
-          <!-- Description -->
-          <div class="bg-gray-50 rounded-xl p-3 mb-3">
+        <div class="bg-slate-50/50 rounded-2xl p-3 border border-slate-150 mb-3 text-xs text-slate-700 leading-relaxed font-medium">
+          <%= q.description || 'No description available.' %>
+        </div>
 
-            <p class="text-sm text-gray-700 leading-relaxed">
-              <%= q.description || 'No description available.' %>
-            </p>
-
+        <!-- Phone panel -->
+        <div class="flex items-center justify-between bg-slate-50/50 border border-slate-150 rounded-2xl px-3.5 py-2 mb-3">
+          <div>
+            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Phone Directory</span>
+            <span class="text-xs font-bold text-slate-800 mt-0.5 block"><%= q.mobileNumber || 'N/A' %></span>
           </div>
-
-          <!-- Mobile -->
-          <div class="bg-blue-50 rounded-xl px-3 py-2 flex items-center justify-between mb-3">
-
-            <div>
-
-              <div class="text-[10px] text-blue-500 font-bold uppercase">
-                Mobile
-              </div>
-
-              <div class="font-bold text-blue-800 text-sm">
-                <%= q.mobileNumber || 'N/A' %>
-              </div>
-
-            </div>
-
-            <% if(q.mobileNumber){ %>
-
-              <a
-                href="tel:<%= q.mobileNumber %>"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl transition">
-
-                <i class="fas fa-phone"></i>
-
-              </a>
-
-            <% } %>
-
-          </div>
-
-          <!-- Follow-up -->
-          <% if(q.latestFollowUp){ %>
-
-            <div class="bg-green-50 border border-green-200 rounded-xl p-2.5 mb-3">
-
-              <div class="flex items-center justify-between mb-1">
-
-                <div class="text-[10px] uppercase font-bold text-green-700">
-                  Latest Follow-up
-                </div>
-
-                <div class="text-[10px] text-green-600 font-semibold">
-                  <%= new Date(q.latestFollowUp.createdAt).toLocaleDateString() %>
-                </div>
-
-              </div>
-
-              <div class="text-sm text-green-900 leading-relaxed">
-                <%= q.latestFollowUp.note %>
-              </div>
-
-            </div>
-
-          <% } else { %>
-
-            <div class="bg-gray-50 rounded-xl px-3 py-2 text-xs text-gray-400 italic mb-3">
-              No follow-up
-            </div>
-
-          <% } %>
-
-          <!-- Created By -->
-          <% if(currUser.role === 'admin' || currUser.role === 'superadmin'){ %>
-
-            <div class="flex items-center justify-between bg-purple-50 border border-purple-100 rounded-xl px-3 py-2 mb-3">
-
-              <div>
-
-                <div class="text-[10px] uppercase font-bold text-purple-600">
-                  Created By
-                </div>
-
-                <div class="text-sm font-semibold text-purple-900">
-                  <%= q.createdBy?.name || 'Unknown' %>
-                </div>
-
-              </div>
-
-              <div class="bg-purple-100 text-purple-700 w-8 h-8 rounded-full flex items-center justify-center">
-
-                <i class="fas fa-user text-xs"></i>
-
-              </div>
-
-            </div>
-
-          <% } %>
-
-          <!-- Buttons -->
-          <div class="flex gap-2">
-
-            <a
-              href="/queries/<%= q._id %>"
-              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center py-2.5 rounded-xl font-semibold text-sm transition">
-
-              View Details
-
+          <% if(q.mobileNumber){ %>
+            <a href="tel:<%= q.mobileNumber %>" class="w-8 h-8 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 flex items-center justify-center border border-indigo-150 transition">
+              <i class="fas fa-phone-alt text-xs"></i>
             </a>
+          <% } %>
+        </div>
 
-            <% if(q.mobileNumber){ %>
+        <!-- Latest Follow-up -->
+        <div class="mb-4">
+          <% if(q.latestFollowUp){ %>
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-[8px] uppercase font-bold text-emerald-700 tracking-wider">Latest Follow-up</span>
+                <span class="text-[9px] text-emerald-600 font-bold"><%= new Date(q.latestFollowUp.createdAt).toLocaleDateString() %></span>
+              </div>
+              <p class="text-xs text-emerald-950 font-bold"><%= q.latestFollowUp.note %></p>
+            </div>
+          <% } else { %>
+            <div class="bg-slate-50 border border-slate-150 border-dashed rounded-2xl p-3 text-center text-xs text-slate-500 italic font-semibold">
+              No follow-up updates recorded
+            </div>
+          <% } %>
+        </div>
 
-              <a
-                href="https://wa.me/91<%= q.mobileNumber %>"
-                target="_blank"
-                class="bg-green-500 hover:bg-green-600 text-white px-3 rounded-xl flex items-center justify-center transition">
-
-                <i class="fab fa-whatsapp"></i>
-
-              </a>
-
+        <!-- Staff / Actions Footer -->
+        <div class="flex items-center justify-between pt-3 border-t border-slate-100 gap-3">
+          <div>
+            <% if(currUser.role === 'admin' || currUser.role === 'superadmin'){ %>
+              <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Created By</span>
+              <span class="text-xs font-semibold text-slate-650 mt-0.5 block"><%= q.createdBy?.name || 'Staff' %></span>
             <% } %>
-
           </div>
 
+          <div class="flex gap-2">
+            <% if(q.mobileNumber){ %>
+              <a href="https://wa.me/91<%= q.mobileNumber %>" target="_blank" 
+                 class="w-9 h-9 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-150 rounded-xl flex items-center justify-center transition shadow-sm">
+                <i class="fab fa-whatsapp text-base"></i>
+              </a>
+            <% } %>
+            <a href="/queries/<%= q._id %>" 
+               class="bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+              View Info <i class="fas fa-chevron-right text-[9px]"></i>
+            </a>
+          </div>
         </div>
 
       </div>
-
     <% }) %>
-
   </div>
-
 </div>
 
 <script>
-
-  const studentNameInput =
-    document.getElementById('studentNameFilter');
-
-  const statusFilter =
-    document.getElementById('statusFilter');
-
-  const queryDateFilter =
-    document.getElementById('queryDateFilter');
-
-  const followUpDateFilter =
-    document.getElementById('followUpDateFilter');
-
-  const userFilter =
-    document.getElementById('userFilter');
-
-  const items =
-    document.querySelectorAll('.query-item');
-
-
+  const studentNameInput = document.getElementById('studentNameFilter');
+  const statusFilter = document.getElementById('statusFilter');
+  const queryDateFilter = document.getElementById('queryDateFilter');
+  const followUpDateFilter = document.getElementById('followUpDateFilter');
+  const userFilter = document.getElementById('userFilter');
+  const items = document.querySelectorAll('.query-item');
 
   function applyFilters() {
-
-    const studentName =
-      studentNameInput.value.toLowerCase().trim();
-
-    const status =
-      statusFilter.value;
-
-    const queryDate =
-      queryDateFilter.value;
-
-    const followUpDate =
-      followUpDateFilter.value;
-
-    const creator =
-      userFilter
-        ? userFilter.value.toLowerCase().trim()
-        : '';
-
-
+    const studentName = studentNameInput.value.toLowerCase().trim();
+    const status = statusFilter.value;
+    const queryDate = queryDateFilter.value;
+    const followUpDate = followUpDateFilter.value;
+    const creator = userFilter ? userFilter.value.toLowerCase().trim() : '';
 
     items.forEach(item => {
+      const rowStudent = item.getAttribute('data-student-name') || '';
+      const rowStatus = item.getAttribute('data-status') || '';
+      const rowQueryDate = item.getAttribute('data-query-date') || '';
+      const rowFollowupDate = item.getAttribute('data-followup-date') || '';
+      const rowCreator = item.getAttribute('data-creator') || '';
 
-      const rowStudent =
-        item.getAttribute('data-student-name') || '';
+      const matchesStudent = !studentName || rowStudent.includes(studentName);
+      const matchesStatus = !status || rowStatus === status;
+      const matchesQueryDate = !queryDate || rowQueryDate === queryDate;
+      const matchesFollowupDate = !followUpDate || rowFollowupDate === followUpDate;
+      const matchesCreator = !creator || rowCreator.includes(creator);
 
-      const rowStatus =
-        item.getAttribute('data-status') || '';
-
-      const rowQueryDate =
-        item.getAttribute('data-query-date') || '';
-
-      const rowFollowupDate =
-        item.getAttribute('data-followup-date') || '';
-
-      const rowCreator =
-        item.getAttribute('data-creator') || '';
-
-
-
-      const matchesStudent =
-        !studentName ||
-        rowStudent.includes(studentName);
-
-      const matchesStatus =
-        !status ||
-        rowStatus === status;
-
-      const matchesQueryDate =
-        !queryDate ||
-        rowQueryDate === queryDate;
-
-      const matchesFollowupDate =
-        !followUpDate ||
-        rowFollowupDate === followUpDate;
-
-      const matchesCreator =
-        !creator ||
-        rowCreator.includes(creator);
-
-
-
-      item.style.display =
-        (
-          matchesStudent &&
-          matchesStatus &&
-          matchesQueryDate &&
-          matchesFollowupDate &&
-          matchesCreator
-        )
-          ? ''
-          : 'none';
-
+      item.style.display = (matchesStudent && matchesStatus && matchesQueryDate && matchesFollowupDate && matchesCreator) ? '' : 'none';
     });
-
   }
 
-
-
   function clearFilters() {
-
     studentNameInput.value = '';
     statusFilter.value = '';
     queryDateFilter.value = '';
     followUpDateFilter.value = '';
-
-    if(userFilter){
-      userFilter.value = '';
-    }
-
+    if(userFilter) userFilter.value = '';
     applyFilters();
-
   }
 
-
-
-  [
-    studentNameInput,
-    statusFilter,
-    queryDateFilter,
-    followUpDateFilter,
-    userFilter
-  ].forEach(el => {
-
-    if(el){
-
-      el.addEventListener('input', applyFilters);
-
-    }
-
+  [studentNameInput, statusFilter, queryDateFilter, followUpDateFilter, userFilter].forEach(el => {
+    if(el) el.addEventListener('input', applyFilters);
   });
-
 </script>

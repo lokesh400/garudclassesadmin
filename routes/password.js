@@ -113,7 +113,7 @@ router.post("/reset-password", async (req, res) => {
     const user = await User.findOne({ username });
     if (!user) {
       req.flash("error", "Invalid username");
-      return res.redirect("/reset-password");
+      return res.redirect("/user/reset-password");
     }
     const code = crypto.randomInt(100000, 999999).toString();
     // delete old otp
@@ -150,7 +150,7 @@ router.post("/reset-password", async (req, res) => {
     const user = await User.findOne({ username });
     if (!user) {
       req.flash("error", "User not found");
-      return res.redirect("/reset-password");
+      return res.redirect("/user/reset-password");
     }
 
     const record = await Otp.findOne({ username, otp });

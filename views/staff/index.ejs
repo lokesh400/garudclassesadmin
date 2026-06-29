@@ -1,58 +1,144 @@
-<div class="flex justify-between items-center mb-6">
-  <div>
-    <h2 class="text-2xl font-semibold">Staff Records</h2>
-    <p class="text-sm text-gray-500">Manage employee details, documents, and active status.</p>
+<div class="w-full px-6 py-8 space-y-6">
+
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
+
+  <!-- Top Dashboard Banner -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-white border border-slate-100 p-6 rounded-3xl shadow-sm">
+    <div>
+      <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-1">
+        <a href="/admin" class="hover:text-indigo-650 transition">Dashboard</a>
+        <span>&bull;</span>
+        <span class="text-slate-805 font-bold">Staff Directory</span>
+      </div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+        <span>👥 Staff Records</span>
+      </h1>
+      <p class="text-slate-500 text-sm mt-1">Manage employee details, roles, credentials, documents, and active status.</p>
+    </div>
+
+    <a href="/admin/staff/new" class="inline-flex items-center gap-2 bg-indigo-650 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition shadow-md shadow-indigo-600/10">
+      <i class="fas fa-plus text-[10px]"></i> Add Staff Member
+    </a>
   </div>
-  <a href="/admin/staff/new" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-    + Add Staff
-  </a>
+
+  <!-- Search / Meta Controls -->
+  <div class="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+    <div class="relative w-full md:max-w-md">
+      <span class="absolute left-4 top-3 text-slate-400 text-xs">
+        <i class="fas fa-search"></i>
+      </span>
+      <input id="staffSearchInput" type="text" placeholder="Search staff by name or department..." 
+             class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs outline-none font-semibold text-slate-700 transition" />
+    </div>
+
+    <p id="staffSearchMeta" class="text-slate-500 font-bold text-xs"></p>
+  </div>
+
+  <!-- Table Container -->
+  <div class="bg-white border border-slate-100 rounded-3xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-700">
+        <thead class="bg-slate-50 text-slate-800 border-b border-slate-100 font-bold uppercase tracking-wider text-xs">
+          <tr>
+            <th class="py-4 px-6">Name</th>
+            <th class="py-4 px-6">Username</th>
+            <th class="py-4 px-6">Contact Number</th>
+            <th class="py-4 px-6">Department</th>
+            <th class="py-4 px-6">Designation</th>
+            <th class="py-4 px-6 text-center">Status</th>
+            <th class="py-4 px-6 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="staffTableBody" class="divide-y divide-slate-100">
+          <% if (!staff.length) { %>
+            <tr>
+              <td colspan="7" class="py-12 text-center text-slate-500 font-bold text-xs italic">No staff records found.</td>
+            </tr>
+          <% } %>
+
+          <% staff.forEach((s) => { %>
+            <tr class="hover:bg-slate-50/50 staff-row transition" 
+                data-staff-name="<%= (s.name || '').toLowerCase().replace(/"/g, '&quot;') %>"
+                data-staff-dept="<%= (s.department || '').toLowerCase().replace(/"/g, '&quot;') %>">
+              <td class="py-3.5 px-6">
+                <div class="flex items-center gap-3">
+                  <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(s.name) %>&background=random" 
+                       class="w-8 h-8 rounded-full border border-slate-100" alt="<%= s.name %>">
+                  <span class="font-bold text-slate-850"><%= s.name || '-' %></span>
+                </div>
+              </td>
+              <td class="py-3.5 px-6 font-semibold text-slate-650"><%= s.username || '-' %></td>
+              <td class="py-3.5 px-6 font-bold text-slate-700"><%= s.mobileNumber || s.phone || '-' %></td>
+              <td class="py-3.5 px-6">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                  <%= s.department || '-' %>
+                </span>
+              </td>
+              <td class="py-3.5 px-6 font-bold text-slate-750"><%= s.designation || '-' %></td>
+              <td class="py-3.5 px-6 text-center">
+                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold border <%= s.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-150' : 'bg-slate-100 text-slate-600 border-slate-200' %>">
+                  <%= s.status %>
+                </span>
+              </td>
+              <td class="py-3.5 px-6">
+                <div class="flex gap-2 items-center justify-center">
+                  <a href="/admin/staff/<%= s._id %>" class="inline-flex items-center gap-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-705 font-bold text-[10px] px-2.5 py-1.5 rounded-xl border border-indigo-150 transition">
+                    View Details
+                  </a>
+                  <form action="/admin/staff/<%= s._id %>/toggle-status" method="POST" class="inline">
+                    <input type="hidden" name="redirectTo" value="/admin/staff" />
+                    <button type="submit" class="inline-flex items-center rounded-xl px-2.5 py-1.5 text-[10px] font-bold border transition <%= s.status === 'Active' ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-150' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-150' %>">
+                      <%= s.status === 'Active' ? 'Deactivate' : 'Activate' %>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
-<div class="overflow-x-auto bg-white rounded-xl shadow border border-slate-200">
-  <table class="w-full min-w-[1000px] text-sm">
-    <thead class="bg-slate-50 text-slate-700">
-      <tr>
-        <th class="p-3 text-left">Name</th>
-        <th class="p-3 text-left">Username</th>
-        <th class="p-3 text-left">Mobile</th>
-        <th class="p-3 text-left">Department</th>
-        <th class="p-3 text-left">Designation</th>
-        <th class="p-3 text-left">Status</th>
-        <th class="p-3 text-left">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% if (!staff.length) { %>
-        <tr>
-          <td colspan="7" class="p-8 text-center text-gray-500">No staff records found.</td>
-        </tr>
-      <% } %>
+<script>
+  (function() {
+    const searchInput = document.getElementById("staffSearchInput");
+    const tableBody = document.getElementById("staffTableBody");
+    const searchMeta = document.getElementById("staffSearchMeta");
 
-      <% staff.forEach((s) => { %>
-        <tr class="border-t hover:bg-slate-50">
-          <td class="p-3 font-semibold text-slate-900"><%= s.name || '-' %></td>
-          <td class="p-3 text-slate-700"><%= s.username || '-' %></td>
-          <td class="p-3 text-slate-700"><%= s.mobileNumber || s.phone || '-' %></td>
-          <td class="p-3 text-slate-700"><%= s.department || '-' %></td>
-          <td class="p-3 text-slate-700"><%= s.designation || '-' %></td>
-          <td class="p-3">
-            <span class="px-2 py-1 rounded-full text-xs font-semibold <%= s.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700' %>">
-              <%= s.status %>
-            </span>
-          </td>
-          <td class="p-3">
-            <div class="flex gap-2 items-center">
-              <a href="/admin/staff/<%= s._id %>" class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 rounded text-xs font-semibold">View</a>
-              <form action="/admin/staff/<%= s._id %>/toggle-status" method="POST" class="inline">
-                <input type="hidden" name="redirectTo" value="/admin/staff" />
-                <button class="px-3 py-1.5 border rounded text-xs font-semibold <%= s.status === 'Active' ? 'border-rose-200 bg-rose-50 text-rose-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700' %>">
-                  <%= s.status === 'Active' ? 'Set Inactive' : 'Set Active' %>
-                </button>
-              </form>
-            </div>
-          </td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
+    const staffRows = tableBody ? Array.from(tableBody.querySelectorAll(".staff-row")) : [];
+    const totalRows = staffRows.length;
+
+    const renderSearchMeta = (visibleCount, query) => {
+      if (!searchMeta) return;
+      if (!query) {
+        searchMeta.textContent = `Showing all ${totalRows} staff records`;
+        return;
+      }
+      searchMeta.textContent = `Showing ${visibleCount} of ${totalRows} records matching "${query}"`;
+    };
+
+    const filterStaff = () => {
+      if (!searchInput || !tableBody) return;
+      const query = searchInput.value.trim().toLowerCase();
+      let visibleCount = 0;
+
+      staffRows.forEach((row) => {
+        const name = row.dataset.staffName || "";
+        const dept = row.dataset.staffDept || "";
+        const matched = !query || name.includes(query) || dept.includes(query);
+        row.classList.toggle("hidden", !matched);
+        if (matched) visibleCount += 1;
+      });
+
+      renderSearchMeta(visibleCount, query);
+    };
+
+    if (searchInput) {
+      searchInput.addEventListener("input", filterStaff);
+      renderSearchMeta(totalRows, "");
+    }
+  })();
+</script>

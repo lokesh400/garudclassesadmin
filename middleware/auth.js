@@ -2,7 +2,7 @@ function isLoggedIn(req, res, next) {
   if (!req.isAuthenticated()) {
     return res.redirect("/login");
   }
-  if (!req.user || req.user.isActive !== true) {
+  if (!req.user || req.user.isActive === false) {
     req.logout(function (err) {
       if (err) return next(err);
       req.flash(

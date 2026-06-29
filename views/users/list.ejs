@@ -1,36 +1,69 @@
-<div class="p-6">
-  <div class="flex justify-between mb-4">
-    <h1 class="text-2xl font-bold">👥 Users</h1>
-    <a href="/teachers/new"
-       class="bg-green-600 text-white px-4 py-2 rounded">
-      + Add User
+<div class="w-full px-6 py-8 space-y-6">
+
+  <!-- Simplified Page Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-200">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+        <span>👥 User Accounts Directory</span>
+      </h1>
+    </div>
+
+    <a href="/teachers/new" 
+       class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm transition">
+      <i class="fas fa-plus text-[10px]"></i> Add User Account
     </a>
   </div>
 
-  <table class="w-full bg-white shadow rounded">
-    <thead class="bg-gray-100">
-      <tr>
-        <th class="p-3">Name</th>
-        <th>Username</th>
-        <th>Role</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% users.forEach(u => { %>
-      <tr class="border-t">
-        <td class="p-3"><%= u.name %></td>
-        <td><%= u.username %></td>
-        <td><%= u.role %></td>
-        <td class="flex gap-2 p-3">
-          <a href="/teachers/<%= u._id %>/edit"
-             class="text-blue-600">Edit</a>
-          <form method="POST" action="/teachers/<%= u._id %>/delete">
-            <button class="text-red-600">Delete</button>
-          </form>
-        </td>
-      </tr>
-      <% }) %>
-    </tbody>
-  </table>
+  <!-- Users Data Table Card -->
+  <div class="bg-white border border-slate-100 rounded-3xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-650">
+        <thead class="bg-slate-50 border-b border-slate-100 font-bold uppercase tracking-wider text-xs text-slate-700">
+          <tr>
+            <th class="py-4 px-6">Name / Details</th>
+            <th class="py-4 px-6">Username</th>
+            <th class="py-4 px-6">System Role</th>
+            <th class="py-4 px-6 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <% users.forEach(u => { %>
+            <tr class="hover:bg-slate-50/50 transition">
+              <td class="py-3.5 px-6">
+                <div class="flex items-center gap-3">
+                  <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(u.name) %>&background=random" 
+                       class="w-9 h-9 rounded-full border border-slate-100 shadow-sm" alt="<%= u.name %>">
+                  <div>
+                    <p class="font-bold text-slate-850"><%= u.name %></p>
+                  </div>
+                </div>
+              </td>
+              <td class="py-3.5 px-6 font-semibold text-slate-700">
+                <%= u.username %>
+              </td>
+              <td class="py-3.5 px-6">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-150">
+                  <%= u.role %>
+                </span>
+              </td>
+              <td class="py-3.5 px-6">
+                <div class="flex items-center justify-center gap-2">
+                  <a href="/teachers/<%= u._id %>/edit"
+                     class="inline-flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-xs px-3 py-1.5 rounded-xl transition">
+                    <i class="fas fa-edit text-[10px]"></i> Edit
+                  </a>
+                  <form method="POST" action="/teachers/<%= u._id %>/delete" onsubmit="return confirm('Are you sure you want to delete this user account?')">
+                    <button class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs px-3 py-1.5 rounded-xl transition">
+                      <i class="fas fa-trash-alt text-[10px]"></i> Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>

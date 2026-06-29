@@ -1,56 +1,98 @@
-<div class="container py-5">
-  <div class="mb-4 d-flex justify-content-between align-items-center">
-    <h3 class="fw-bold mb-0">
-      🧾 Tests for Batch: <span class="text-primary"><%= batch.name %></span>
-    </h3>
-    <a href="/marks/download/<%= batch._id %>" class="btn btn-outline-primary">
-      <i class="fas fa-download me-1"></i> Download Template
-    </a>
+<div class="w-full px-6 py-8 space-y-6">
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
+
+  <!-- Simplified Page Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-200 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">🧾 Tests & Results — <%= batch.name %></h1>
+      <p class="text-sm text-slate-500 mt-0.5 font-medium"><%= batch.courseType %> Batch</p>
+    </div>
+    <!-- Actions Panel -->
+    <div class="flex flex-wrap gap-2.5">
+      <a href="/marks/download/<%= batch._id %>" 
+         class="inline-flex items-center gap-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm transition">
+        <i class="fas fa-download text-[11px]"></i> Download Template
+      </a>
+      <a href="/marks/upload/<%= batch._id %>" 
+         class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-sm transition">
+        <i class="fas fa-upload text-[11px]"></i> Upload Marks
+      </a>
+    </div>
   </div>
 
+  <!-- Main Directory Section -->
   <% if (tests.length > 0) { %>
-    <div class="row g-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <% tests.forEach(test => { %>
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-          <div class="folder-card p-4 rounded-3 shadow-sm d-flex flex-column justify-content-between h-100">
-            <div class="d-flex align-items-center mb-3">
-              <i class="fas fa-folder fa-2x text-warning me-3"></i>
-              <span class="fw-semibold text-dark"><%= test %></span>
+        <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between relative group">
+          
+          <!-- Delete Shortcut -->
+          <form action="/marks/delete/<%= batch._id %>/<%= encodeURIComponent(test._id) %>" method="POST" 
+                class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                onsubmit="return confirm('Are you sure you want to delete test \'<%= test._id %>\' and all associated student marks permanently? This cannot be undone.')">
+            <button type="submit" class="p-2 text-slate-500 hover:text-red-600 rounded-lg hover:bg-red-50 transition" title="Delete Test">
+              <i class="fas fa-trash-alt text-xs"></i>
+            </button>
+          </form>
+
+          <div>
+            <!-- Badges and Title -->
+            <div class="flex items-center gap-3 mb-4">
+              <span class="p-2.5 rounded-2xl bg-amber-50 text-amber-600">
+                <i class="fas fa-file-invoice text-xl"></i>
+              </span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider <%= test.examType === 'JEE' ? 'bg-blue-50 text-blue-750 border border-blue-150' : 'bg-emerald-50 text-emerald-755 border border-emerald-150' %>">
+                <%= test.examType %>
+              </span>
             </div>
-            <a href="/marks/view/<%= batch._id %>/<%= encodeURIComponent(test) %>" 
-               class="btn btn-sm btn-primary mt-auto">
-              <i class="fas fa-eye me-1"></i> View Results
+
+            <h3 class="text-lg font-bold text-slate-850 mb-2 truncate pr-6" title="<%= test._id %>">
+              <%= test._id %>
+            </h3>
+
+            <!-- Stats grid -->
+            <div class="grid grid-cols-3 gap-2 py-3 px-3.5 bg-slate-50 rounded-2xl mb-4 text-center">
+              <div>
+                <p class="text-[9px] uppercase font-bold text-slate-400">Graded</p>
+                <p class="text-sm font-bold text-slate-700 mt-0.5"><%= test.studentCount %> students</p>
+              </div>
+              <div>
+                <p class="text-[9px] uppercase font-bold text-slate-400">Highest</p>
+                <p class="text-sm font-bold text-emerald-700 mt-0.5"><%= test.maxTotal %></p>
+              </div>
+              <div>
+                <p class="text-[9px] uppercase font-bold text-slate-400">Average</p>
+                <p class="text-sm font-bold text-indigo-650 mt-0.5"><%= Number(test.avgTotal || 0).toFixed(1) %></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="mt-2 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-[10px] text-slate-450 font-bold">
+              Uploaded: <%= new Date(test.uploadedAt).toLocaleDateString() %>
+            </span>
+            <a href="/marks/view/<%= batch._id %>/<%= encodeURIComponent(test._id) %>" 
+               class="inline-flex items-center gap-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[11px] px-3.5 py-1.5 rounded-xl transition">
+              View Analytics <i class="fas fa-chevron-right text-[9px] ml-0.5"></i>
             </a>
           </div>
         </div>
       <% }) %>
     </div>
   <% } else { %>
-    <div class="text-center text-muted py-5">
-      <i class="fas fa-folder-open fa-3x mb-3"></i>
-      <p class="mb-0 fs-5">No tests uploaded yet.</p>
+    <!-- Empty state -->
+    <div class="bg-white border border-dashed border-slate-200 rounded-3xl p-12 text-center max-w-xl mx-auto mt-8">
+      <div class="inline-flex items-center justify-center p-4 bg-indigo-50 text-indigo-500 rounded-full mb-4">
+        <i class="fas fa-file-excel text-4xl"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-800 mb-1">No Tests Uploaded Yet</h3>
+      <p class="text-slate-500 text-sm mb-6">Create test records for this batch by uploading graded student score templates.</p>
+      <a href="/marks/upload/<%= batch._id %>" 
+         class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition">
+        <i class="fas fa-plus"></i> Upload First Marks Sheet
+      </a>
     </div>
   <% } %>
 </div>
-
-<style>
-  .folder-card {
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
-  }
-
-  .folder-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-  }
-
-  .folder-card i.fas.fa-folder {
-    transition: transform 0.2s ease;
-  }
-
-  .folder-card:hover i.fas.fa-folder {
-    transform: scale(1.2);
-  }
-</style>

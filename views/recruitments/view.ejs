@@ -1,48 +1,88 @@
-<div class="space-y-6">
-  <div class="rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm">
-    <div class="flex justify-between items-start gap-6">
+<div class="w-full px-6 py-8 space-y-6">
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
+
+  <!-- Top Dashboard Banner -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-white border border-slate-100 p-6 rounded-3xl shadow-sm">
+    <div>
+      <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-1">
+        <a href="/admin/recruitments" class="hover:text-indigo-650 transition">Recruitments</a>
+        <span>&bull;</span>
+        <span class="text-slate-805 font-bold">Detail View</span>
+      </div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+        <span>💼 <%= recruitment.title %></span>
+      </h1>
+      <p class="text-slate-500 text-sm mt-1">
+        Department: <span class="font-bold text-slate-700"><%= recruitment.department %></span> |
+        Location: <span class="font-bold text-slate-700"><%= recruitment.location %></span> |
+        Type: <span class="font-bold text-slate-700"><%= recruitment.employmentType || 'Full-time' %></span>
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="/admin/recruitments/<%= recruitment._id %>/edit" class="inline-flex items-center gap-1 bg-amber-50 hover:bg-amber-100 text-amber-705 font-bold text-xs px-3.5 py-2 rounded-xl border border-amber-150 transition">
+        Edit
+      </a>
+      <a href="/recruitments/<%= recruitment._id %>" target="_blank" class="inline-flex items-center gap-1 bg-sky-50 hover:bg-sky-100 text-sky-705 font-bold text-xs px-3.5 py-2 rounded-xl border border-sky-150 transition">
+        Public Page
+      </a>
+      <button
+        id="shareRecruitmentBtn"
+        type="button"
+        class="inline-flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-705 font-bold text-xs px-3.5 py-2 rounded-xl border border-emerald-150 transition"
+        data-share-url="/recruitments/<%= recruitment._id %>"
+      >
+        Share Opening
+      </button>
+      <a href="/admin/recruitments" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl font-bold text-xs transition">
+        <i class="fas fa-chevron-left text-[10px]"></i> Back
+      </a>
+    </div>
+  </div>
+
+  <p id="shareRecruitmentMsg" class="text-xs font-bold text-emerald-705 bg-emerald-50 border border-emerald-150 p-3 rounded-xl hidden"></p>
+
+  <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-6">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
       <div>
-        <h1 class="text-3xl font-bold text-slate-900 mb-2 tracking-tight"><%= recruitment.title %></h1>
-        <p class="text-slate-600 mb-4 text-sm md:text-base">
-          <strong>Department:</strong> <%= recruitment.department %> |
-          <strong>Location:</strong> <%= recruitment.location %> |
-          <strong>Type:</strong> <%= recruitment.employmentType || 'Full-time' %>
-        </p>
-      </div>
-      <div class="flex flex-wrap gap-2">
-        <a href="/admin/recruitments/<%= recruitment._id %>/edit" class="px-4 py-2 rounded-lg border border-amber-200 bg-amber-50 text-amber-700 text-sm font-semibold">Edit</a>
-        <a href="/recruitments/<%= recruitment._id %>" target="_blank" class="px-4 py-2 rounded-lg border border-sky-200 bg-sky-50 text-sky-700 text-sm font-semibold">Public Page</a>
-        <button
-          id="shareRecruitmentBtn"
-          type="button"
-          class="px-4 py-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-sm font-semibold"
-          data-share-url="/recruitments/<%= recruitment._id %>"
-        >
-          Share
-        </button>
+        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold border <%= recruitment.status === 'Open' ? 'bg-emerald-50 text-emerald-700 border-emerald-150' : 'bg-rose-50 text-rose-700 border-rose-150' %>">
+          Status: <%= recruitment.status %>
+        </span>
       </div>
     </div>
-    <p id="shareRecruitmentMsg" class="text-sm font-medium text-emerald-700 mt-3 hidden"></p>
 
-    <div class="mb-4">
-      <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide <%= recruitment.status === 'Open' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %>">
-        <%= recruitment.status %>
-      </span>
+    <div>
+      <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Job Description</h2>
+      <div class="bg-slate-50/50 border border-slate-100 rounded-2xl p-5 text-sm text-slate-700 leading-relaxed font-semibold whitespace-pre-line">
+        <%= recruitment.description %>
+      </div>
     </div>
 
-    <h2 class="text-lg font-bold mt-4 text-slate-900">Job Description</h2>
-    <p class="text-slate-700 whitespace-pre-line mt-2 leading-relaxed"><%= recruitment.description %></p>
-
-    <div class="mt-5 grid md:grid-cols-2 gap-3 text-sm text-slate-700">
-      <p class="rounded-lg border border-slate-200 bg-slate-50 p-3"><strong>Experience:</strong> <%= recruitment.experience || 'Not specified' %></p>
-      <p class="rounded-lg border border-slate-200 bg-slate-50 p-3"><strong>Salary:</strong> <%= recruitment.salaryRange || 'Not specified' %></p>
-      <p class="rounded-lg border border-slate-200 bg-slate-50 p-3"><strong>Openings:</strong> <%= recruitment.openings || 1 %></p>
-      <p class="rounded-lg border border-slate-200 bg-slate-50 p-3"><strong>Last Date:</strong> <%= recruitment.lastDateToApply ? new Date(recruitment.lastDateToApply).toLocaleDateString() : 'Not specified' %></p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+      <div class="rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
+        <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Experience Required</span>
+        <span class="font-bold text-slate-800 text-sm mt-1 block"><%= recruitment.experience || 'Not specified' %></span>
+      </div>
+      <div class="rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
+        <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Salary Range</span>
+        <span class="font-bold text-slate-800 text-sm mt-1 block"><%= recruitment.salaryRange || 'Not specified' %></span>
+      </div>
+      <div class="rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
+        <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Number of Openings</span>
+        <span class="font-bold text-slate-800 text-sm mt-1 block"><%= recruitment.openings || 1 %> slots</span>
+      </div>
+      <div class="rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
+        <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Last Date to Apply</span>
+        <span class="font-bold text-slate-800 text-sm mt-1 block"><%= recruitment.lastDateToApply ? new Date(recruitment.lastDateToApply).toLocaleDateString("en-IN") : 'Not specified' %></span>
+      </div>
     </div>
 
     <% if (recruitment.jdFile) { %>
-      <div class="mt-6">
-        <a href="/<%= recruitment.jdFile %>" target="_blank" class="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Download Job Description (PDF)</a>
+      <div class="pt-2">
+        <a href="/<%= recruitment.jdFile %>" target="_blank" class="inline-flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs px-4 py-2.5 rounded-xl border border-indigo-150 transition">
+          <i class="fas fa-file-pdf text-[11px]"></i> Download Job Description (PDF)
+        </a>
       </div>
     <% } %>
   </div>
@@ -66,113 +106,123 @@
     const currentFullPath = `${currentPath}${buildQuery({})}`;
   %>
 
-  <div class="rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm">
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-      <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Applications (<%= applications.length %>)</h2>
+  <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+      <div>
+        <h2 class="text-lg font-bold text-slate-800">Applications (<%= applications.length %>)</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Filter and review candidates applying for this vacancy</p>
+      </div>
 
       <form method="GET" action="/admin/recruitments/<%= recruitment._id %>" class="flex flex-wrap items-center gap-2">
         <% if (currentFilters.status && currentFilters.status !== 'All') { %>
           <input type="hidden" name="status" value="<%= currentFilters.status %>" />
         <% } %>
 
-        <select name="sort" class="border border-slate-300 rounded-lg px-3 py-2 text-sm">
-          <option value="newest" <%= currentFilters.sort === 'newest' ? 'selected' : '' %>>Newest</option>
-          <option value="oldest" <%= currentFilters.sort === 'oldest' ? 'selected' : '' %>>Oldest</option>
+        <select name="sort" class="border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3 py-1.5 text-xs outline-none bg-white font-semibold text-slate-700 transition">
+          <option value="newest" <%= currentFilters.sort === 'newest' ? 'selected' : '' %>>Newest First</option>
+          <option value="oldest" <%= currentFilters.sort === 'oldest' ? 'selected' : '' %>>Oldest First</option>
         </select>
-        <button type="submit" class="rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800">Apply</button>
-        <a href="/admin/recruitments/<%= recruitment._id %>" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Reset</a>
+        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition">Apply</button>
+        <a href="/admin/recruitments/<%= recruitment._id %>" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2 rounded-xl transition">Reset</a>
       </form>
     </div>
 
-    <div class="mb-4">
-      <input
-        id="applicationsSearchInput"
-        type="text"
-        placeholder="Search candidate name or email"
-        class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full md:w-80"
-      />
-      <p id="applicationsSearchMeta" class="text-xs text-slate-500 mt-1"></p>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="w-full max-w-md relative">
+        <span class="absolute left-4 top-3 text-slate-500">
+          <i class="fas fa-search text-xs"></i>
+        </span>
+        <input
+          id="applicationsSearchInput"
+          type="text"
+          placeholder="Search candidate name or email..."
+          class="pl-10 pr-4 py-2.5 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs w-full outline-none transition font-semibold text-slate-700"
+        />
+      </div>
+      <p id="applicationsSearchMeta" class="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100"></p>
     </div>
 
-    <div class="flex flex-wrap gap-2 mb-5">
+    <div class="flex flex-wrap gap-2">
       <% statusTabs.forEach((tab) => { %>
         <a
           href="<%= currentPath + buildQuery({ status: tab }) %>"
-          class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold <%= currentFilters.status === tab ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' %>"
+          class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold transition <%= currentFilters.status === tab ? 'bg-indigo-650 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' %>"
         >
           <span><%= tab %></span>
-          <span class="rounded-full <%= currentFilters.status === tab ? 'bg-white/20 text-white' : 'bg-white text-slate-700' %> px-2 py-0.5"><%= statusCounts?.[tab] || 0 %></span>
+          <span class="rounded-full px-2 py-0.5 text-[10px] <%= currentFilters.status === tab ? 'bg-white/20 text-white font-extrabold' : 'bg-white text-slate-700 border border-slate-200 font-extrabold' %>"><%= statusCounts?.[tab] || 0 %></span>
         </a>
       <% }) %>
     </div>
 
     <% if (!applications.length) { %>
-      <p class="text-slate-500">No applications submitted yet.</p>
-    <% } %>
-
-    <% if (applications.length) { %>
-      <div class="overflow-x-auto rounded-xl border border-slate-200">
-        <table class="w-full min-w-[1250px] text-sm">
-          <thead class="bg-slate-50 text-slate-700">
+      <div class="text-center py-6 text-slate-500 font-bold italic border border-dashed border-slate-200 rounded-2xl">
+        No candidate applications submitted for this status filter yet.
+      </div>
+    <% } else { %>
+      <div class="overflow-x-auto border border-slate-100 rounded-2xl shadow-sm">
+        <table class="w-full text-left text-sm text-slate-650">
+          <thead class="bg-slate-50 border-b border-slate-100 font-bold uppercase tracking-wider text-xs text-slate-700">
             <tr>
-              <th class="px-4 py-3 text-left font-semibold">Candidate</th>
-              <th class="px-4 py-3 text-left font-semibold">Experience</th>
-              <th class="px-4 py-3 text-left font-semibold">Company / CTC</th>
-              <th class="px-4 py-3 text-left font-semibold">Notice</th>
-              <th class="px-4 py-3 text-left font-semibold">Resume</th>
-              <th class="px-4 py-3 text-left font-semibold">Applied On</th>
-              <th class="px-4 py-3 text-left font-semibold">Status</th>
-              <th class="px-4 py-3 text-left font-semibold">Admin Notes</th>
-              <th class="px-4 py-3 text-left font-semibold">Action</th>
+              <th class="py-4 px-6">Candidate</th>
+              <th class="py-4 px-6">Experience</th>
+              <th class="py-4 px-6">Company / CTC</th>
+              <th class="py-4 px-6">Notice</th>
+              <th class="py-4 px-6 text-center">Resume</th>
+              <th class="py-4 px-6">Applied On</th>
+              <th class="py-4 px-6 text-center">Status</th>
+              <th class="py-4 px-6">Admin Notes</th>
+              <th class="py-4 px-6 text-center">Action</th>
             </tr>
           </thead>
           <tbody id="applicationsTableBody" class="divide-y divide-slate-100 bg-white">
             <% applications.forEach((app) => { %>
               <tr
-                class="hover:bg-slate-50/80 align-top application-row"
+                class="hover:bg-slate-50/50 align-top application-row transition"
                 data-candidate-name="<%= (app.fullName || '').toLowerCase().replace(/"/g, '&quot;') %>"
                 data-candidate-email="<%= (app.email || '').toLowerCase().replace(/"/g, '&quot;') %>"
               >
-                <td class="px-4 py-4">
-                  <p class="font-semibold text-slate-900"><%= app.fullName %></p>
-                  <p class="text-xs text-slate-600 mt-1"><%= app.email %></p>
-                  <p class="text-xs text-slate-600"><%= app.phone %></p>
+                <td class="py-3.5 px-6">
+                  <p class="font-bold text-slate-850"><%= app.fullName %></p>
+                  <p class="text-xs text-slate-500 mt-1 font-semibold"><%= app.email %></p>
+                  <p class="text-xs text-slate-500 font-semibold"><%= app.phone %></p>
                 </td>
-                <td class="px-4 py-4 text-slate-700"><%= app.totalExperience || 'N/A' %></td>
-                <td class="px-4 py-4 text-slate-700">
-                  <p><%= app.currentCompany || 'N/A' %></p>
-                  <p class="text-xs text-slate-500 mt-1">Current: <%= app.currentCTC || 'N/A' %></p>
-                  <p class="text-xs text-slate-500">Expected: <%= app.expectedCTC || 'N/A' %></p>
+                <td class="py-3.5 px-6 font-bold text-slate-700"><%= app.totalExperience || 'N/A' %></td>
+                <td class="py-3.5 px-6 font-semibold text-slate-700">
+                  <p class="font-bold text-slate-800"><%= app.currentCompany || 'N/A' %></p>
+                  <p class="text-[11px] text-slate-500 mt-1">Current: <span class="font-bold text-slate-700"><%= app.currentCTC || 'N/A' %></span></p>
+                  <p class="text-[11px] text-slate-500">Expected: <span class="font-bold text-slate-700"><%= app.expectedCTC || 'N/A' %></span></p>
                 </td>
-                <td class="px-4 py-4 text-slate-700"><%= app.noticePeriod || 'N/A' %></td>
-                <td class="px-4 py-4">
-                  <a href="/admin/recruitments/<%= recruitment._id %>/applications/<%= app._id %>/resume" target="_blank" class="inline-flex rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-100">View Resume</a>
+                <td class="py-3.5 px-6 font-bold text-slate-700"><%= app.noticePeriod || 'N/A' %></td>
+                <td class="py-3.5 px-6 text-center">
+                  <a href="/admin/recruitments/<%= recruitment._id %>/applications/<%= app._id %>/resume" target="_blank" class="inline-flex items-center gap-1 bg-sky-50 hover:bg-sky-100 text-sky-705 font-bold text-[10px] px-2.5 py-1.5 rounded-xl border border-sky-150 transition">
+                    View Resume
+                  </a>
                 </td>
-                <td class="px-4 py-4 text-slate-600"><%= new Date(app.createdAt).toLocaleString() %></td>
-                <td class="px-4 py-4">
-                  <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold <%= app.status === 'Hired' ? 'bg-emerald-100 text-emerald-700' : app.status === 'Rejected' ? 'bg-rose-100 text-rose-700' : app.status === 'Shortlisted' ? 'bg-blue-100 text-blue-700' : app.status === 'In Review' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700' %>">
+                <td class="py-3.5 px-6 text-slate-500 font-bold text-xs"><%= new Date(app.createdAt).toLocaleString("en-IN") %></td>
+                <td class="py-3.5 px-6 text-center">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold border <%= app.status === 'Hired' ? 'bg-emerald-50 text-emerald-700 border-emerald-150' : app.status === 'Rejected' ? 'bg-rose-50 text-rose-700 border-rose-150' : app.status === 'Shortlisted' ? 'bg-blue-50 text-blue-700 border-blue-150' : app.status === 'In Review' ? 'bg-amber-50 text-amber-700 border-amber-150' : 'bg-slate-100 text-slate-700 border-slate-200' %>">
                     <%= app.status %>
                   </span>
                 </td>
-                <td class="px-4 py-4 max-w-[260px]">
-                  <p class="text-slate-700 whitespace-pre-line"><%= app.adminNotes || '-' %></p>
+                <td class="py-3.5 px-6 max-w-[260px]">
+                  <p class="text-slate-700 font-semibold text-xs whitespace-pre-line"><%= app.adminNotes || '-' %></p>
                   <% if (app.coverLetter) { %>
-                    <details class="mt-2 text-xs text-slate-600">
-                      <summary class="cursor-pointer font-semibold">View Cover Letter</summary>
-                      <p class="mt-1 whitespace-pre-line"><%= app.coverLetter %></p>
+                    <details class="mt-2 text-[10px] text-slate-500 font-semibold">
+                      <summary class="cursor-pointer font-bold text-indigo-650 hover:underline">View Cover Letter</summary>
+                      <p class="mt-1.5 whitespace-pre-line bg-slate-50/50 p-2.5 rounded-lg border border-slate-150 text-slate-650"><%= app.coverLetter %></p>
                     </details>
                   <% } %>
                 </td>
-                <td class="px-4 py-4">
-                  <form action="/admin/recruitments/<%= recruitment._id %>/applications/<%= app._id %>/status" method="POST" class="space-y-2 min-w-[200px]">
+                <td class="py-3.5 px-6 text-center">
+                  <form action="/admin/recruitments/<%= recruitment._id %>/applications/<%= app._id %>/status" method="POST" class="space-y-1.5 min-w-[180px]">
                     <input type="hidden" name="returnTo" value="<%= currentFullPath %>" />
-                    <select name="status" class="w-full border border-slate-300 p-2 rounded-lg text-xs">
+                    <select name="status" class="w-full border border-slate-200 p-2 rounded-xl text-xs outline-none bg-white font-semibold text-slate-700 transition">
                       <% ['New', 'In Review', 'Shortlisted', 'Rejected', 'Hired'].forEach((s) => { %>
                         <option value="<%= s %>" <%= app.status === s ? 'selected' : '' %>><%= s %></option>
                       <% }) %>
                     </select>
-                    <input name="adminNotes" value="<%= app.adminNotes || '' %>" class="w-full border border-slate-300 p-2 rounded-lg text-xs" placeholder="Add notes" />
-                    <button type="submit" class="w-full bg-teal-700 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-teal-800">Update</button>
+                    <input name="adminNotes" value="<%= app.adminNotes || '' %>" class="w-full border border-slate-200 p-2 rounded-xl text-xs outline-none font-semibold text-slate-700" placeholder="Add feedback notes" />
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-2 rounded-xl transition shadow-sm">Update Status</button>
                   </form>
                 </td>
               </tr>
@@ -180,83 +230,91 @@
           </tbody>
         </table>
       </div>
-      <p id="applicationsNoMatch" class="hidden text-slate-500 mt-3">No applications match your search.</p>
+      <p id="applicationsNoMatch" class="hidden text-slate-500 font-bold text-xs italic mt-3">No applications match your query.</p>
     <% } %>
   </div>
 </div>
 
 <script>
-  const shareBtn = document.getElementById("shareRecruitmentBtn");
-  const shareMsg = document.getElementById("shareRecruitmentMsg");
+  (function() {
+    const shareBtn = document.getElementById("shareRecruitmentBtn");
+    const shareMsg = document.getElementById("shareRecruitmentMsg");
 
-  const setShareMessage = (text, isError = false) => {
-    if (!shareMsg) return;
-    shareMsg.textContent = text;
-    shareMsg.classList.remove("hidden", "text-emerald-700", "text-rose-700");
-    shareMsg.classList.add(isError ? "text-rose-700" : "text-emerald-700");
-  };
-
-  shareBtn?.addEventListener("click", async () => {
-    const sharePath = shareBtn.dataset.shareUrl;
-    const shareUrl = `${window.location.origin}${sharePath}`;
-
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: "<%= recruitment.title %> - Garud Careers",
-          text: "Check this recruitment opening at Garud Classes",
-          url: shareUrl,
-        });
-        setShareMessage("Recruitment link shared successfully.");
-        return;
+    const setShareMessage = (text, isError = false) => {
+      if (!shareMsg) return;
+      shareMsg.textContent = text;
+      shareMsg.classList.remove("hidden", "text-emerald-755", "text-rose-755", "bg-emerald-50", "bg-rose-50", "border-emerald-150", "border-rose-150");
+      if (isError) {
+        shareMsg.classList.add("text-rose-705", "bg-rose-50", "border-rose-150");
+      } else {
+        shareMsg.classList.add("text-emerald-705", "bg-emerald-50", "border-emerald-150");
       }
+      shareMsg.classList.remove("hidden");
+    };
 
-      await navigator.clipboard.writeText(shareUrl);
-      setShareMessage("Recruitment link copied. You can paste and share it.");
-    } catch (error) {
-      setShareMessage("Could not share automatically. Please copy the public recruitment URL manually.", true);
-    }
-  });
+    shareBtn?.addEventListener("click", async () => {
+      const sharePath = shareBtn.dataset.shareUrl;
+      const shareUrl = `${window.location.origin}${sharePath}`;
 
-  const searchInput = document.getElementById("applicationsSearchInput");
-  const tableBody = document.getElementById("applicationsTableBody");
-  const noMatchLabel = document.getElementById("applicationsNoMatch");
-  const searchMeta = document.getElementById("applicationsSearchMeta");
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: "<%= recruitment.title %> - Garud Careers",
+            text: "Check this recruitment opening at Garud Classes",
+            url: shareUrl,
+          });
+          setShareMessage("Recruitment link shared successfully.");
+          return;
+        }
 
-  const applicationRows = tableBody ? Array.from(tableBody.querySelectorAll(".application-row")) : [];
-  const totalRows = applicationRows.length;
-
-  const renderSearchMeta = (visibleCount, query) => {
-    if (!searchMeta) return;
-    if (!query) {
-      searchMeta.textContent = `Showing all ${totalRows} applications`;
-      return;
-    }
-    searchMeta.textContent = `Showing ${visibleCount} of ${totalRows} applications for "${query}"`;
-  };
-
-  const filterApplications = () => {
-    if (!searchInput || !tableBody) return;
-    const query = searchInput.value.trim().toLowerCase();
-    let visibleCount = 0;
-
-    applicationRows.forEach((row) => {
-      const name = row.dataset.candidateName || "";
-      const email = row.dataset.candidateEmail || "";
-      const matched = !query || name.includes(query) || email.includes(query);
-      row.classList.toggle("hidden", !matched);
-      if (matched) visibleCount += 1;
+        await navigator.clipboard.writeText(shareUrl);
+        setShareMessage("Recruitment link copied to clipboard. You can paste and share it.");
+      } catch (error) {
+        setShareMessage("Could not share automatically. Please copy the public recruitment URL manually.", true);
+      }
     });
 
-    if (noMatchLabel) {
-      noMatchLabel.classList.toggle("hidden", visibleCount !== 0 || !query);
+    const searchInput = document.getElementById("applicationsSearchInput");
+    const tableBody = document.getElementById("applicationsTableBody");
+    const noMatchLabel = document.getElementById("applicationsNoMatch");
+    const searchMeta = document.getElementById("applicationsSearchMeta");
+
+    const applicationRows = tableBody ? Array.from(tableBody.querySelectorAll(".application-row")) : [];
+    const totalRows = applicationRows.length;
+
+    const renderSearchMeta = (visibleCount, query) => {
+      if (!searchMeta) return;
+      if (!query) {
+        searchMeta.textContent = `Showing all ${totalRows} applications`;
+        return;
+      }
+      searchMeta.textContent = `Showing ${visibleCount} of ${totalRows} applications matching "${query}"`;
+    };
+
+    const filterApplications = () => {
+      if (!searchInput || !tableBody) return;
+      const query = searchInput.value.trim().toLowerCase();
+      let visibleCount = 0;
+
+      applicationRows.forEach((row) => {
+        const name = row.dataset.candidateName || "";
+        const email = row.dataset.candidateEmail || "";
+        const matched = !query || name.includes(query) || email.includes(query);
+        row.classList.toggle("hidden", !matched);
+        if (matched) visibleCount += 1;
+      });
+
+      if (noMatchLabel) {
+        noMatchLabel.classList.toggle("hidden", visibleCount !== 0 || !query);
+      }
+
+      renderSearchMeta(visibleCount, query);
+    };
+
+    if (searchInput) {
+      searchInput.addEventListener("input", filterApplications);
+      renderSearchMeta(totalRows, "");
     }
-
-    renderSearchMeta(visibleCount, query);
-  };
-
-  if (searchInput) {
-    searchInput.addEventListener("input", filterApplications);
-    renderSearchMeta(totalRows, "");
-  }
+  })();
 </script>
+

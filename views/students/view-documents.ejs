@@ -1,21 +1,23 @@
-<div class="max-w-6xl mx-auto px-4 py-8">
-  <!-- Back Button & Header -->
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-6 border-b border-gray-200">
+<div class="w-full px-6 py-8">
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
+
+  <!-- Back Button & Header Banner -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-6 border-b border-slate-100">
     <div class="mb-4 md:mb-0">
-      <a href="/api/students/all" class="inline-flex items-center text-blue-600 hover:text-blue-800 transition font-medium mb-3">
-        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-        </svg>
-        Back to Student List
+      <a href="/api/students/all" class="inline-flex items-center gap-1.5 text-indigo-650 hover:text-indigo-700 transition font-bold text-sm mb-3">
+        <i class="fas fa-arrow-left text-xs"></i> Back to Student List
       </a>
-      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight"><%= student.name %>'s Documents</h1>
-      <p class="text-gray-500 mt-1 font-mono text-sm">Roll No: <%= student.rollNumber || '-' %> | Username: <%= student.username %></p>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight"><%= student.name %>'s Documents</h1>
+      <p class="text-slate-500 mt-1.5 font-semibold text-xs uppercase tracking-wider">
+        Roll No: <span class="font-mono text-slate-700"><%= student.rollNumber || '-' %></span> | Username: <span class="text-slate-750"><%= student.username %></span>
+      </p>
     </div>
     
-    <div class="bg-gray-100 px-4 py-2.5 rounded-lg border border-gray-200 text-sm">
-      <span class="font-bold text-gray-700">Batch:</span>
-      <span class="ml-1 px-2.5 py-1 bg-blue-100 text-blue-800 font-semibold rounded text-xs">
-        <%= student.batch ? student.batch.name : 'No Batch' %>
+    <div class="bg-white px-4 py-3 rounded-2xl border border-slate-100 text-sm shadow-sm flex items-center gap-2">
+      <span class="font-bold text-slate-655">Batch Enrollment:</span>
+      <span class="px-2.5 py-0.5 bg-indigo-50 text-indigo-700 font-bold rounded-full text-xs">
+        <%= student.batch ? student.batch.name : 'Unassigned' %>
       </span>
     </div>
   </div>
@@ -24,43 +26,50 @@
     <!-- Left Column: Student Quick Info & Profile Photo Controls -->
     <div class="lg:col-span-1 space-y-6">
       <!-- Profile Card -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col items-center text-center">
-        <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-blue-50 bg-gray-100 mb-4 shadow-inner relative group">
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex flex-col items-center text-center">
+        <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-indigo-50 bg-slate-50 mb-4 shadow-sm relative group">
           <% if (student.image) { %>
             <img src="<%= student.image %>" alt="Profile Photo" class="w-full h-full object-cover">
           <% } else { %>
-            <div class="w-full h-full flex items-center justify-center text-gray-300">
-              <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-              </svg>
+            <div class="w-full h-full flex items-center justify-center text-slate-300">
+              <i class="fas fa-user-circle text-6xl"></i>
             </div>
           <% } %>
         </div>
         
-        <h2 class="text-xl font-bold text-gray-800"><%= student.name %></h2>
-        <p class="text-sm text-gray-500 mt-1"><%= student.email || 'No email specified' %></p>
-        <p class="text-sm text-gray-500 font-medium"><%= student.number || '-' %></p>
+        <h2 class="text-xl font-extrabold text-slate-855"><%= student.name %></h2>
+        <p class="text-xs text-slate-500 font-bold mt-0.5"><%= student.email || 'No email specified' %></p>
+        <p class="text-xs text-slate-600 font-mono font-bold mt-1"><%= student.number || '-' %></p>
         
-        <div class="w-full border-t border-gray-100 my-4"></div>
+        <div class="w-full border-t border-slate-100 my-5"></div>
         
-        <div class="w-full text-left space-y-2 text-sm mb-4">
-          <div><span class="font-semibold text-gray-600">Father's Name:</span> <span class="text-gray-800"><%= student.fatherName || '-' %></span></div>
-          <div><span class="font-semibold text-gray-600">Mother's Name:</span> <span class="text-gray-800"><%= student.motherName || '-' %></span></div>
-          <div><span class="font-semibold text-gray-600">Address:</span> <span class="text-gray-800"><%= student.address || '-' %></span></div>
+        <div class="w-full text-left space-y-3 text-sm mb-5">
+          <div>
+            <span class="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Father's Name</span>
+            <span class="font-semibold text-slate-700 mt-0.5 block"><%= student.fatherName || '-' %></span>
+          </div>
+          <div>
+            <span class="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Mother's Name</span>
+            <span class="font-semibold text-slate-700 mt-0.5 block"><%= student.motherName || '-' %></span>
+          </div>
+          <div>
+            <span class="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Home Address</span>
+            <span class="font-semibold text-slate-700 mt-0.5 block text-xs leading-relaxed"><%= student.address || '-' %></span>
+          </div>
         </div>
 
         <!-- Inline Toggle for Profile Photo Re-upload -->
-        <div class="w-full pt-4 border-t border-gray-100 flex items-center justify-between text-left">
+        <div class="w-full pt-4 border-t border-slate-100 flex items-center justify-between text-left">
           <div>
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider block">Photo Lock</span>
-            <span class="text-sm font-semibold text-gray-800" id="status-studentPhoto">
+            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Photo Status</span>
+            <span class="text-xs font-bold text-slate-700 mt-0.5 block" id="status-studentPhoto">
               <%= student.allowStudentPhotoReupload ? 'Unlocked' : 'Locked' %>
             </span>
           </div>
           <button 
             onclick="togglePermission('studentPhoto')"
             id="btn-studentPhoto"
-            class="px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 <%= student.allowStudentPhotoReupload ? 'bg-red-100 text-red-700 hover:bg-red-200 focus:ring-red-400' : 'bg-green-100 text-green-700 hover:bg-green-200 focus:ring-green-400' %>"
+            class="px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm focus:outline-none <%= student.allowStudentPhotoReupload ? 'bg-rose-50 text-rose-700 hover:bg-rose-100/80' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100/80' %>"
           >
             <%= student.allowStudentPhotoReupload ? 'Lock Upload' : 'Allow Upload' %>
           </button>
@@ -70,8 +79,10 @@
 
     <!-- Right Column: Document Grid -->
     <div class="lg:col-span-2 space-y-6">
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-        <h3 class="text-xl font-bold text-gray-800 mb-6">Uploaded Documents & Credentials</h3>
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+        <h3 class="text-xl font-bold text-slate-850 mb-6 flex items-center gap-2">
+          <i class="fas fa-file-signature text-slate-400 text-lg"></i> Uploaded Documents & Credentials
+        </h3>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <% 
@@ -85,43 +96,39 @@
           %>
 
           <% docList.forEach(doc => { %>
-            <div class="bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col justify-between hover:shadow-md transition">
+            <div class="bg-slate-50/50 rounded-2xl border border-slate-150 p-4 flex flex-col justify-between hover:shadow-sm hover:border-slate-200 transition duration-200">
               <div>
                 <div class="flex justify-between items-start mb-3">
-                  <h4 class="font-bold text-gray-800 text-sm"><%= doc.label %></h4>
+                  <h4 class="font-bold text-slate-800 text-sm"><%= doc.label %></h4>
                   <% if (doc.data && doc.data.url) { %>
-                    <span class="px-2 py-0.5 bg-green-100 text-green-800 text-xs font-semibold rounded-full flex items-center">
-                      <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
+                    <span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider rounded-full border border-emerald-150 flex items-center">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
                       Uploaded
                     </span>
                   <% } else { %>
-                    <span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full flex items-center">
-                      <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 mr-1.5"></span>
+                    <span class="px-2.5 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wider rounded-full border border-amber-150 flex items-center">
+                      <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
                       Pending
                     </span>
                   <% } %>
                 </div>
 
                 <!-- Preview Area -->
-                <div class="w-full h-40 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center border border-gray-300 shadow-inner my-2">
+                <div class="w-full h-40 bg-slate-100 rounded-xl overflow-hidden flex items-center justify-center border border-slate-200 shadow-inner my-3 relative">
                   <% if (doc.data && doc.data.url) { %>
                     <% const isPdf = doc.data.url.toLowerCase().endsWith(".pdf") || doc.data.url.toLowerCase().includes(".pdf?"); %>
                     <% if (isPdf) { %>
                       <div class="flex flex-col items-center text-center p-4">
-                        <svg class="w-12 h-12 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2h6v3a1 1 0 001 1h3v6H6V6z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="text-xs text-gray-500 mt-2 font-medium">PDF Document</span>
+                        <i class="fas fa-file-pdf text-red-500 text-4xl"></i>
+                        <span class="text-xs text-slate-500 mt-2 font-semibold">PDF Document</span>
                       </div>
                     <% } else { %>
-                      <img src="<%= doc.data.url %>" alt="<%= doc.label %>" class="w-full h-full object-cover">
+                      <img src="<%= doc.data.url %>" alt="<%= doc.label %>" class="w-full h-full object-cover hover:scale-105 transition duration-200">
                     <% } %>
                   <% } else { %>
-                    <div class="flex flex-col items-center text-center p-4 text-gray-400">
-                      <svg class="w-10 h-10 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V4a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
-                      </svg>
-                      <span class="text-xs font-medium">No document uploaded</span>
+                    <div class="flex flex-col items-center text-center p-4 text-slate-400">
+                      <i class="fas fa-folder-open text-3xl mb-1.5 text-slate-300"></i>
+                      <span class="text-xs font-semibold">No document uploaded</span>
                     </div>
                   <% } %>
                 </div>
@@ -133,35 +140,31 @@
                   <a 
                     href="<%= doc.data.url %>" 
                     target="_blank" 
-                    class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm transition"
+                    class="w-full inline-flex items-center justify-center gap-1.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-sm transition"
                   >
-                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                    </svg>
-                    View Document
+                    <i class="fas fa-external-link-alt text-[10px]"></i> View Document
                   </a>
                 <% } else { %>
                   <button 
                     disabled 
-                    class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-400 text-xs font-semibold rounded-lg cursor-not-allowed"
+                    class="w-full inline-flex items-center justify-center py-2.5 bg-slate-100 text-slate-400 text-xs font-bold rounded-xl cursor-not-allowed"
                   >
                     Not Available
                   </button>
                 <% } %>
 
                 <!-- Document re-upload permission lock -->
-                <div class="flex items-center justify-between pt-2.5 border-t border-gray-200">
+                <div class="flex items-center justify-between pt-3 border-t border-slate-150">
                   <div class="text-left">
-                    <span class="text-3xs font-extrabold text-gray-400 uppercase tracking-wider block">Lock Status</span>
-                    <span class="text-xs font-bold text-gray-700" id="status-<%= doc.key %>">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Lock Status</span>
+                    <span class="text-xs font-bold text-slate-700 mt-0.5 block" id="status-<%= doc.key %>">
                       <%= doc.allowed ? 'Unlocked' : 'Locked' %>
                     </span>
                   </div>
                   <button 
                     onclick="togglePermission('<%= doc.key %>')" 
                     id="btn-<%= doc.key %>"
-                    class="px-3 py-1 rounded-md text-3xs font-bold transition shadow-sm focus:outline-none <%= doc.allowed ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200' %>"
+                    class="px-3 py-1.5 rounded-xl text-[10px] font-bold transition shadow-sm focus:outline-none <%= doc.allowed ? 'bg-rose-50 text-rose-700 hover:bg-rose-100' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' %>"
                   >
                     <%= doc.allowed ? 'Lock Upload' : 'Allow Upload' %>
                   </button>
@@ -181,7 +184,6 @@
     const statusText = document.getElementById(`status-${type}`);
     const initialText = btn.innerText;
     
-    // Disable button during requests
     btn.disabled = true;
     btn.innerText = "Saving...";
 
@@ -202,25 +204,36 @@
         if (res.isAllowed) {
           statusText.innerText = "Unlocked";
           btn.innerText = "Lock Upload";
-          btn.className = "px-3 py-1 rounded-md text-3xs font-bold transition shadow-sm focus:outline-none bg-red-100 text-red-700 hover:bg-red-200";
+          btn.className = "px-3 py-1.5 rounded-xl text-[10px] font-bold transition shadow-sm focus:outline-none bg-rose-50 text-rose-700 hover:bg-rose-100";
           if (type === "studentPhoto") {
-            btn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 bg-red-100 text-red-700 hover:bg-red-200 focus:ring-red-400";
+            btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm focus:outline-none bg-rose-50 text-rose-700 hover:bg-rose-100";
           }
         } else {
           statusText.innerText = "Locked";
           btn.innerText = "Allow Upload";
-          btn.className = "px-3 py-1 rounded-md text-3xs font-bold transition shadow-sm focus:outline-none bg-green-100 text-green-700 hover:bg-green-200";
+          btn.className = "px-3 py-1.5 rounded-xl text-[10px] font-bold transition shadow-sm focus:outline-none bg-emerald-50 text-emerald-700 hover:bg-emerald-100";
           if (type === "studentPhoto") {
-            btn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 bg-green-100 text-green-700 hover:bg-green-200 focus:ring-green-400";
+            btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm focus:outline-none bg-emerald-50 text-emerald-700 hover:bg-emerald-100";
           }
         }
+        
+        if (typeof showToast === 'function') {
+          showToast(`Permission updated successfully!`, "success");
+        }
       } else {
-        alert("Failed to toggle permission: " + res.message);
+        if (typeof showToast === 'function') {
+          showToast(res.message || "Failed to update permission", "error");
+        } else {
+          alert("Failed to toggle permission: " + res.message);
+        }
         btn.innerText = initialText;
       }
     } catch (err) {
-      console.error(err);
-      alert("An error occurred. Please try again.");
+      if (typeof showToast === 'function') {
+        showToast("Error updating permission", "error");
+      } else {
+        alert("An error occurred. Please try again.");
+      }
       btn.disabled = false;
       btn.innerText = initialText;
     }

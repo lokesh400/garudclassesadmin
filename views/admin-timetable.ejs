@@ -1,48 +1,80 @@
-  <div class="max-w-6xl mx-auto bg-white p-6 rounded shadow">
+<div class="w-full px-6 py-8 space-y-6">
 
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-white border border-slate-100 p-6 rounded-3xl shadow-sm">
+    <div>
+      <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-1">
+        <a href="/api/batches" class="hover:text-indigo-650 transition">Batches</a>
+        <span>&bull;</span>
+        <span class="text-slate-800 font-semibold">Timetable Configuration</span>
+      </div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+        <span>📅 Configure Weekly Schedule</span>
+      </h1>
+      <p class="text-slate-500 text-sm mt-1">Set subject slots, teachers, and timings for every weekday period</p>
+    </div>
+
+    <a href="/api/batches" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs transition">
+      <i class="fas fa-chevron-left text-[10px]"></i> Back to Batches
+    </a>
+  </div>
+
+  <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-6">
     <input type="hidden" id="batchId" value="<%= batchId %>" />
     <input type="hidden" id="hasTimetable" value="<%= hasTimetable %>" />
     <script>const existingTimetable = <%- timetable || 'null' %>;</script>
 
-    <div class="flex justify-between items-center mb-4">
-      <div class="space-x-2">
-        <label class="font-medium">No. of Periods:</label>
-        <input type="number" id="periodCount" min="1" max="10" value="6" class="border p-1 rounded w-20">
-        <button type="button" id="generatePeriods" class="bg-blue-600 text-white px-3 py-1 rounded">Generate</button>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <label for="periodCount" class="text-xs font-bold text-slate-500 uppercase tracking-wider">No. of Periods:</label>
+        <input type="number" id="periodCount" min="1" max="10" value="6" 
+               class="border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3 py-1.5 text-xs outline-none w-20 font-semibold text-slate-700">
+        <button type="button" id="generatePeriods" 
+                class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition">
+          Generate Grid
+        </button>
       </div>
-      <button type="button" id="copyAllBtn" class="bg-green-600 text-white px-3 py-1 rounded">Copy Monday to All Days</button>
+      <button type="button" id="copyAllBtn" 
+              class="bg-emerald-650 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow-sm">
+        <i class="fas fa-copy mr-1"></i> Copy Monday to All Days
+      </button>
     </div>
 
-    <div id="timetableContainer" class="overflow-x-auto"></div>
+    <div id="timetableContainer" class="overflow-x-auto border border-slate-100 rounded-2xl"></div>
 
-    <button type="button" id="submitBtn" class="mt-6 bg-blue-700 text-white px-6 py-2 rounded">
-      <%= hasTimetable ? "Update Timetable" : "Save Timetable" %>
-    </button>
+    <div class="pt-4 border-t border-slate-100 flex justify-end">
+      <button type="button" id="submitBtn" 
+              class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition shadow-md">
+        <%= hasTimetable ? "Update Weekly Timetable" : "Save Weekly Timetable" %>
+      </button>
+    </div>
   </div>
 
   <script>
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
     function generateTable(periodCount = 6) {
-      let html = `<table class="w-full border border-gray-300 text-sm">
-        <thead class="bg-gray-200">
+      let html = `<table class="w-full text-left text-sm text-slate-650">
+        <thead class="bg-slate-50 border-b border-slate-100 font-bold uppercase tracking-wider text-xs text-slate-700">
           <tr>
-            <th class="border p-2 w-24">Day</th>`;
+            <th class="py-4 px-4 w-28 text-center border-r border-slate-100">Day</th>`;
       for (let i = 1; i <= periodCount; i++) {
-        html += `<th class="border p-2 text-center">Period ${i}</th>`;
+        html += `<th class="py-4 px-4 text-center min-w-[150px] ${i !== periodCount ? 'border-r border-slate-100' : ''}">Period ${i}</th>`;
       }
-      html += `</tr></thead><tbody>`;
+      html += `</tr></thead><tbody class="divide-y divide-slate-100">`;
 
       days.forEach(day => {
         html += `<tr>
-          <td class="border font-semibold p-2 text-center">${day}</td>`;
+          <td class="py-3 px-4 font-bold text-slate-800 text-center bg-slate-50/50 border-r border-slate-100">${day}</td>`;
         for (let i = 1; i <= periodCount; i++) {
           html += `
-            <td class="border p-1">
-              <input type="text" class="subject border p-1 rounded w-full mb-1" placeholder="Subject" data-day="${day}" data-period="${i}">
-              <input type="text" class="teacher border p-1 rounded w-full mb-1" placeholder="Teacher" data-day="${day}" data-period="${i}">
-              <input type="time" class="startTime border p-1 rounded w-full mb-1" data-day="${day}" data-period="${i}">
-              <input type="time" class="endTime border p-1 rounded w-full" data-day="${day}" data-period="${i}">
+            <td class="p-2 ${i !== periodCount ? 'border-r border-slate-100' : ''} bg-white space-y-1.5">
+              <input type="text" class="subject border border-slate-200 focus:border-indigo-500 rounded-xl px-2.5 py-1.5 text-xs w-full outline-none font-semibold text-slate-700 placeholder-slate-400" placeholder="Subject" data-day="${day}" data-period="${i}">
+              <input type="text" class="teacher border border-slate-200 focus:border-indigo-500 rounded-xl px-2.5 py-1.5 text-xs w-full outline-none font-semibold text-slate-700 placeholder-slate-400" placeholder="Teacher" data-day="${day}" data-period="${i}">
+              <div class="grid grid-cols-2 gap-1.5">
+                <input type="time" class="startTime border border-slate-200 focus:border-indigo-500 rounded-xl p-1 text-[10px] w-full outline-none font-bold text-slate-600" data-day="${day}" data-period="${i}">
+                <input type="time" class="endTime border border-slate-200 focus:border-indigo-500 rounded-xl p-1 text-[10px] w-full outline-none font-bold text-slate-600" data-day="${day}" data-period="${i}">
+              </div>
             </td>`;
         }
         html += `</tr>`;
@@ -55,10 +87,15 @@
       if (existingTimetable) {
         existingTimetable.forEach(dayObj => {
           dayObj.periods.forEach((p, index) => {
-            document.querySelector(`[data-day="${dayObj.day}"][data-period="${index + 1}"].subject`).value = p.subject || "";
-            document.querySelector(`[data-day="${dayObj.day}"][data-period="${index + 1}"].teacher`).value = p.teacher || "";
-            document.querySelector(`[data-day="${dayObj.day}"][data-period="${index + 1}"].startTime`).value = p.startTime || "";
-            document.querySelector(`[data-day="${dayObj.day}"][data-period="${index + 1}"].endTime`).value = p.endTime || "";
+            const subInput = document.querySelector(`[data-day="${dayObj.day}"][data-period="${index + 1}"].subject`);
+            const teachInput = document.querySelector(`[data-day="${dayObj.day}"][data-period="${index + 1}"].teacher`);
+            const startInput = document.querySelector(`[data-day="${dayObj.day}"][data-period="${index + 1}"].startTime`);
+            const endInput = document.querySelector(`[data-day="${dayObj.day}"][data-period="${index + 1}"].endTime`);
+            
+            if (subInput) subInput.value = p.subject || "";
+            if (teachInput) teachInput.value = p.teacher || "";
+            if (startInput) startInput.value = p.startTime || "";
+            if (endInput) endInput.value = p.endTime || "";
           });
         });
       }
@@ -82,13 +119,18 @@
 
       days.slice(1).forEach(day => {
         for (let i = 0; i < periodCount; i++) {
-          document.querySelector(`[data-day="${day}"][data-period="${i+1}"].subject`).value = mondaySubjects[i].value;
-          document.querySelector(`[data-day="${day}"][data-period="${i+1}"].teacher`).value = mondayTeachers[i].value;
-          document.querySelector(`[data-day="${day}"][data-period="${i+1}"].startTime`).value = mondayStart[i].value;
-          document.querySelector(`[data-day="${day}"][data-period="${i+1}"].endTime`).value = mondayEnd[i].value;
+          const sub = document.querySelector(`[data-day="${day}"][data-period="${i+1}"].subject`);
+          const tea = document.querySelector(`[data-day="${day}"][data-period="${i+1}"].teacher`);
+          const sta = document.querySelector(`[data-day="${day}"][data-period="${i+1}"].startTime`);
+          const end = document.querySelector(`[data-day="${day}"][data-period="${i+1}"].endTime`);
+
+          if (sub) sub.value = mondaySubjects[i].value;
+          if (tea) tea.value = mondayTeachers[i].value;
+          if (sta) sta.value = mondayStart[i].value;
+          if (end) end.value = mondayEnd[i].value;
         }
       });
-      alert("✅ Copied Monday’s timetable to all days!");
+      showToast("✅ Copied Monday’s timetable to all days!", "success");
     });
 
     // Save or Update
@@ -109,13 +151,18 @@
         timetable.push({ day, periods: dayPeriods });
       });
 
-      const res = await fetch("/api/timetable/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ batchId, timetable }),
-      });
+      try {
+        const res = await fetch("/api/timetable/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ batchId, timetable }),
+        });
 
-      const data = await res.json();
-      alert(data.message || "Timetable saved!");
+        const data = await res.json();
+        showToast(data.message || "Timetable saved successfully!", "success");
+      } catch (err) {
+        showToast("Failed to save timetable", "error");
+      }
     });
   </script>
+</div>

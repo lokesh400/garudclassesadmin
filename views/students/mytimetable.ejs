@@ -1,39 +1,64 @@
-  <div class="mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-2xl font-semibold text-gray-800 mb-4 text-center">
-      Weekly Timetable - <%= batchName %>
-    </h1>
+<div class="w-full px-6 py-8 space-y-6">
 
+  <!-- Header Banner -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-200 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">📅 Weekly Timetable</h1>
+      <p class="text-sm text-slate-500 mt-0.5 font-medium">Batch: <%= batchName %></p>
+    </div>
+  </div>
+
+  <!-- Timetable Content Card -->
+  <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
     <% if (!timetable || timetable.length === 0) { %>
-      <div class="text-center text-gray-600 py-10">
-        <p>No timetable has been created for this batch yet.</p>
+      <div class="text-center py-12 space-y-4">
+        <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 mx-auto border border-slate-100">
+          <i class="fas fa-calendar-times text-2xl"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-slate-800">No timetable configured</h3>
+          <p class="text-slate-500 text-sm mt-1">There is no class schedule published for your batch yet.</p>
+        </div>
       </div>
     <% } else { %>
-      <div class="overflow-x-auto">
-        <table class="min-w-full border border-gray-300 text-sm">
-          <thead class="bg-gray-200 text-gray-700">
+      <div class="overflow-x-auto border border-slate-100 rounded-2xl shadow-sm">
+        <table class="w-full text-left text-sm text-slate-650">
+          <thead class="bg-slate-50 border-b border-slate-100 font-bold uppercase tracking-wider text-xs text-slate-700">
             <tr>
-              <th class="border px-4 py-2 text-left">Day</th>
-              <th class="border px-4 py-2 text-left">Period</th>
-              <th class="border px-4 py-2 text-left">Subject</th>
-              <th class="border px-4 py-2 text-left">Teacher</th>
-              <th class="border px-4 py-2 text-left">Start Time</th>
-              <th class="border px-4 py-2 text-left">End Time</th>
+              <th class="py-4 px-6 border-r border-slate-100 w-36">Day</th>
+              <th class="py-4 px-6 border-r border-slate-100 text-center w-28">Period</th>
+              <th class="py-4 px-6">Subject</th>
+              <th class="py-4 px-6">Teacher Name</th>
+              <th class="py-4 px-6 text-center w-36">Timings</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="divide-y divide-slate-100">
             <% timetable.forEach(dayData => { %>
               <% dayData.periods.forEach((p, i) => { %>
-                <tr>
+                <tr class="hover:bg-slate-50/50 transition">
                   <% if (i === 0) { %>
-                    <td class="border px-4 py-2 font-semibold" rowspan="<%= dayData.periods.length %>">
-                      <%= dayData.day %>
+                    <td class="py-4 px-6 font-extrabold text-slate-800 bg-slate-50/30 border-r border-slate-100 align-middle" rowspan="<%= dayData.periods.length %>">
+                      <span class="inline-flex items-center gap-1.5 text-indigo-650">
+                        <i class="far fa-calendar text-[11px]"></i> <%= dayData.day %>
+                      </span>
                     </td>
                   <% } %>
-                  <td class="border px-4 py-2">Period <%= i + 1 %></td>
-                  <td class="border px-4 py-2"><%= p.subject || '-' %></td>
-                  <td class="border px-4 py-2"><%= p.teacher || '-' %></td>
-                  <td class="border px-4 py-2"><%= p.startTime || '-' %></td>
-                  <td class="border px-4 py-2"><%= p.endTime || '-' %></td>
+                  <td class="py-3 px-6 font-bold text-center text-slate-600 bg-slate-50/10 border-r border-slate-100">Period <%= i + 1 %></td>
+                  <td class="py-3 px-6 font-bold text-slate-850">
+                    <%= p.subject || '-' %>
+                  </td>
+                  <td class="py-3 px-6 font-semibold text-slate-500">
+                    <%= p.teacher || '-' %>
+                  </td>
+                  <td class="py-3 px-6 text-center font-bold text-xs text-indigo-650">
+                    <% if (p.startTime || p.endTime) { %>
+                      <span class="inline-flex items-center px-2.5 py-1 bg-indigo-50 rounded-lg">
+                        <%= p.startTime || '00:00' %> - <%= p.endTime || '00:00' %>
+                      </span>
+                    <% } else { %>
+                      <span class="text-slate-400 font-normal">-</span>
+                    <% } %>
+                  </td>
                 </tr>
               <% }) %>
             <% }) %>
@@ -42,3 +67,5 @@
       </div>
     <% } %>
   </div>
+
+</div>

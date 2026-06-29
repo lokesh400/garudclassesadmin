@@ -1,231 +1,400 @@
-<h2 class="text-2xl font-semibold mb-4">Add Staff</h2>
+<div class="w-full px-6 py-8 space-y-6">
 
-<form action="/admin/staff/add" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-xl shadow border border-slate-200 space-y-6">
-  <div class="grid md:grid-cols-3 gap-4">
-    <input name="name" placeholder="Full Name" class="border p-2.5 rounded" />
-    <input name="employeeId" placeholder="Employee ID" class="border p-2.5 rounded" />
-    <input name="fatherName" placeholder="Father Name" class="border p-2.5 rounded" />
-    <input name="motherName" placeholder="Mother Name" class="border p-2.5 rounded" />
-    <input name="designation" placeholder="Designation" class="border p-2.5 rounded" />
-    <input name="department" placeholder="Department" class="border p-2.5 rounded" />
-    <input type="date" name="joiningDate" class="border p-2.5 rounded" />
-    <input name="salary" placeholder="Salary" class="border p-2.5 rounded" />
-    <input name="mobileNumber" placeholder="Mobile Number" class="border p-2.5 rounded" />
-    <input name="phone" placeholder="Alternate Phone" class="border p-2.5 rounded" />
-    <input name="email" placeholder="Email Address" class="border p-2.5 rounded" />
-    <input name="aadhaarNumber" placeholder="Aadhaar Number" class="border p-2.5 rounded" />
-    <input name="panNumber" placeholder="PAN Number" class="border p-2.5 rounded" />
-    <select name="status" class="border p-2.5 rounded">
-      <option value="Active">Active</option>
-      <option value="Inactive">Inactive</option>
-    </select>
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
+
+  <!-- Top Dashboard Banner -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-white border border-slate-100 p-6 rounded-3xl shadow-sm">
+    <div>
+      <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-1">
+        <a href="/admin/staff" class="hover:text-indigo-650 transition">Staff Directory</a>
+        <span>&bull;</span>
+        <span class="text-slate-805 font-bold">New Staff Record</span>
+      </div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+        <span>👤 Add New Staff Member</span>
+      </h1>
+      <p class="text-slate-500 text-sm mt-1">Register employee details, assign users, bank details, and upload documents.</p>
+    </div>
+
+    <a href="/admin/staff" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs transition">
+      <i class="fas fa-chevron-left text-[10px]"></i> Back
+    </a>
   </div>
 
-  <div>
-    <label class="block mb-1 text-sm font-semibold text-slate-700">Link Existing Users (Optional)</label>
-    <button
-      type="button"
-      id="openUserPickerBtn"
-      class="px-4 py-2 rounded-lg border border-slate-300 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-    >
-      Select Assigned Usernames
-    </button>
-
-    <select id="linkedUsersSelect" name="linkedUsers" multiple class="hidden">
-      <% (eligibleUsers || []).forEach((user) => { %>
-        <option value="<%= user._id %>"><%= user.name %> (<%= user.username %>) - <%= user.role %></option>
-      <% }) %>
-    </select>
-
-    <div id="selectedUsernames" class="mt-3 flex flex-wrap gap-2"></div>
-    <p class="text-xs text-slate-500 mt-1">Selection is optional. You can select multiple usernames.</p>
-
-    <script id="eligibleUsersJson" type="application/json"><%- JSON.stringify(eligibleUsers || []) %></script>
-
-    <div id="userPickerModal" class="hidden fixed inset-0 z-50 bg-black/40 p-4">
-      <div class="bg-white max-w-2xl mx-auto rounded-xl shadow-xl border border-slate-200 p-4 md:p-5 mt-10">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-lg font-semibold">Select Assigned Usernames</h3>
-          <button type="button" id="closeUserPickerBtn" class="text-slate-500 hover:text-slate-800">Close</button>
+  <form action="/admin/staff/add" method="POST" enctype="multipart/form-data" class="bg-white border border-slate-100 rounded-3xl p-6 md:p-8 shadow-sm space-y-8">
+    
+    <!-- Personal & Work Details -->
+    <div class="space-y-4">
+      <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100">
+        <i class="fas fa-id-card"></i> Personal & Work Profile
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name <span class="text-red-500">*</span></label>
+          <input name="name" placeholder="Full Name" required
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
         </div>
-
-        <input
-          id="userPickerSearchInput"
-          type="text"
-          placeholder="Search by name, username, or role"
-          class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm mb-3"
-        />
-
-        <div id="userPickerList" class="max-h-[420px] overflow-y-auto border border-slate-200 rounded-lg divide-y"></div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Employee ID</label>
+          <input name="employeeId" placeholder="e.g. EMP-101" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Father's Name</label>
+          <input name="fatherName" placeholder="Father Name" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Mother's Name</label>
+          <input name="motherName" placeholder="Mother Name" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Designation</label>
+          <input name="designation" placeholder="e.g. Senior Faculty" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Department</label>
+          <input name="department" placeholder="e.g. Academics" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Joining Date</label>
+          <input type="date" name="joiningDate" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Salary</label>
+          <input name="salary" placeholder="Salary" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Mobile Number <span class="text-red-500">*</span></label>
+          <input name="mobileNumber" placeholder="Mobile Number" required
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Alternate Phone</label>
+          <input name="phone" placeholder="Alternate Phone" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address</label>
+          <input type="email" name="email" placeholder="Email Address" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Aadhaar Number</label>
+          <input name="aadhaarNumber" placeholder="Aadhaar Number" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">PAN Number</label>
+          <input name="panNumber" placeholder="PAN Number" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</label>
+          <select name="status" class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none bg-white font-semibold text-slate-700 transition">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
       </div>
     </div>
-  </div>
 
-  <textarea name="address" placeholder="Address" class="w-full border p-2.5 rounded h-24"></textarea>
+    <!-- Link Existing Portal Users -->
+    <div class="space-y-4">
+      <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100">
+        <i class="fas fa-link"></i> Linked ERP User Credentials
+      </h3>
+      
+      <div class="bg-slate-50 border border-slate-200/60 rounded-3xl p-5 md:p-6 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-bold text-slate-800">Assign Portal Credentials</p>
+            <p class="text-[10px] text-slate-500 font-medium">Link this employee to one or more login accounts to enable their role activities</p>
+          </div>
+          <button type="button" id="openUserPickerBtn" 
+                  class="bg-white hover:bg-slate-105 border border-slate-200 text-indigo-705 font-bold text-xs px-4 py-2 rounded-xl transition shadow-sm">
+            <i class="fas fa-search-plus mr-1"></i> Select ERP Usernames
+          </button>
+        </div>
 
-  <h3 class="text-lg font-semibold text-slate-800">Bank Details (Optional)</h3>
-  <div class="grid md:grid-cols-4 gap-4">
-    <input name="bankName" placeholder="Bank Name" class="border p-2.5 rounded" />
-    <input name="accountHolderName" placeholder="Account Holder Name" class="border p-2.5 rounded" />
-    <input id="accountNumber" name="accountNumber" placeholder="Account Number" class="border p-2.5 rounded" />
-    <input id="confirmAccountNumber" name="confirmAccountNumber" placeholder="Confirm Account Number" class="border p-2.5 rounded" />
-    <input name="ifscCode" placeholder="IFSC Code" class="border p-2.5 rounded" />
-  </div>
+        <select id="linkedUsersSelect" name="linkedUsers" multiple class="hidden">
+          <% (eligibleUsers || []).forEach((user) => { %>
+            <option value="<%= user._id %>"><%= user.name %> (<%= user.username %>) - <%= user.role %></option>
+          <% }) %>
+        </select>
 
-  <h3 class="text-lg font-semibold text-slate-800">Documents (All Optional)</h3>
-  <div class="grid md:grid-cols-3 gap-4 text-sm">
-    <div><label class="block mb-1">Photo</label><input type="file" name="photo" /></div>
-    <div><label class="block mb-1">Resume</label><input type="file" name="resume" /></div>
-    <div><label class="block mb-1">Aadhaar File</label><input type="file" name="aadhaar" /></div>
-    <div><label class="block mb-1">PAN File</label><input type="file" name="pan" /></div>
-    <div><label class="block mb-1">Bank Account Photo</label><input type="file" name="bankAccountPhoto" /></div>
-    <div><label class="block mb-1">Offer Letter</label><input type="file" name="offerLetter" /></div>
-    <div><label class="block mb-1">Experience Letter</label><input type="file" name="experienceLetter" /></div>
-    <div><label class="block mb-1">Other Document</label><input type="file" name="otherDocument" /></div>
-  </div>
+        <div id="selectedUsernames" class="flex flex-wrap gap-2 pt-2"></div>
+      </div>
 
-  <button class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
-    Save Staff
-  </button>
-</form>
+      <script id="eligibleUsersJson" type="application/json"><%- JSON.stringify(eligibleUsers || []) %></script>
 
-<script>
-  const accountInput = document.getElementById("accountNumber");
-  const confirmInput = document.getElementById("confirmAccountNumber");
-
-  const openUserPickerBtn = document.getElementById("openUserPickerBtn");
-  const closeUserPickerBtn = document.getElementById("closeUserPickerBtn");
-  const userPickerModal = document.getElementById("userPickerModal");
-  const userPickerSearchInput = document.getElementById("userPickerSearchInput");
-  const userPickerList = document.getElementById("userPickerList");
-  const selectedUsernames = document.getElementById("selectedUsernames");
-  const linkedUsersSelect = document.getElementById("linkedUsersSelect");
-  const eligibleUsers = JSON.parse(document.getElementById("eligibleUsersJson")?.textContent || "[]");
-
-  const selectedUserSet = new Set(
-    Array.from(linkedUsersSelect?.options || [])
-      .filter((option) => option.selected)
-      .map((option) => String(option.value))
-  );
-
-  const usersMap = new Map(eligibleUsers.map((user) => [String(user._id), user]));
-
-  const syncSelectValues = () => {
-    if (!linkedUsersSelect) return;
-    Array.from(linkedUsersSelect.options).forEach((option) => {
-      option.selected = selectedUserSet.has(String(option.value));
-    });
-  };
-
-  const renderSelectedUsers = () => {
-    if (!selectedUsernames) return;
-    const selectedItems = Array.from(selectedUserSet)
-      .map((id) => usersMap.get(id))
-      .filter(Boolean);
-
-    if (!selectedItems.length) {
-      selectedUsernames.innerHTML = '<span class="text-sm text-slate-400">No usernames selected</span>';
-      return;
-    }
-
-    selectedUsernames.innerHTML = selectedItems
-      .map(
-        (user) =>
-          `<span class="inline-flex items-center gap-2 rounded-full bg-teal-50 text-teal-800 border border-teal-200 px-3 py-1 text-xs font-semibold">${user.username}<button type="button" data-remove-user="${user._id}" class="text-teal-700 hover:text-teal-900">x</button></span>`
-      )
-      .join("");
-  };
-
-  const renderUserPickerList = () => {
-    if (!userPickerList) return;
-    const query = (userPickerSearchInput?.value || "").trim().toLowerCase();
-
-    const filtered = eligibleUsers.filter((user) => {
-      const haystack = `${user.name || ""} ${user.username || ""} ${user.role || ""}`.toLowerCase();
-      return haystack.includes(query);
-    });
-
-    if (!filtered.length) {
-      userPickerList.innerHTML = '<p class="p-3 text-sm text-slate-500">No users found.</p>';
-      return;
-    }
-
-    userPickerList.innerHTML = filtered
-      .map((user) => {
-        const isSelected = selectedUserSet.has(String(user._id));
-        return `
-          <div class="p-3 flex items-center justify-between gap-3">
-            <div>
-              <p class="font-semibold text-sm text-slate-800">${user.name || "-"} (${user.username || "-"})</p>
-              <p class="text-xs text-slate-500">Role: ${user.role || "-"}</p>
-            </div>
-            <button
-              type="button"
-              data-toggle-user="${user._id}"
-              class="px-3 py-1.5 rounded text-xs font-semibold ${isSelected ? "bg-emerald-100 text-emerald-700 border border-emerald-200" : "bg-blue-600 text-white"}"
-            >
-              ${isSelected ? "Added" : "Add Username"}
+      <!-- Picker Modal -->
+      <div id="userPickerModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm p-4 flex items-center justify-center">
+        <div class="bg-white w-full max-w-xl rounded-3xl shadow-xl border border-slate-150 p-6 space-y-4 transform scale-95 transition-all">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-bold text-slate-850">Select Assigned Usernames</h3>
+            <button type="button" id="closeUserPickerBtn" class="text-slate-400 hover:text-slate-700 outline-none">
+              <i class="fas fa-times text-lg"></i>
             </button>
           </div>
-        `;
-      })
-      .join("");
-  };
 
-  userPickerList?.addEventListener("click", (event) => {
-    const toggleButton = event.target.closest("[data-toggle-user]");
-    if (!toggleButton) return;
+          <div class="relative">
+            <span class="absolute left-3.5 top-3 text-slate-400 text-xs">
+              <i class="fas fa-search"></i>
+            </span>
+            <input id="userPickerSearchInput" type="text" placeholder="Search by name, username, or role..." 
+                   class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs outline-none font-semibold text-slate-750 transition" />
+          </div>
 
-    const userId = String(toggleButton.getAttribute("data-toggle-user"));
-    if (!userId) return;
+          <div id="userPickerList" class="max-h-[300px] overflow-y-auto border border-slate-150 rounded-2xl divide-y divide-slate-100"></div>
+        </div>
+      </div>
+    </div>
 
-    if (selectedUserSet.has(userId)) {
+    <!-- Address -->
+    <div class="space-y-3">
+      <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Residential Address</label>
+      <textarea name="address" placeholder="Write full address details here..." 
+                class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl p-4 text-xs outline-none font-semibold text-slate-750 h-24 resize-none transition"></textarea>
+    </div>
+
+    <!-- Bank Details -->
+    <div class="space-y-4">
+      <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100">
+        <i class="fas fa-university"></i> Bank Account Information
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Bank Name</label>
+          <input name="bankName" placeholder="Bank Name" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Account Holder Name</label>
+          <input name="accountHolderName" placeholder="Holder Name" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Account Number</label>
+          <input id="accountNumber" name="accountNumber" placeholder="Account Number" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Confirm Account Number</label>
+          <input id="confirmAccountNumber" name="confirmAccountNumber" placeholder="Confirm Account Number" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">IFSC Code</label>
+          <input name="ifscCode" placeholder="IFSC Code" 
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="space-y-4">
+      <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100">
+        <i class="fas fa-folder-open"></i> Verification Documents
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Passport Photo</label>
+          <input type="file" name="photo" class="text-xs text-slate-500" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Resume PDF</label>
+          <input type="file" name="resume" class="text-xs text-slate-500" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Aadhaar Card Copy</label>
+          <input type="file" name="aadhaar" class="text-xs text-slate-500" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">PAN Card Copy</label>
+          <input type="file" name="pan" class="text-xs text-slate-500" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Bank Account Passbook/Cheque</label>
+          <input type="file" name="bankAccountPhoto" class="text-xs text-slate-500" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Offer Letter</label>
+          <input type="file" name="offerLetter" class="text-xs text-slate-500" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Experience Letter</label>
+          <input type="file" name="experienceLetter" class="text-xs text-slate-500" />
+        </div>
+        <div>
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Other Document</label>
+          <input type="file" name="otherDocument" class="text-xs text-slate-500" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
+      <a href="/admin/staff" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm px-6 py-2.5 rounded-xl transition">
+        Cancel
+      </a>
+      <button type="submit" class="bg-indigo-650 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition shadow-md">
+        Save Staff Member
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  (function() {
+    const accountInput = document.getElementById("accountNumber");
+    const confirmInput = document.getElementById("confirmAccountNumber");
+
+    const openUserPickerBtn = document.getElementById("openUserPickerBtn");
+    const closeUserPickerBtn = document.getElementById("closeUserPickerBtn");
+    const userPickerModal = document.getElementById("userPickerModal");
+    const userPickerSearchInput = document.getElementById("userPickerSearchInput");
+    const userPickerList = document.getElementById("userPickerList");
+    const selectedUsernames = document.getElementById("selectedUsernames");
+    const linkedUsersSelect = document.getElementById("linkedUsersSelect");
+    const eligibleUsers = JSON.parse(document.getElementById("eligibleUsersJson")?.textContent || "[]");
+
+    const selectedUserSet = new Set(
+      Array.from(linkedUsersSelect?.options || [])
+        .filter((option) => option.selected)
+        .map((option) => String(option.value))
+    );
+
+    const usersMap = new Map(eligibleUsers.map((user) => [String(user._id), user]));
+
+    const syncSelectValues = () => {
+      if (!linkedUsersSelect) return;
+      Array.from(linkedUsersSelect.options).forEach((option) => {
+        option.selected = selectedUserSet.has(String(option.value));
+      });
+    };
+
+    const renderSelectedUsers = () => {
+      if (!selectedUsernames) return;
+      const selectedItems = Array.from(selectedUserSet)
+        .map((id) => usersMap.get(id))
+        .filter(Boolean);
+
+      if (!selectedItems.length) {
+        selectedUsernames.innerHTML = '<span class="text-xs text-slate-400 font-bold italic">No portal users assigned</span>';
+        return;
+      }
+
+      selectedUsernames.innerHTML = selectedItems
+        .map(
+          (user) =>
+            `<span class="inline-flex items-center gap-1.5 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 px-3 py-1 text-xs font-bold">${user.username}<button type="button" data-remove-user="${user._id}" class="text-teal-700 hover:text-teal-900 outline-none"><i class="fas fa-times text-[10px]"></i></button></span>`
+        )
+        .join("");
+    };
+
+    const renderUserPickerList = () => {
+      if (!userPickerList) return;
+      const query = (userPickerSearchInput?.value || "").trim().toLowerCase();
+
+      const filtered = eligibleUsers.filter((user) => {
+        const haystack = `${user.name || ""} ${user.username || ""} ${user.role || ""}`.toLowerCase();
+        return haystack.includes(query);
+      });
+
+      if (!filtered.length) {
+        userPickerList.innerHTML = '<p class="p-4 text-xs font-bold text-slate-500 italic text-center">No matching portal users found</p>';
+        return;
+      }
+
+      userPickerList.innerHTML = filtered
+        .map((user) => {
+          const isSelected = selectedUserSet.has(String(user._id));
+          return `
+            <div class="p-3.5 flex items-center justify-between gap-3 bg-white hover:bg-slate-50/50">
+              <div>
+                <p class="font-bold text-xs text-slate-800">${user.name || "-"} (${user.username || "-"})</p>
+                <p class="text-[10px] font-bold text-indigo-600 mt-0.5 uppercase tracking-wider">${user.role || "-"}</p>
+              </div>
+              <button
+                type="button"
+                data-toggle-user="${user._id}"
+                class="px-3 py-1.5 rounded-xl text-[10px] font-bold border transition ${isSelected ? "bg-emerald-50 text-emerald-700 border-emerald-150" : "bg-indigo-600 hover:bg-indigo-700 text-white border-transparent"}"
+              >
+                ${isSelected ? "Assigned" : "Assign User"}
+              </button>
+            </div>
+          `;
+        })
+        .join("");
+    };
+
+    userPickerList?.addEventListener("click", (event) => {
+      const toggleButton = event.target.closest("[data-toggle-user]");
+      if (!toggleButton) return;
+
+      const userId = String(toggleButton.getAttribute("data-toggle-user"));
+      if (!userId) return;
+
+      if (selectedUserSet.has(userId)) {
+        selectedUserSet.delete(userId);
+      } else {
+        selectedUserSet.add(userId);
+      }
+
+      syncSelectValues();
+      renderSelectedUsers();
+      renderUserPickerList();
+    });
+
+    selectedUsernames?.addEventListener("click", (event) => {
+      const removeBtn = event.target.closest("[data-remove-user]");
+      if (!removeBtn) return;
+      const userId = String(removeBtn.getAttribute("data-remove-user"));
       selectedUserSet.delete(userId);
-    } else {
-      selectedUserSet.add(userId);
-    }
+      syncSelectValues();
+      renderSelectedUsers();
+      renderUserPickerList();
+    });
+
+    openUserPickerBtn?.addEventListener("click", () => {
+      userPickerModal?.classList.remove("hidden");
+      renderUserPickerList();
+      userPickerSearchInput?.focus();
+    });
+
+    closeUserPickerBtn?.addEventListener("click", () => userPickerModal?.classList.add("hidden"));
+    userPickerModal?.addEventListener("click", (event) => {
+      if (event.target === userPickerModal) {
+        userPickerModal.classList.add("hidden");
+      }
+    });
+    userPickerSearchInput?.addEventListener("input", renderUserPickerList);
+
+    const syncAccountRequired = () => {
+      const hasAccount = Boolean(accountInput?.value?.trim());
+      const hasConfirm = Boolean(confirmInput?.value?.trim());
+
+      if (accountInput) accountInput.required = hasConfirm;
+      if (confirmInput) confirmInput.required = hasAccount;
+    };
+
+    accountInput?.addEventListener("input", syncAccountRequired);
+    confirmInput?.addEventListener("input", syncAccountRequired);
+    syncAccountRequired();
 
     syncSelectValues();
     renderSelectedUsers();
-    renderUserPickerList();
-  });
-
-  selectedUsernames?.addEventListener("click", (event) => {
-    const removeBtn = event.target.closest("[data-remove-user]");
-    if (!removeBtn) return;
-    const userId = String(removeBtn.getAttribute("data-remove-user"));
-    selectedUserSet.delete(userId);
-    syncSelectValues();
-    renderSelectedUsers();
-    renderUserPickerList();
-  });
-
-  openUserPickerBtn?.addEventListener("click", () => {
-    userPickerModal?.classList.remove("hidden");
-    renderUserPickerList();
-    userPickerSearchInput?.focus();
-  });
-
-  closeUserPickerBtn?.addEventListener("click", () => userPickerModal?.classList.add("hidden"));
-  userPickerModal?.addEventListener("click", (event) => {
-    if (event.target === userPickerModal) {
-      userPickerModal.classList.add("hidden");
-    }
-  });
-  userPickerSearchInput?.addEventListener("input", renderUserPickerList);
-
-  const syncAccountRequired = () => {
-    const hasAccount = Boolean(accountInput?.value?.trim());
-    const hasConfirm = Boolean(confirmInput?.value?.trim());
-
-    if (accountInput) accountInput.required = hasConfirm;
-    if (confirmInput) confirmInput.required = hasAccount;
-  };
-
-  accountInput?.addEventListener("input", syncAccountRequired);
-  confirmInput?.addEventListener("input", syncAccountRequired);
-  syncAccountRequired();
-
-  syncSelectValues();
-  renderSelectedUsers();
+  })();
 </script>
+

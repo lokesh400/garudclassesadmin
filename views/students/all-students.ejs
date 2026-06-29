@@ -1,171 +1,219 @@
-<!-- Container for the User Table -->
-<div class="bg-white p-6 rounded-lg shadow">
-  <div class="flex justify-between items-center mb-4">
-    <h1 class="text-2xl font-bold text-gray-800">User Management</h1>
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="Search by name, username, or roll number..."
-      class="border border-gray-300 rounded-lg px-4 py-2 w-72 focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
+<div class="w-full px-6 py-8">
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
+
+  <!-- Simplified Page Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-slate-200 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+        <span>👥 Student Management Directory</span>
+      </h1>
+    </div>
+
+    <!-- Visible Search Bar -->
+    <div class="relative w-full md:w-80">
+      <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
+        <i class="fas fa-search"></i>
+      </span>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search students, roll no..."
+        class="w-full pl-10 pr-4 py-2.5 border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200 font-semibold"
+      />
+    </div>
   </div>
 
-  <div class="overflow-x-auto">
-    <table class="min-w-full border border-gray-200" id="usersTable">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="py-2 px-4 border text-left">S.No</th>
-          <th class="py-2 px-4 border text-left">Photo</th>
-          <th class="py-2 px-4 border text-left">Name</th>
-          <th class="py-2 px-4 border text-left">Username</th>
-          <th class="py-2 px-4 border text-left">Email</th>
-          <th class="py-2 px-4 border text-left">Phone</th>
-          <th class="py-2 px-4 border text-left">Father's Name</th>
-          <th class="py-2 px-4 border text-left">Roll No</th>
-          <th class="py-2 px-4 border text-left">Batch</th>
-          <th class="py-2 px-4 border text-left">Role</th>
-          <th class="py-2 px-4 border text-center">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="userTableBody">
-        <% { var i = 1 %>
-        <% users.forEach(u => { %>
-          <tr class=" transition <%= u.isActive === false ? 'bg-blue-200' : 'hover:bg-gray-50' %>">
-            <td class="py-2 px-4 border"><%= i++ %></td>
-            <td class="py-2 px-4 border"><img src="<%= u.image %>" style="height: 50px; width: 50px;" ></td>
-            <td class="py-2 px-4 border"><%= u.name %></td>
-            <td class="py-2 px-4 border text-blue-600"><%= u.username %></td>
-            <td class="py-2 px-4 border text-blue-600"><%= u.email %></td>
-            <td class="py-2 px-4 border"><%= u.number || '-' %></td>
-            <td class="py-2 px-4 border"><%= u.fatherName || '-' %></td>
-            <td class="py-2 px-4 border font-mono"><%= u.rollNumber || '-' %></td>
-            <td class="py-2 px-4 border">
-              <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                <%= u.batch ? u.batch.name : 'No Batch' %>
-              </span>
-            </td>
-            <td class="py-2 px-4 border capitalize">
-                <span class="<%= u.role === 'admin' ? 'text-red-600 font-bold' : 'text-gray-700' %>">
-                    <%= u.role %>
-                </span>
-            </td>
-            <td class="py-2 px-4 border text-center">
-              <button
-                class="bg-yellow-400 text-white px-3 py-1 rounded shadow hover:bg-yellow-500 transition"
-                onclick="openEditModal(
-                  '<%= u._id %>', 
-                  '<%= u.name %>', 
-                  '<%= u.username %>', 
-                  '<%= u.email || '' %>', 
-                  '<%= u.number || '' %>', 
-                  '<%= u.fatherName || '' %>', 
-                  '<%= u.motherName || '' %>', 
-                  '<%= u.rollNumber || '' %>', 
-                  '<%= u.address || '' %>', 
-                  '<%= u.role %>', 
-                  <%= u.editAllowed || false %>,
-                  <%= u.isActive %>
-                )"
-              >
-                Edit
-              </button>
-              <a 
-                href="/api/students/documents/<%= u._id %>"
-                class="bg-blue-600 text-white px-3 py-1 rounded shadow hover:bg-blue-700 transition ml-2 inline-block text-xs font-semibold"
-              >
-                Docs
-              </a>
-            </td>
+  <!-- Students Data Table Card -->
+  <div class="bg-white border border-slate-100 rounded-3xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-slate-650" id="usersTable">
+        <thead class="bg-slate-50 border-b border-slate-100 font-bold uppercase tracking-wider text-xs text-slate-700">
+          <tr>
+            <th class="py-4 px-6 text-center">#</th>
+            <th class="py-4 px-6">Profile</th>
+            <th class="py-4 px-6">Name / Roll No</th>
+            <th class="py-4 px-6">Username / Email</th>
+            <th class="py-4 px-6">Contact / Father</th>
+            <th class="py-4 px-6">Assigned Batch</th>
+            <th class="py-4 px-6 text-center">Status</th>
+            <th class="py-4 px-6 text-center">Actions</th>
           </tr>
-        <% }) %>
-        <% } %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody id="userTableBody" class="divide-y divide-slate-150">
+          <% { var i = 1 %>
+          <% users.forEach(u => { %>
+            <tr class="hover:bg-slate-50/50 transition <%= u.isActive === false ? 'bg-rose-50/15' : '' %>">
+              <td class="py-3.5 px-6 font-bold text-slate-500 text-center"><%= i++ %></td>
+              <td class="py-3.5 px-6">
+                <img src="<%= u.image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name) + '&background=random' %>" 
+                     class="w-10 h-10 rounded-full border border-slate-100 shadow-sm object-cover hover:scale-105 transition duration-200" 
+                     alt="<%= u.name %>">
+              </td>
+              <td class="py-3.5 px-6">
+                <p class="font-bold text-slate-850"><%= u.name %></p>
+                <p class="text-xs text-slate-500 font-mono font-bold mt-0.5"><%= u.rollNumber || 'No Roll Number' %></p>
+              </td>
+              <td class="py-3.5 px-6">
+                <p class="font-bold text-indigo-650 hover:underline cursor-pointer"><%= u.username %></p>
+                <p class="text-xs text-slate-500 font-semibold mt-0.5"><%= u.email || 'No email registered' %></p>
+              </td>
+              <td class="py-3.5 px-6">
+                <p class="font-bold text-slate-700"><%= u.number || '-' %></p>
+                <p class="text-xs text-slate-500 font-semibold mt-0.5">S/o: <%= u.fatherName || '-' %></p>
+              </td>
+              <td class="py-3.5 px-6">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-150">
+                  <%= u.batch ? u.batch.name : 'Unassigned' %>
+                </span>
+              </td>
+              <td class="py-3.5 px-6 text-center">
+                <% if (u.isActive === false) { %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-150">
+                    Inactive
+                  </span>
+                <% } else { %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-150">
+                    Active
+                  </span>
+                <% } %>
+              </td>
+              <td class="py-3.5 px-6">
+                <div class="flex items-center justify-center gap-2">
+                  <button
+                    class="inline-flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-xs px-3 py-1.5 rounded-xl transition outline-none"
+                    onclick="openEditModal(
+                      '<%= u._id %>', 
+                      '<%= u.name %>', 
+                      '<%= u.username %>', 
+                      '<%= u.email || '' %>', 
+                      '<%= u.number || '' %>', 
+                      '<%= u.fatherName || '' %>', 
+                      '<%= u.motherName || '' %>', 
+                      '<%= u.rollNumber || '' %>', 
+                      '<%= u.address || '' %>', 
+                      '<%= u.role %>', 
+                      <%= u.editAllowed || false %>,
+                      <%= u.isActive ?? true %>
+                    )"
+                  >
+                    <i class="fas fa-edit text-[10px]"></i> Edit
+                  </button>
+                  <a 
+                    href="/api/students/documents/<%= u._id %>"
+                    class="inline-flex items-center gap-1.5 bg-indigo-55 text-indigo-700 hover:bg-indigo-100 font-bold text-xs px-3 py-1.5 rounded-xl transition"
+                  >
+                    <i class="fas fa-file-alt text-[10px]"></i> Docs
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
 <!-- ✏️ Edit User Modal -->
-<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-  <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8 overflow-y-auto max-h-[90vh]">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Edit User Details</h2>
-        <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+<div id="editModal" class="hidden fixed inset-0 bg-slate-950/40 items-center justify-center z-50 p-4 transition-all duration-300">
+  <div class="bg-white rounded-3xl shadow-xl w-full max-w-2xl p-6 relative border border-slate-100 overflow-y-auto max-h-[90vh]">
+    <button onclick="closeEditModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-650 transition">
+      <i class="fas fa-times text-lg"></i>
+    </button>
+
+    <div class="text-center mb-6">
+      <span class="inline-flex p-3 bg-amber-50 text-amber-600 rounded-2xl mb-2">
+        <i class="fas fa-user-edit text-xl"></i>
+      </span>
+      <h2 class="text-xl font-extrabold text-slate-850">Edit User Details</h2>
+      <p class="text-slate-400 text-xs mt-1">Modify credentials, contact directories, and portal permissions</p>
     </div>
 
-    <form id="editUserForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <form id="editUserForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Hidden ID Field -->
       <input type="hidden" id="editUserId" name="id" />
 
       <div>
-        <label class="block text-sm font-semibold text-gray-600 mb-1">Full Name *</label>
-        <input type="text" id="editName" name="name" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" required />
+        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Full Name *</label>
+        <input type="text" id="editName" name="name" 
+               class="w-full px-4 py-2.5 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200" required />
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-gray-600 mb-1">Username *</label>
-        <input type="text" id="editUsername" name="username" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" required readonly />
+        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Username *</label>
+        <input type="text" id="editUsername" name="username" 
+               class="w-full px-4 py-2.5 border border-slate-200 bg-slate-50 text-slate-400 rounded-2xl text-sm outline-none" required readonly />
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-gray-600 mb-1">Email Address</label>
-        <input type="email" id="editEmail" name="email" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" />
+        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Email Address</label>
+        <input type="email" id="editEmail" name="email" 
+               class="w-full px-4 py-2.5 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200" />
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-gray-600 mb-1">Phone Number</label>
-        <input type="number" id="editNumber" name="number" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" />
+        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Phone Number</label>
+        <input type="number" id="editNumber" name="number" 
+               class="w-full px-4 py-2.5 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200" />
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-gray-600 mb-1">Father's Name</label>
-        <input type="text" id="editFatherName" name="fatherName" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" />
+        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Father's Name</label>
+        <input type="text" id="editFatherName" name="fatherName" 
+               class="w-full px-4 py-2.5 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200" />
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-gray-600 mb-1">Mother's Name</label>
-        <input type="text" id="editMotherName" name="motherName" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" />
+        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Mother's Name</label>
+        <input type="text" id="editMotherName" name="motherName" 
+               class="w-full px-4 py-2.5 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200" />
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-gray-600 mb-1">Roll Number</label>
-        <input type="text" id="editRollNumber" name="rollNumber" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" readonly />
+        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Roll Number</label>
+        <input type="text" id="editRollNumber" name="rollNumber" 
+               class="w-full px-4 py-2.5 border border-slate-200 bg-slate-50 text-slate-400 font-mono rounded-2xl text-sm outline-none" readonly />
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-gray-600 mb-1">Role</label>
-        <select id="editRole" name="role" class="border border-gray-300 p-2.5 rounded-lg w-full bg-white focus:ring-2 focus:ring-blue-400 outline-none" readonly>
+        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Role</label>
+        <select id="editRole" name="role" 
+                class="w-full px-4 py-2.5 border border-slate-200 bg-slate-50 text-slate-400 rounded-2xl text-sm outline-none" readonly>
           <option value="student">Student</option>
         </select>
       </div>
 
       <div class="md:col-span-2">
-        <label class="block text-sm font-semibold text-gray-600 mb-1">Home Address</label>
-        <textarea id="editAddress" name="address" class="border border-gray-300 p-2.5 rounded-lg w-full focus:ring-2 focus:ring-blue-400 outline-none" rows="2"></textarea>
+        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Home Address</label>
+        <textarea id="editAddress" name="address" 
+                  class="w-full px-4 py-2.5 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200" rows="2"></textarea>
       </div>
 
-      <div class="md:col-span-2 flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
-        <input type="checkbox" id="editEditAllowed" name="editAllowed" class="w-5 h-5 accent-blue-600" />
-        <label for="editEditAllowed" class="text-sm font-medium text-gray-700">Allow user to edit their own profile details</label>
+      <div class="md:col-span-2 flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200">
+        <input type="checkbox" id="editEditAllowed" name="editAllowed" class="w-5 h-5 rounded border-slate-200 text-indigo-650 focus:ring-indigo-500" />
+        <label for="editEditAllowed" class="text-sm font-semibold text-slate-700">Allow student to edit profile details</label>
       </div>
 
-      <div class="md:col-span-2 flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
-        <input type="checkbox" id="isActive" name="isActive" class="w-5 h-5 accent-blue-600" />
-        <label for="isActive" class="text-sm font-medium text-gray-700">Is this user currently active ?</label>
+      <div class="md:col-span-2 flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-200">
+        <input type="checkbox" id="isActive" name="isActive" class="w-5 h-5 rounded border-slate-200 text-indigo-650 focus:ring-indigo-500" />
+        <label for="isActive" class="text-sm font-semibold text-slate-700">Set student status to Active</label>
       </div>
 
-      <div class="md:col-span-2 flex justify-end gap-4 mt-6">
+      <div class="md:col-span-2 flex justify-end gap-3 mt-4">
         <button
           type="button"
           onclick="closeEditModal()"
-          class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2.5 rounded-lg font-semibold transition"
+          class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2.5 rounded-xl font-bold transition text-sm"
         >
           Cancel
         </button>
         <button
           type="submit"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-semibold shadow-md transition"
+          class="bg-indigo-650 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-sm transition text-sm"
         >
-          Update User
+          Save Changes
         </button>
       </div>
     </form>
@@ -189,7 +237,6 @@
    * ✏️ Open and Populate Modal 
    */
   function openEditModal(id, name, username, email, number, fatherName, motherName, rollNumber, address, role, editAllowed, isActive) {
-    // Mapping Schema to UI
     document.getElementById("editUserId").value = id;
     document.getElementById("editName").value = name;
     document.getElementById("editUsername").value = username;
@@ -201,11 +248,9 @@
     document.getElementById("editAddress").value = address;
     document.getElementById("editRole").value = role;
     
-    // Set checkbox state
     document.getElementById("editEditAllowed").checked = (editAllowed === true || editAllowed === 'true');
     document.getElementById("isActive").checked = (isActive === true || isActive === 'true');
 
-    // Show modal
     const modal = document.getElementById("editModal");
     modal.classList.remove("hidden");
     modal.classList.add("flex");
@@ -227,7 +272,6 @@
     e.preventDefault();
     const id = document.getElementById("editUserId").value;
     
-    // Prepare Data Object based on Mongoose Schema
     const data = {
       name: document.getElementById("editName").value,
       username: document.getElementById("editUsername").value,
@@ -244,7 +288,7 @@
 
     try {
       const res = await fetch(`/api/students/edit/${id}`, {
-        method: "POST", // Or "PUT" depending on your API route
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       });
@@ -252,15 +296,26 @@
       const result = await res.json();
       
       if (result.success) {
-        alert("User information updated successfully!");
+        if (typeof showToast === 'function') {
+          showToast("Student details updated successfully!", "success");
+        } else {
+          alert("Student details updated successfully!");
+        }
         closeEditModal();
-        location.reload(); // Refresh to see changes
+        setTimeout(() => location.reload(), 1000);
       } else {
-        alert("Update failed: " + (result.message || "Unknown error"));
+        if (typeof showToast === 'function') {
+          showToast(result.message || "Failed to update student details", "error");
+        } else {
+          alert("Update failed: " + (result.message || "Unknown error"));
+        }
       }
     } catch (err) {
-      console.error("Error updating user:", err);
-      alert("An error occurred while saving. Please check your connection.");
+      if (typeof showToast === 'function') {
+        showToast("Error saving updates", "error");
+      } else {
+        alert("An error occurred while saving.");
+      }
     }
   });
 </script>

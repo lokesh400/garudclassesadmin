@@ -1,54 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login to Edit Details | Garud ERP</title>
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Google Fonts (Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .mesh-gradient {
+      background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+                  #030712;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
+<body class="mesh-gradient min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
 
-<form method="POST" action="/edit/user/details"
- class="bg-white p-8 rounded-xl shadow w-96">
- 
-  <h2 class="text-2xl font-bold mb-6 text-center">Login To Edit</h2>
+  <!-- Background decorative glowing blobs -->
+  <div class="absolute w-[400px] h-[400px] bg-indigo-650/10 rounded-full blur-[120px] -top-20 -left-20"></div>
+  <div class="absolute w-[400px] h-[400px] bg-purple-650/10 rounded-full blur-[120px] -bottom-20 -right-20"></div>
 
-  <input name="username" placeholder="Username"
-   class="border w-full p-2 mb-3 rounded">
+  <!-- Login Card -->
+  <div class="w-full max-w-md backdrop-blur-xl bg-slate-900/65 border border-slate-800/80 rounded-3xl p-8 shadow-2xl relative z-10">
+    
+    <!-- Branding Header -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/20 mb-4">
+        <i class="fas fa-user-edit text-white text-3xl"></i>
+      </div>
+      <h2 class="text-3xl font-extrabold text-white tracking-tight">Login to Edit</h2>
+      <p class="text-slate-400 text-sm mt-1.5 font-medium">Verify credentials to update profile info</p>
+    </div>
 
-  <div class="mb-4">
-    <input id="password" type="password" name="password" placeholder="Password"
-     class="border w-full p-2 rounded">
-    <button type="button" id="togglePassword"
-      class="mt-2 text-sm text-blue-600 hover:text-blue-800">
-      Show Password
-    </button>
+    <!-- Form -->
+    <form method="POST" action="/edit/user/details" class="space-y-6">
+      
+      <!-- Username Field -->
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Username</label>
+        <div class="relative">
+          <span class="absolute left-4 top-3.5 text-slate-500">
+            <i class="fas fa-user"></i>
+          </span>
+          <input type="text" name="username" placeholder="Enter username" 
+                 class="w-full pl-11 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-2xl text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition duration-200 text-sm" 
+                 required>
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Password</label>
+        <div class="relative">
+          <span class="absolute left-4 top-3.5 text-slate-500">
+            <i class="fas fa-lock"></i>
+          </span>
+          <input type="password" id="password" name="password" placeholder="Enter password" 
+                 class="w-full pl-11 pr-12 py-3 bg-slate-950/40 border border-slate-800 rounded-2xl text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition duration-200 text-sm" 
+                 required>
+          <button type="button" id="togglePassword" 
+                  class="absolute right-4 top-3.5 text-slate-500 hover:text-slate-300 transition outline-none">
+            <i class="fas fa-eye-slash" id="toggleIcon"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="space-y-4 pt-2">
+        <button type="submit" 
+                class="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-650 to-teal-650 hover:from-emerald-555 hover:to-teal-555 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/35 hover:-translate-y-0.5 transition duration-200 text-sm">
+          Login
+        </button>
+
+        <a href="/user/reset-password" 
+           class="w-full inline-flex items-center justify-center py-3.5 px-4 border border-slate-800 hover:border-slate-700 bg-slate-950/20 hover:bg-slate-950/40 text-slate-300 font-semibold rounded-2xl transition duration-200 text-sm">
+          <i class="fas fa-key mr-2 text-xs text-slate-400"></i> Reset Password
+        </a>
+      </div>
+
+    </form>
   </div>
 
-  <button class="bg-green-600 w-full text-white py-2 rounded hover:bg-red-700">
-    Login
-  </button>
+  <script>
+    const passwordInput = document.getElementById("password");
+    const togglePasswordBtn = document.getElementById("togglePassword");
+    const toggleIcon = document.getElementById("toggleIcon");
 
-  <br>
-  <br>
-
-  <a href="/user/reset-password" class="bg-red-600 w-full text-white p-2 rounded hover:bg-red-700">
-    Reset Password
-  </a>
-
-  <br>
-  </a>
-</form>
-<br>
-
-<script>
-  const passwordInput = document.getElementById("password");
-  const togglePasswordButton = document.getElementById("togglePassword");
-
-  if (passwordInput && togglePasswordButton) {
-    togglePasswordButton.addEventListener("click", () => {
-      const isHidden = passwordInput.type === "password";
-      passwordInput.type = isHidden ? "text" : "password";
-      togglePasswordButton.textContent = isHidden ? "Hide Password" : "Show Password";
-    });
-  }
-</script>
+    if (passwordInput && togglePasswordBtn && toggleIcon) {
+      togglePasswordBtn.addEventListener("click", () => {
+        const isHidden = passwordInput.type === "password";
+        passwordInput.type = isHidden ? "text" : "password";
+        toggleIcon.className = isHidden ? "fas fa-eye" : "fas fa-eye-slash";
+      });
+    }
+  </script>
 </body>
 </html>

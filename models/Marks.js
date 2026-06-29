@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { testMarksConnection } = require("../config/connections");
 
 const marksSchema = new mongoose.Schema({
   batch: { type: mongoose.Schema.Types.ObjectId, ref: "Batch", required: true },
@@ -19,5 +20,5 @@ const marksSchema = new mongoose.Schema({
   uploadedAt: { type: Date, default: Date.now },
 });
 
-const Marks = mongoose.model("Marks", marksSchema);
+const Marks = testMarksConnection.model("Marks", marksSchema);
 module.exports = Marks;

@@ -2,33 +2,91 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Search Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Results | Garud Classes</title>
+  <!-- Google Fonts & Font Awesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            slate: {
+              750: '#1e293b',
+              850: '#0f172a',
+            },
+            indigo: {
+              650: '#4f46e5',
+            }
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body class="bg-gray-100 p-6">
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-    <h2 class="text-2xl font-bold mb-4">Search Results</h2>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center min-h-screen p-4 overflow-hidden relative">
 
-    <% if (submissions.length === 0) { %>
-      <p class="text-gray-600">No submissions found.</p>
-    <% } else { %>
-      <ul class="space-y-4">
-        <% submissions.forEach(sub => { %>
-          <li class="border rounded p-4 flex justify-between items-center">
-            <div>
-              <p><strong>Name:</strong> <%= sub.data.Name %></p>
-              <p><strong>Mobile:</strong> <%= sub.mobileNumber %></p>
-              <p><strong>Form:</strong> <%= sub.form.title %></p>
-              <p><strong>Date:</strong> <%= sub.form.date %></p>
+  <!-- Graphic Decorative blobs -->
+  <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="relative w-full max-w-2xl">
+    <!-- Header Title -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-indigo-600/10 border border-indigo-500/30 text-indigo-400 mb-4 shadow-lg">
+        <i class="fas fa-search-location text-2xl"></i>
+      </div>
+      <h1 class="text-3xl font-extrabold text-white tracking-tight">Search Results</h1>
+      <p class="text-indigo-200/60 text-xs mt-1 uppercase tracking-widest font-bold">Matching Form Submissions</p>
+    </div>
+
+    <!-- Results Panel Card -->
+    <div class="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/15 p-6 md:p-8 shadow-2xl space-y-6">
+      
+      <% if (submissions.length === 0) { %>
+        <div class="text-center py-10 space-y-4">
+          <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-indigo-300/40 mx-auto border border-white/5">
+            <i class="fas fa-search text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">No submissions found</h3>
+            <p class="text-indigo-200/50 text-xs mt-1">We couldn't find any student registrations matching those search criteria.</p>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+          <% submissions.forEach(sub => { %>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-indigo-500/30 hover:bg-white/[0.08] transition duration-200">
+              <div class="space-y-1">
+                <h3 class="text-base font-bold text-white"><%= sub.data.Name %></h3>
+                <div class="text-xs text-indigo-200/60 font-semibold space-y-0.5">
+                  <p><i class="fas fa-phone text-[10px] mr-1.5 text-indigo-400"></i> <%= sub.mobileNumber %></p>
+                  <p><i class="fas fa-file-alt text-[10px] mr-1.5 text-indigo-400"></i> <%= sub.form.title %></p>
+                  <p><i class="fas fa-calendar-day text-[10px] mr-1.5 text-indigo-400"></i> <%= sub.form.date %></p>
+                </div>
+              </div>
+              <a href="/admitcard/<%= sub._id %>" 
+                 class="w-full md:w-auto inline-flex items-center justify-center gap-1.5 bg-indigo-650 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition">
+                <i class="fas fa-download"></i> Admit Card
+              </a>
             </div>
-            <a href="/admitcard/<%= sub._id %>" 
-               class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-              View/Download Admit Card
-            </a>
-          </li>
-        <% }) %>
-      </ul>
-    <% } %>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Back link -->
+    <div class="text-center mt-6">
+      <a href="/admitcard/search" class="text-indigo-300/60 hover:text-white transition text-xs font-semibold inline-flex items-center gap-1">
+        <i class="fas fa-chevron-left text-[9px]"></i> Back to Search
+      </a>
+    </div>
   </div>
+
 </body>
 </html>

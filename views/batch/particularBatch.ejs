@@ -1,221 +1,256 @@
-<div class="max-w-5xl mx-auto p-6 <%= batch.isActive ? '' : 'bg-rose-50 border border-rose-200 rounded-xl' %>">
+<div class="w-full p-6 space-y-6 <%= batch.isActive ? '' : 'bg-rose-50/20 border border-rose-150 rounded-2xl' %>">
 
   <%- include('../flash.ejs') %>
 
-  <!-- HEADER -->
-  <h1 class="text-3xl font-bold mb-2">
-    <%= batch.name %>
-  </h1>
-
-  <% if (!batch.isActive) { %>
-    <p class="mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold bg-rose-100 text-rose-700 border border-rose-200">
-      This batch is currently inactive
-    </p>
-  <% } %>
-
-  <!-- Stats -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-
-    <!-- Students -->
-    <div class="bg-blue-100 border-l-4 border-blue-600 p-4 rounded shadow">
-      <p class="text-lg font-medium text-blue-800">
-        Total Students
-      </p>
-      <p class="text-3xl font-bold text-blue-900">
-        <%= studentsCount %>
-      </p>
+  <!-- Breadcrumbs & Header -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-slate-100 gap-4">
+    <div>
+      <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-1">
+        <a href="/api/batches" class="hover:text-indigo-600 transition">Batches</a>
+        <span>&bull;</span>
+        <span class="text-slate-800 font-semibold"><%= batch.name %></span>
+      </div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+        <span>🎓 <%= batch.name %></span>
+      </h1>
+      <% if (!batch.isActive) { %>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-150 mt-2">
+          <i class="fas fa-exclamation-triangle text-[10px]"></i> Batch is currently Inactive
+        </span>
+      <% } else { %>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-150 mt-2">
+          <i class="fas fa-check-circle text-[10px]"></i> Batch is Active
+        </span>
+      <% } %>
     </div>
-
-    <!-- Tests -->
-    <div class="bg-purple-100 border-l-4 border-purple-600 p-4 rounded shadow">
-      <p class="text-lg font-medium text-purple-800">
-        Total Tests Taken
-      </p>
-      <p class="text-3xl font-bold text-purple-900">
-        <%= totalTests %>
-      </p>
+    
+    <div class="flex flex-wrap gap-2">
+      <a href="/api/batches" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs transition">
+        <i class="fas fa-chevron-left text-[10px]"></i> All Batches
+      </a>
+      <a href="/api/batches/data/download/<%= batch._id %>" class="inline-flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-150 px-4 py-2.5 rounded-xl font-bold text-xs transition">
+        <i class="fas fa-file-excel text-[11px]"></i> Download Excel
+      </a>
     </div>
-
-    <div class="bg-emerald-100 border-l-4 border-emerald-600 p-4 rounded shadow">
-      <p class="text-lg font-medium text-emerald-800">
-        Active Students
-      </p>
-      <p class="text-3xl font-bold text-emerald-900">
-        <%= activeStudentsCount %>
-      </p>
-    </div>
-
-    <div class="bg-rose-100 border-l-4 border-rose-600 p-4 rounded shadow">
-      <p class="text-lg font-medium text-rose-800">
-        Inactive Students
-      </p>
-      <p class="text-3xl font-bold text-rose-900">
-        <%= inactiveStudentsCount %>
-      </p>
-    </div>
-
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-    <div class="bg-white border border-slate-200 p-4 rounded shadow-sm">
-      <p class="font-semibold text-slate-800 mb-2">Batch Status</p>
-      <p class="text-sm text-slate-600 mb-3">
-        Current: <span class="font-semibold <%= batch.isActive ? 'text-emerald-700' : 'text-rose-700' %>"><%= batch.isActive ? 'Active' : 'Inactive' %></span>
-      </p>
-      <form action="/api/batches/<%= batch._id %>/set-active" method="POST" class="flex flex-wrap gap-2 items-center">
-        <select name="isActive" class="border border-slate-300 rounded px-3 py-2 text-sm">
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Students -->
+    <div class="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm flex items-center justify-between">
+      <div class="space-y-1">
+        <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Total Enrolled</p>
+        <p class="text-3xl font-extrabold text-slate-850"><%= studentsCount %></p>
+        <p class="text-[10px] text-slate-500 font-semibold">Registered students</p>
+      </div>
+      <div class="p-3.5 rounded-2xl bg-blue-50 text-blue-600">
+        <i class="fas fa-users text-xl"></i>
+      </div>
+    </div>
+
+    <!-- Active Students -->
+    <div class="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm flex items-center justify-between">
+      <div class="space-y-1">
+        <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Active Students</p>
+        <p class="text-3xl font-extrabold text-emerald-700"><%= activeStudentsCount %></p>
+        <p class="text-[10px] text-emerald-650 font-bold">In class session</p>
+      </div>
+      <div class="p-3.5 rounded-2xl bg-emerald-50 text-emerald-600">
+        <i class="fas fa-user-check text-xl"></i>
+      </div>
+    </div>
+
+    <!-- Inactive Students -->
+    <div class="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm flex items-center justify-between">
+      <div class="space-y-1">
+        <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Inactive Students</p>
+        <p class="text-3xl font-extrabold text-rose-700"><%= inactiveStudentsCount %></p>
+        <p class="text-[10px] text-rose-650 font-bold">Suspended accounts</p>
+      </div>
+      <div class="p-3.5 rounded-2xl bg-rose-50 text-rose-600">
+        <i class="fas fa-user-slash text-xl"></i>
+      </div>
+    </div>
+
+    <!-- Tests Taken -->
+    <a href="/marks/tests/<%= batch._id %>" class="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm flex items-center justify-between hover:shadow-md transition duration-200">
+      <div class="space-y-1">
+        <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Total Tests</p>
+        <p class="text-3xl font-extrabold text-indigo-700"><%= totalTests %></p>
+        <p class="text-[10px] text-indigo-650 font-bold hover:underline">View results catalog &rarr;</p>
+      </div>
+      <div class="p-3.5 rounded-2xl bg-indigo-50 text-indigo-600">
+        <i class="fas fa-file-invoice text-xl"></i>
+      </div>
+    </a>
+  </div>
+
+  <!-- Settings and controls -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+      <div>
+        <h3 class="font-bold text-slate-800 text-sm">Batch Status Settings</h3>
+        <p class="text-xs text-slate-500 mt-1">Enable or disable access permissions for the batch stream</p>
+      </div>
+      
+      <form action="/api/batches/<%= batch._id %>/set-active" method="POST" class="flex items-center gap-3">
+        <select name="isActive" class="border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-xs outline-none bg-white font-semibold text-slate-700 flex-1 shadow-sm">
           <option value="true" <%= batch.isActive ? 'selected' : '' %>>Active</option>
           <option value="false" <%= !batch.isActive ? 'selected' : '' %>>Inactive</option>
         </select>
-        <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm">Update Batch Status</button>
+        <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-sm transition">
+          Update Status
+        </button>
       </form>
     </div>
 
-    <div class="bg-white border border-slate-200 p-4 rounded shadow-sm">
-      <p class="font-semibold text-slate-800 mb-2">Students Status (All Enrolled)</p>
-      <p class="text-sm text-slate-600 mb-3">Bulk update all students enrolled in this batch.</p>
-      <form action="/api/batches/<%= batch._id %>/students/set-active" method="POST" class="flex flex-wrap gap-2 items-center">
-        <select name="isActive" class="border border-slate-300 rounded px-3 py-2 text-sm">
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+      <div>
+        <h3 class="font-bold text-slate-800 text-sm">Bulk Student Status</h3>
+        <p class="text-xs text-slate-500 mt-1">Change status configurations for all enrolled students at once</p>
+      </div>
+      
+      <form action="/api/batches/<%= batch._id %>/students/set-active" method="POST" class="flex items-center gap-3">
+        <select name="isActive" class="border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-2.5 text-xs outline-none bg-white font-semibold text-slate-700 flex-1 shadow-sm">
           <option value="true">Set All Active</option>
           <option value="false">Set All Inactive</option>
         </select>
-        <button class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded text-sm">Update All Students</button>
+        <button class="bg-emerald-650 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-sm transition">
+          Apply Status
+        </button>
       </form>
     </div>
   </div>
 
+  <!-- Operational Actions -->
+  <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+    <div>
+      <h3 class="font-bold text-slate-800 text-sm">Operational Management Console</h3>
+      <p class="text-xs text-slate-500 mt-1">Perform bulk operations, view student progress data, and configure test details</p>
+    </div>
 
-  <!-- ACTION BUTTONS -->
-  <div class="flex flex-wrap gap-4 mb-10">
+    <div class="flex flex-wrap gap-3">
+      <button 
+        onclick="document.getElementById('formModal').classList.remove('hidden')"
+        class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-bold text-xs shadow-sm transition">
+        <i class="fas fa-file-import text-[11px]"></i> Enroll Bulk Students
+      </button>
 
-    <!-- Bulk Enroll Button -->
-    <button 
-      onclick="document.getElementById('formModal').classList.remove('hidden')"
-      class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded shadow">
-      Enroll Bulk Students
-    </button>
+      <a href="/api/students/send/details/<%= batch._id %>" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-bold text-xs shadow-sm transition">
+        <i class="fas fa-paper-plane text-[10px]"></i> Send Student Credentials
+      </a>
 
-    <a href="/api/students/send/details/<%= batch._id %>" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded shadow">
-        📨 Send Student Credentials
-    </a>
+      <a href="/marks/tests/<%= batch._id %>" class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-bold text-xs shadow-sm transition">
+        <i class="fas fa-chart-line text-[10px]"></i> View Tests Dashboard
+      </a>
 
-    <!-- Delete Batch Button -->
-    <button 
-      onclick="document.getElementById('deleteModal').classList.remove('hidden')"
-      class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded shadow">
-      Delete Batch
-    </button>
-
-    <a href="/api/batches/data/download/<%= batch._id %>"
-               class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-4 py-2 rounded-lg shadow transition">
-     📄 Download Data
-    </a>
-
+      <button 
+        onclick="document.getElementById('deleteModal').classList.remove('hidden')"
+        class="inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white px-5 py-3 rounded-xl font-bold text-xs shadow-sm transition">
+        <i class="fas fa-trash-alt text-[10px]"></i> Delete Batch
+      </button>
+    </div>
   </div>
-
 
   <!-- ========================== -->
   <!--      MODAL #1 : FORM LIST  -->
   <!-- ========================== -->
+  <div id="formModal" class="hidden fixed inset-0 bg-slate-950/40 flex items-center justify-center z-50 p-4 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 relative border border-slate-100">
+      <button onclick="document.getElementById('formModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-650 transition">
+        <i class="fas fa-times text-lg"></i>
+      </button>
 
-  <div id="formModal" 
-       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="text-center mb-6">
+        <span class="inline-flex p-3 bg-blue-50 text-blue-600 rounded-2xl mb-2">
+          <i class="fas fa-file-import text-xl"></i>
+        </span>
+        <h2 class="text-xl font-extrabold text-slate-850">Select Admission Form</h2>
+        <p class="text-slate-500 text-xs mt-1">Choose a form to import student registration data</p>
+      </div>
 
-    <div class="bg-white w-96 p-6 rounded shadow-lg">
-
-      <h2 class="text-xl font-bold mb-4">
-        Select Form
-      </h2>
-
-      <% forms.forEach(f => { %>
-        <div class="flex justify-between items-center mb-2 p-2 border rounded">
-          <span><%= f.title %></span>
-
-          <button 
-            class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
-            onclick="openConfirm('<%= f._id %>')">
-            Include
-          </button>
-        </div>
-      <% }) %>
+      <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
+        <% if (forms && forms.length > 0) { %>
+          <% forms.forEach(f => { %>
+            <div class="flex justify-between items-center p-3 border border-slate-100 hover:border-slate-200 bg-slate-50/50 rounded-2xl transition">
+              <span class="font-bold text-slate-800 text-xs truncate max-w-[200px]"><%= f.title %></span>
+              <button 
+                class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-1.5 font-bold rounded-xl shadow-sm transition"
+                onclick="openConfirm('<%= f._id %>')">
+                Include
+              </button>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="text-center py-6 text-slate-400 font-semibold text-xs border border-dashed border-slate-200 rounded-2xl">
+            No registration forms configured
+          </div>
+        <% } %>
+      </div>
 
       <button 
         onclick="document.getElementById('formModal').classList.add('hidden')"
-        class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 mt-4 rounded w-full">
+        class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-3 mt-4 rounded-xl w-full transition">
         Close
       </button>
-
     </div>
   </div>
-
 
   <!-- ============================== -->
   <!--      MODAL #2 : CONFIRM FORM   -->
   <!-- ============================== -->
+  <div id="confirmModal" class="hidden fixed inset-0 bg-slate-950/40 flex items-center justify-center z-50 p-4 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-xl w-full max-w-sm p-6 relative border border-slate-100">
+      <div class="text-center mb-6">
+        <span class="inline-flex p-3 bg-indigo-50 text-indigo-650 rounded-2xl mb-2">
+          <i class="fas fa-question-circle text-xl"></i>
+        </span>
+        <h2 class="text-lg font-extrabold text-slate-850">Confirm Import</h2>
+        <p class="text-slate-500 text-xs mt-1">Are you sure you want to import student registration data from this form into <%= batch.name %>?</p>
+      </div>
 
-  <div id="confirmModal" 
-       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-
-    <div class="bg-white w-80 p-6 rounded shadow-lg">
-
-      <h2 class="text-lg font-bold mb-4">
-        Confirm Import?
-      </h2>
-
-      <form method="POST" id="confirmForm">
-        <button class="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded">
-          Confirm
+      <form method="POST" id="confirmForm" class="space-y-2">
+        <button class="bg-indigo-600 hover:bg-indigo-700 text-white w-full py-3 rounded-xl font-bold text-xs shadow-sm transition">
+          Confirm and Import
         </button>
       </form>
 
       <button 
         onclick="document.getElementById('confirmModal').classList.add('hidden')"
-        class="bg-gray-600 hover:bg-gray-700 text-white w-full py-2 mt-3 rounded">
+        class="bg-slate-100 hover:bg-slate-200 text-slate-700 w-full py-3 mt-2 rounded-xl font-bold text-xs transition">
         Cancel
       </button>
-
     </div>
   </div>
-
 
   <!-- =============================== -->
   <!--      MODAL #3 : DELETE BATCH    -->
   <!-- =============================== -->
+  <div id="deleteModal" class="hidden fixed inset-0 bg-slate-950/40 flex items-center justify-center z-50 p-4 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-xl w-full max-w-sm p-6 relative border border-slate-100">
+      <div class="text-center mb-6">
+        <span class="inline-flex p-3 bg-rose-50 text-rose-600 rounded-2xl mb-2">
+          <i class="fas fa-exclamation-triangle text-xl"></i>
+        </span>
+        <h2 class="text-lg font-extrabold text-rose-750">Delete Batch Permanently?</h2>
+        <p class="text-slate-500 text-xs mt-1.5 leading-relaxed">This will delete <%= batch.name %> and all associated student credentials permanently. This action is irreversible.</p>
+      </div>
 
-  <div id="deleteModal" 
-       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-
-    <div class="bg-white w-80 p-6 rounded shadow-lg">
-
-      <h2 class="text-lg font-bold mb-4 text-red-600">
-        Delete Batch Permanently?
-      </h2>
-
-      <p class="text-gray-700 mb-4">
-        This will delete this batch AND all its student accounts. This action cannot be undone.
-      </p>
-
-      <form action="/api/batches/<%= batch._id %>/delete" method="POST">
-        <button class="bg-red-600 hover:bg-red-700 text-white w-full py-2 rounded">
+      <form action="/api/batches/<%= batch._id %>/delete" method="POST" class="space-y-2">
+        <button class="bg-rose-600 hover:bg-rose-750 text-white w-full py-3 rounded-xl font-bold text-xs shadow-sm transition">
           Delete Batch
         </button>
       </form>
 
       <button 
         onclick="document.getElementById('deleteModal').classList.add('hidden')"
-        class="bg-gray-600 hover:bg-gray-700 text-white w-full py-2 mt-3 rounded">
+        class="bg-slate-100 hover:bg-slate-200 text-slate-700 w-full py-3 mt-2 rounded-xl font-bold text-xs transition">
         Cancel
       </button>
-
     </div>
   </div>
 
 </div>
-
-
-<!-- =============================== -->
-<!--          JAVASCRIPT            -->
-<!-- =============================== -->
 
 <script>
   function openConfirm(formId) {
