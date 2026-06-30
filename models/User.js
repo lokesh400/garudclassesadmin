@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
   allowMotherAadharCardReupload: { type: Boolean, default: true },
   role: {
     type: String,
-    enum: ["admin", "teacher", "student", "superadmin", "receptionist", "hr", "mts"],
+    enum: ["admin", "teacher", "student", "superadmin", "receptionist", "hr", "mts", "onboarding"],
     default: "student"
   },
   class10Marksheet: { url: String, publicId: String },

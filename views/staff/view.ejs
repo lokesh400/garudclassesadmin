@@ -151,6 +151,7 @@
         </div>
       </div>
 
+
       <!-- File Attachments Checklist -->
       <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
         <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100 mb-4">
@@ -496,4 +497,181 @@
       });
     }
   })();
+</script>
+
+<!-- Send Offer Letter Modal -->
+<div id="offerModal" class="fixed inset-0 z-50 overflow-y-auto hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl border border-slate-100 max-w-md w-full shadow-2xl p-6 relative overflow-hidden transition-all duration-300">
+    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-500 to-indigo-500"></div>
+    
+    <div class="flex justify-between items-center mb-6">
+      <h3 id="offerModalTitle" class="text-lg font-extrabold text-slate-900">Generate Offer Letter</h3>
+      <button onclick="closeModal('offerModal')" class="text-slate-400 hover:text-slate-600 transition">
+        <i class="fas fa-times text-lg"></i>
+      </button>
+    </div>
+
+    <form id="offerForm" method="POST" class="space-y-4">
+      <div>
+        <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Designation *</label>
+        <input 
+          type="text" 
+          id="offerDesignationInput" 
+          name="offerDesignation" 
+          required
+          class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none font-semibold text-slate-805 transition" 
+        />
+      </div>
+      
+      <div>
+        <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Salary / Compensation *</label>
+        <input 
+          type="text" 
+          name="offerSalary" 
+          required
+          placeholder="e.g., 6,00,000 per annum"
+          class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none font-semibold text-slate-805 transition" 
+        />
+      </div>
+
+      <div>
+        <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Proposed Joining Date *</label>
+        <input 
+          type="date" 
+          name="offerJoiningDate" 
+          required
+          class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none font-semibold text-slate-805 transition" 
+        />
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" onclick="closeModal('offerModal')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition">Cancel</button>
+        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-sm">Send Offer Letter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Force Hire OTP Modal -->
+<div id="forceHireModal" class="fixed inset-0 z-50 overflow-y-auto hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl border border-slate-100 max-w-md w-full shadow-2xl p-6 relative overflow-hidden transition-all duration-300">
+    <div class="absolute top-0 left-0 right-0 h-1.5 bg-rose-500"></div>
+    
+    <div class="flex justify-between items-center mb-6">
+      <h3 id="forceHireModalTitle" class="text-lg font-extrabold text-slate-900">Force Onboard Verification</h3>
+      <button onclick="closeForceHireModal()" class="text-slate-400 hover:text-slate-600 transition">
+        <i class="fas fa-times text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Step 1: Request OTP -->
+    <div id="otpRequestStep" class="space-y-4 text-center py-4">
+      <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 text-xl mx-auto border border-rose-100">
+        <i class="fas fa-shield-alt animate-pulse"></i>
+      </div>
+      <p class="text-xs text-slate-600 font-semibold leading-relaxed px-4">
+        Force-onboarding bypassing candidate signature requires Superadmin authorization. 
+        Click the button below to receive a secure authorization OTP on your registered email address.
+      </p>
+      <button 
+        type="button" 
+        id="requestOtpBtn" 
+        onclick="requestForceHireOtp()" 
+        class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-5 py-3 rounded-xl transition shadow-sm inline-flex items-center gap-1.5"
+      >
+        <i class="fas fa-paper-plane text-[10px]"></i> Send Verification OTP
+      </button>
+    </div>
+
+    <!-- Step 2: Verify OTP -->
+    <form id="forceHireForm" method="POST" class="space-y-4 hidden">
+      <div class="bg-slate-50 border border-slate-150 rounded-2xl p-4 text-center text-xs font-semibold text-slate-650">
+        <p class="text-rose-700 font-bold"><i class="fas fa-check-circle"></i> OTP has been successfully sent!</p>
+        <p class="mt-1">Please check the registered superadmin inbox.</p>
+      </div>
+
+      <div>
+        <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Enter OTP Code *</label>
+        <input 
+          type="text" 
+          name="otp" 
+          required 
+          placeholder="6-digit OTP code"
+          maxlength="6"
+          class="w-full text-center tracking-widest border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-sm outline-none font-bold text-slate-805 transition" 
+        />
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" onclick="closeForceHireModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition">Cancel</button>
+        <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-sm">Confirm & Onboard</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openOfferModal(staffId, staffName, defaultDesignation) {
+    const modal = document.getElementById('offerModal');
+    const form = document.getElementById('offerForm');
+    const title = document.getElementById('offerModalTitle');
+    
+    title.innerText = `Generate Offer Letter for ${staffName}`;
+    form.action = `/admin/staff/${staffId}/send-offer`;
+    document.getElementById('offerDesignationInput').value = defaultDesignation;
+    
+    modal.classList.remove('hidden');
+  }
+
+  let currentForceHireStaffId = null;
+
+  function openForceHireModal(staffId, staffName) {
+    currentForceHireStaffId = staffId;
+    const modal = document.getElementById('forceHireModal');
+    const form = document.getElementById('forceHireForm');
+    const title = document.getElementById('forceHireModalTitle');
+    
+    title.innerText = `Force Onboard ${staffName}`;
+    form.action = `/admin/staff/${staffId}/force-hire-confirm`;
+    
+    // Reset steps
+    document.getElementById('otpRequestStep').classList.remove('hidden');
+    document.getElementById('forceHireForm').classList.add('hidden');
+    
+    const requestBtn = document.getElementById('requestOtpBtn');
+    requestBtn.disabled = false;
+    requestBtn.innerHTML = '<i class="fas fa-paper-plane text-[10px]"></i> Send Verification OTP';
+    
+    modal.classList.remove('hidden');
+  }
+
+  function closeForceHireModal() {
+    document.getElementById('forceHireModal').classList.add('hidden');
+  }
+
+  async function requestForceHireOtp() {
+    const requestBtn = document.getElementById('requestOtpBtn');
+    requestBtn.disabled = true;
+    requestBtn.innerText = 'Sending OTP...';
+    
+    try {
+      const response = await fetch(`/admin/staff/${currentForceHireStaffId}/force-hire-otp`, {
+        method: 'POST'
+      });
+      const result = await response.json();
+      
+      if (result.success) {
+        document.getElementById('otpRequestStep').classList.add('hidden');
+        document.getElementById('forceHireForm').classList.remove('hidden');
+      } else {
+        alert('Error: ' + result.message);
+        requestBtn.disabled = false;
+        requestBtn.innerHTML = '<i class="fas fa-paper-plane text-[10px]"></i> Send Verification OTP';
+      }
+    } catch (error) {
+      alert('Failed to send OTP. Please try again.');
+      requestBtn.disabled = false;
+      requestBtn.innerHTML = '<i class="fas fa-paper-plane text-[10px]"></i> Send Verification OTP';
+    }
+  }
 </script>

@@ -46,4 +46,10 @@ const uploadResume = multer({
   },
 });
 
-module.exports = { uploadJD, uploadStaffDocs, uploadResume };
+// Onboarding Documents — in-memory for Cloudinary streaming (images + PDFs)
+const uploadOnboardingDocs = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+});
+
+module.exports = { uploadJD, uploadStaffDocs, uploadResume, uploadOnboardingDocs };

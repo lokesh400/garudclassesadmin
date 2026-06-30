@@ -1,0 +1,174 @@
+<div class="w-full px-6 py-8">
+  <%- include('../flash.ejs') %>
+
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-white border border-slate-100 p-6 rounded-3xl shadow-sm">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-500 font-medium mb-1">
+        <a href="/admin/onboarding" class="hover:text-indigo-600 transition">Onboarding</a>
+        <span>&bull;</span>
+        <span class="text-slate-800 font-bold">Register Candidate</span>
+      </div>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">🧑‍💼 Register New Candidate</h1>
+      <p class="text-slate-500 text-sm mt-1">Create an account for the onboarding candidate. Credentials will be emailed automatically.</p>
+    </div>
+    <a href="/admin/onboarding"
+       class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs transition">
+      <i class="fas fa-chevron-left text-[10px]"></i> Back to Pipeline
+    </a>
+  </div>
+
+  <div class="max-w-xl mx-auto">
+    <form action="/admin/onboarding/add" method="POST" class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+
+      <h3 class="text-xs font-extrabold text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100">
+        <i class="fas fa-id-card"></i> Candidate Details
+      </h3>
+
+      <!-- Full Name -->
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Full Name <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <span class="absolute left-4 top-3.5 text-slate-400 text-sm"><i class="fas fa-user"></i></span>
+          <input type="text" name="name" placeholder="Candidate's full name" required
+                 class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <span class="absolute left-4 top-3.5 text-slate-400 text-sm"><i class="fas fa-envelope"></i></span>
+          <input type="email" name="email" placeholder="candidate@example.com" required
+                 class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <p class="text-[10px] text-slate-400 mt-1 font-medium">This will be used as their login username.</p>
+      </div>
+
+      <!-- Department -->
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Department <span class="text-red-500">*</span></label>
+        <select name="department" required id="deptSelect"
+                class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-3 text-xs outline-none bg-slate-50 font-semibold text-slate-700 transition">
+          <option value="" disabled selected>-- Select Department --</option>
+          <option value="Academics">Academics</option>
+          <option value="Administration">Administration</option>
+          <option value="HR">HR</option>
+          <option value="Operations">Operations</option>
+          <option value="Finance">Finance</option>
+          <option value="MTS">MTS</option>
+        </select>
+      </div>
+
+      <!-- Subjects (show only when Academics is selected) -->
+      <div id="subjectsSection" class="hidden space-y-3">
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Subjects</label>
+        <div class="flex gap-2">
+          <select id="subjectDropdown" class="flex-1 border border-slate-200 focus:border-indigo-500 rounded-2xl px-3 py-2.5 text-xs outline-none bg-slate-50 font-semibold text-slate-700">
+            <option value="">-- Select or type custom --</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="Biology">Biology</option>
+            <option value="English">English</option>
+            <option value="History">History</option>
+            <option value="Geography">Geography</option>
+            <option value="Economics">Economics</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="custom">+ Add Custom</option>
+          </select>
+          <button type="button" id="addSubjectBtn"
+                  class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition">Add</button>
+        </div>
+        <div id="customSubjectDiv" class="hidden flex gap-2">
+          <input type="text" id="customSubjectInput" placeholder="Custom subject name"
+                 class="flex-1 border border-slate-200 focus:border-indigo-500 rounded-2xl px-3 py-2.5 text-xs outline-none bg-slate-50 font-semibold text-slate-700" />
+          <button type="button" id="confirmCustomSubjectBtn"
+                  class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-3 py-2 rounded-xl transition">Confirm</button>
+        </div>
+        <div id="subjectChips" class="flex flex-wrap gap-1.5 min-h-6"></div>
+        <div id="hiddenSubjectInputs"></div>
+      </div>
+
+      <!-- Designation -->
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Designation <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <span class="absolute left-4 top-3.5 text-slate-400 text-sm"><i class="fas fa-briefcase"></i></span>
+          <input type="text" name="designation" placeholder="e.g. Senior Teacher, HR Executive" required
+                 class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+      </div>
+
+      <!-- Intended Role -->
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">System Role (after transfer) <span class="text-red-500">*</span></label>
+        <select name="intendedRole" required
+                class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-3 text-xs outline-none bg-slate-50 font-semibold text-slate-700 transition">
+          <option value="teacher">Teacher</option>
+          <option value="hr">HR</option>
+          <option value="mts">MTS</option>
+          <option value="admin">Admin</option>
+        </select>
+        <p class="text-[10px] text-slate-400 mt-1 font-medium">This role will be assigned once the candidate is transferred to Staff.</p>
+      </div>
+
+      <div class="pt-2">
+        <button type="submit"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm py-3 rounded-2xl transition shadow-md shadow-indigo-600/10 flex items-center justify-center gap-2">
+          <i class="fas fa-user-plus text-xs"></i> Register Candidate & Send Credentials
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const deptSelect = document.getElementById('deptSelect');
+  const subjectsSection = document.getElementById('subjectsSection');
+  const subjectDropdown = document.getElementById('subjectDropdown');
+  const addSubjectBtn = document.getElementById('addSubjectBtn');
+  const customSubjectDiv = document.getElementById('customSubjectDiv');
+  const customSubjectInput = document.getElementById('customSubjectInput');
+  const confirmCustomSubjectBtn = document.getElementById('confirmCustomSubjectBtn');
+  const subjectChips = document.getElementById('subjectChips');
+  const hiddenSubjectInputs = document.getElementById('hiddenSubjectInputs');
+  let selectedSubjects = [];
+
+  deptSelect.addEventListener('change', () => {
+    subjectsSection.classList.toggle('hidden', deptSelect.value !== 'Academics');
+  });
+
+  const updateChips = () => {
+    subjectChips.innerHTML = '';
+    hiddenSubjectInputs.innerHTML = '';
+    selectedSubjects.forEach(sub => {
+      const chip = document.createElement('div');
+      chip.className = 'inline-flex items-center gap-1 bg-indigo-50 border border-indigo-200 text-indigo-700 px-2.5 py-1 rounded-xl text-[10px] font-bold';
+      chip.innerHTML = `<span>${sub}</span><button type="button" class="text-indigo-400 hover:text-indigo-700 font-bold ml-1">&times;</button>`;
+      chip.querySelector('button').addEventListener('click', () => {
+        selectedSubjects = selectedSubjects.filter(s => s !== sub);
+        updateChips();
+      });
+      subjectChips.appendChild(chip);
+      const hidden = document.createElement('input');
+      hidden.type = 'hidden'; hidden.name = 'subjects'; hidden.value = sub;
+      hiddenSubjectInputs.appendChild(hidden);
+    });
+  };
+
+  addSubjectBtn.addEventListener('click', () => {
+    const val = subjectDropdown.value;
+    if (!val) return;
+    if (val === 'custom') { customSubjectDiv.classList.remove('hidden'); customSubjectInput.focus(); return; }
+    if (!selectedSubjects.includes(val)) { selectedSubjects.push(val); updateChips(); }
+    subjectDropdown.value = '';
+  });
+
+  confirmCustomSubjectBtn.addEventListener('click', () => {
+    const val = customSubjectInput.value.trim();
+    if (val && !selectedSubjects.includes(val)) { selectedSubjects.push(val); updateChips(); }
+    customSubjectInput.value = ''; customSubjectDiv.classList.add('hidden'); subjectDropdown.value = '';
+  });
+</script>

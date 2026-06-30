@@ -4,7 +4,7 @@ const Staff = require("../models/Staff");
 const User = require("../models/User");
 const { uploadStaffDocs } = require("./upload");
 const { isAdmin } = require("../middleware/auth");
-const { sendStaffCredentialsEmail, sendOfferLetterEmail, sendForceHireOtpEmail } = require("../utils/mailer");
+const { sendStaffCredentialsEmail } = require("../utils/mailer");
 const crypto = require("crypto");
 
 const staffUploadFields = [
@@ -112,8 +112,7 @@ router.post(
         designation: role.toUpperCase(),
         subjects: subjects,
         linkedUsers: [user._id],
-        status: "Inactive",
-        hiringStatus: "Pending"
+        status: "Active"
       });
 
       const loginLink = `${req.protocol}://${req.get("host")}/login`;
@@ -275,132 +274,6 @@ router.post("/:id/assign-user", isAdmin, async (req, res) => {
     await staff.save();
 
     req.flash("success", "Successfully assigned user to staff member!");
-    res.redirect(`/admin/staff/${req.params.id}`);
-  } catch (err) {
-    req.flash("error", err.message);
-    res.redirect(`/admin/staff/${req.params.id}`);
-  }
-});
-
-// ➕ Send Offer Letter Route
-router.post("/:id/send-offer", isAdmin, async (req, res) => {
-  try {
-    const { offerDesignation, offerSalary, offerJoiningDate } = req.body;
-    if (!offerDesignation || !offerSalary || !offerJoiningDate) {
-      req.flash("error", "Designation, salary, and joining date are required to send the offer letter.");
-      return res.redirect(`/admin/staff/${req.params.id}`);
-    }
-
-    const staff = await Staff.findById(req.params.id);
-    if (!staff) {
-      req.flash("error", "Staff member not found.");
-      return res.redirect("/admin/staff");
-    }
-
-    staff.offerStatus = "Sent";
-    staff.offerDesignation = offerDesignation.trim();
-    staff.offerSalary = offerSalary.trim();
-    staff.offerJoiningDate = new Date(offerJoiningDate);
-    await staff.save();
-
-    const offerLink = `${req.protocol}://${req.get("host")}/staff/offer-letter/${staff._id}`;
-    await sendOfferLetterEmail(
-      staff.email,
-      staff.name,
-      staff.offerDesignation,
-      staff.offerSalary,
-      staff.offerJoiningDate,
-      offerLink
-    );
-
-    req.flash("success", `Offer letter successfully generated and sent to ${staff.email}!`);
-    res.redirect(`/admin/staff/${req.params.id}`);
-  } catch (err) {
-    req.flash("error", err.message);
-    res.redirect(`/admin/staff/${req.params.id}`);
-  }
-});
-
-// ➕ Onboard/Hire Staff Route
-router.post("/:id/hire", isAdmin, async (req, res) => {
-  try {
-    const staff = await Staff.findById(req.params.id);
-    if (!staff) {
-      req.flash("error", "Staff member not found.");
-      return res.redirect("/admin/staff");
-    }
-
-    if (staff.offerStatus !== "Accepted") {
-      req.flash("error", "Staff member must accept the offer letter digitally before onboarding.");
-      return res.redirect(`/admin/staff/${req.params.id}`);
-    }
-
-    staff.hiringStatus = "Hired";
-    staff.status = "Active";
-    await staff.save();
-
-    req.flash("success", `Staff member ${staff.name} successfully onboarded and activated!`);
-    res.redirect(`/admin/staff/${req.params.id}`);
-  } catch (err) {
-    req.flash("error", err.message);
-    res.redirect(`/admin/staff/${req.params.id}`);
-  }
-});
-
-// ➕ Request Force Onboard OTP API
-router.post("/:id/force-hire-otp", isAdmin, async (req, res) => {
-  try {
-    const staff = await Staff.findById(req.params.id);
-    if (!staff) {
-      return res.status(404).json({ success: false, message: "Staff member not found" });
-    }
-
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    req.session.forceHireOtp = {
-      code: otpCode,
-      staffId: req.params.id,
-      expiresAt: Date.now() + 5 * 60 * 1000 // 5 mins
-    };
-
-    const superadmin = await User.findOne({ role: "superadmin" });
-    const recipientEmail = superadmin ? (superadmin.email || superadmin.username) : (req.user.email || req.user.username);
-
-    await sendForceHireOtpEmail(recipientEmail, staff.name, otpCode);
-
-    return res.status(200).json({ success: true, message: `OTP sent successfully.` });
-  } catch (err) {
-    return res.status(400).json({ success: false, message: err.message });
-  }
-});
-
-// ➕ Confirm Force Onboard Route
-router.post("/:id/force-hire-confirm", isAdmin, async (req, res) => {
-  try {
-    const { otp } = req.body;
-    if (!otp) {
-      req.flash("error", "OTP code is required.");
-      return res.redirect(`/admin/staff/${req.params.id}`);
-    }
-
-    const sessionOtp = req.session.forceHireOtp;
-    if (!sessionOtp || sessionOtp.staffId !== req.params.id || sessionOtp.code !== otp.trim() || sessionOtp.expiresAt < Date.now()) {
-      req.flash("error", "Invalid or expired OTP.");
-      return res.redirect(`/admin/staff/${req.params.id}`);
-    }
-
-    const staff = await Staff.findById(req.params.id);
-    if (!staff) {
-      req.flash("error", "Staff member not found.");
-      return res.redirect("/admin/staff");
-    }
-
-    req.session.forceHireOtp = null;
-
-    staff.hiringStatus = "Hired";
-    staff.status = "Active";
-    await staff.save();
-
-    req.flash("success", `Staff member ${staff.name} force-onboarded successfully!`);
     res.redirect(`/admin/staff/${req.params.id}`);
   } catch (err) {
     req.flash("error", err.message);

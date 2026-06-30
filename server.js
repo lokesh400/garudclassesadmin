@@ -39,7 +39,8 @@ const recruitmentsRoutes = require("./routes/recruitments");
 const recruitmentPublicRoutes = require("./routes/recruitmentPublic");
 const staffRoutes = require("./routes/staff");
 const staffPortalRoutes = require("./routes/staffPortal");
-const staffPublicRoutes = require("./routes/staffPublic");
+const onboardingRoutes = require("./routes/onboarding");
+const onboardingPortalRoutes = require("./routes/onboardingPortal");
 const eventRoutes = require("./routes/event");
 
 const mobileAuthRoutes = require("./routes/mobile/auth");
@@ -184,7 +185,8 @@ app.use("/admin/recruitments", recruitmentsRoutes);
 app.use("/recruitments", recruitmentPublicRoutes);
 app.use("/admin/staff", staffRoutes);
 app.use("/staff", staffPortalRoutes);
-app.use("/staff", staffPublicRoutes);
+app.use("/admin/onboarding", onboardingRoutes);
+app.use("/onboarding", onboardingPortalRoutes);
 
 
 // app.get("/whatsapp", isLoggedIn, requireRole("superadmin"), async (req, res) => {

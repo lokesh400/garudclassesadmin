@@ -1,0 +1,206 @@
+<div class="w-full px-6 py-8 space-y-6">
+  <%- include('../flash.ejs') %>
+
+  <!-- Header -->
+  <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+    <div class="flex items-center gap-4">
+      <div class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center text-indigo-700 font-extrabold text-xl">
+        <%= (candidate.name || '?')[0].toUpperCase() %>
+      </div>
+      <div>
+        <h1 class="text-2xl font-extrabold text-slate-900">Welcome, <%= candidate.name %>!</h1>
+        <p class="text-xs text-slate-500 font-semibold mt-0.5">
+          Complete your onboarding steps below &bull; 
+          <span class="text-indigo-600 font-bold"><%= candidate.department %> &bull; <%= candidate.designation %></span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="mt-5">
+      <% 
+        const docs = candidate.documents || {};
+        const docKeys = ['photo', 'resume', 'aadhaar', 'pan', 'bankAccountPhoto'];
+        const uploadedCount = docKeys.filter(k => docs[k]).length;
+        const offerDone = candidate.offerStatus === 'Accepted';
+        const totalSteps = docKeys.length + 1; // docs + offer
+        const completedSteps = uploadedCount + (offerDone ? 1 : 0);
+        const progressPct = Math.round((completedSteps / totalSteps) * 100);
+      %>
+      <div class="flex justify-between items-center mb-1.5">
+        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Onboarding Progress</span>
+        <span class="text-[10px] font-extrabold text-indigo-600"><%= progressPct %>% Complete</span>
+      </div>
+      <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500" style="width: <%= progressPct %>%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Left: Offer Letter -->
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+      <h2 class="text-sm font-extrabold text-slate-900 flex items-center gap-2 pb-2 border-b border-slate-100">
+        <div class="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center">
+          <i class="fas fa-file-contract text-purple-600 text-xs"></i>
+        </div>
+        Step 1: Offer Letter
+      </h2>
+
+      <% if (candidate.offerStatus === 'None') { %>
+        <div class="bg-slate-50 border border-slate-150 rounded-2xl p-5 text-center">
+          <i class="fas fa-hourglass-half text-slate-300 text-3xl mb-3"></i>
+          <p class="text-xs font-bold text-slate-600">No Offer Letter Yet</p>
+          <p class="text-[10px] text-slate-400 font-semibold mt-1">
+            The admin will send your offer letter soon. Check back or watch for an email.
+          </p>
+        </div>
+
+      <% } else if (candidate.offerStatus === 'Sent') { %>
+        <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 space-y-3 mb-4">
+          <p class="text-xs font-extrabold text-amber-800"><i class="fas fa-envelope-open-text"></i> You Have a Pending Offer!</p>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <p class="text-[9px] font-bold text-amber-600 uppercase tracking-wider">Position</p>
+              <p class="text-xs font-extrabold text-slate-800"><%= candidate.offerDesignation %></p>
+            </div>
+            <div>
+              <p class="text-[9px] font-bold text-amber-600 uppercase tracking-wider">Salary</p>
+              <p class="text-xs font-extrabold text-slate-800"><%= candidate.offerSalary %></p>
+            </div>
+            <div>
+              <p class="text-[9px] font-bold text-amber-600 uppercase tracking-wider">Joining Date</p>
+              <p class="text-xs font-extrabold text-slate-800">
+                <%= candidate.offerJoiningDate ? new Date(candidate.offerJoiningDate).toLocaleDateString('en-IN') : '-' %>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accept Form -->
+        <form action="/onboarding/portal/accept-offer" method="POST" class="space-y-3">
+          <div>
+            <label class="block mb-1 text-xs font-bold text-slate-600 uppercase tracking-wider">
+              <i class="fas fa-signature text-indigo-500"></i> Digital Signature — Type your full name to accept *
+            </label>
+            <input type="text" name="signature" required placeholder="Type: <%= candidate.name %>"
+                   class="w-full border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 rounded-xl px-4 py-3 text-xs outline-none font-bold text-slate-800 transition" />
+            <p class="text-[10px] text-slate-400 mt-1 font-semibold">By signing, you confirm acceptance of the above offer terms.</p>
+          </div>
+          <div class="flex gap-2">
+            <button type="submit"
+                    class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-xl transition shadow-sm flex items-center justify-center gap-1.5">
+              <i class="fas fa-check text-[10px]"></i> Accept Offer
+            </button>
+            <form action="/onboarding/portal/reject-offer" method="POST" class="flex-1">
+              <button type="submit"
+                      onclick="return confirm('Are you sure you want to reject this offer? The admin will be notified.');"
+                      class="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs py-3 rounded-xl transition">
+                <i class="fas fa-times text-[10px]"></i> Reject
+              </button>
+            </form>
+          </div>
+        </form>
+
+      <% } else if (candidate.offerStatus === 'Accepted') { %>
+        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 text-center space-y-2">
+          <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-lg mx-auto">
+            <i class="fas fa-check-double"></i>
+          </div>
+          <p class="text-sm font-extrabold text-emerald-800">Offer Accepted!</p>
+          <p class="text-[10px] text-slate-500 font-semibold italic">/s/ <%= candidate.digitalSignature %></p>
+          <p class="text-[9px] text-slate-400 font-semibold">
+            Signed: <%= candidate.offerSignedAt ? new Date(candidate.offerSignedAt).toLocaleString('en-IN') : '-' %>
+          </p>
+        </div>
+
+      <% } else if (candidate.offerStatus === 'Rejected') { %>
+        <div class="bg-rose-50 border border-rose-100 rounded-2xl p-5 text-center">
+          <i class="fas fa-times-circle text-rose-400 text-2xl mb-2"></i>
+          <p class="text-xs font-extrabold text-rose-700">Offer Rejected</p>
+          <p class="text-[10px] text-slate-500 font-semibold mt-1">Please contact admin to discuss further.</p>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Right: Document Upload -->
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+      <h2 class="text-sm font-extrabold text-slate-900 flex items-center gap-2 pb-2 border-b border-slate-100 mb-4">
+        <div class="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center">
+          <i class="fas fa-folder-open text-indigo-600 text-xs"></i>
+        </div>
+        Step 2: Upload Documents
+      </h2>
+
+      <form action="/onboarding/portal/upload-docs" method="POST" enctype="multipart/form-data" class="space-y-4">
+
+        <!-- Document Fields -->
+        <% const uploadDocs = [
+          { key: 'photo', label: 'Passport Photo', accept: 'image/*', icon: 'fa-portrait' },
+          { key: 'resume', label: 'Resume / CV (PDF)', accept: '.pdf', icon: 'fa-file-pdf' },
+          { key: 'aadhaar', label: 'Aadhaar Card', accept: 'image/*,.pdf', icon: 'fa-id-card' },
+          { key: 'pan', label: 'PAN Card', accept: 'image/*,.pdf', icon: 'fa-credit-card' },
+          { key: 'bankAccountPhoto', label: 'Bank Passbook / Cheque', accept: 'image/*,.pdf', icon: 'fa-university' },
+          { key: 'experienceLetter', label: 'Experience Letter', accept: 'image/*,.pdf', icon: 'fa-certificate' },
+          { key: 'otherDocument', label: 'Other Document', accept: 'image/*,.pdf', icon: 'fa-file' },
+        ]; %>
+        <% uploadDocs.forEach(d => { %>
+          <div class="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-2xl gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <i class="fas <%= d.icon %> text-slate-400 text-sm shrink-0"></i>
+              <div class="min-w-0">
+                <p class="text-[10px] font-extrabold text-slate-700 truncate"><%= d.label %></p>
+                <% if (docs[d.key]) { %>
+                  <a href="<%= docs[d.key] %>" target="_blank" class="text-[9px] font-bold text-emerald-600 hover:underline">
+                    <i class="fas fa-check text-[8px]"></i> Uploaded — View
+                  </a>
+                <% } else { %>
+                  <span class="text-[9px] font-bold text-rose-400 italic">Not uploaded</span>
+                <% } %>
+              </div>
+            </div>
+            <input type="file" name="<%= d.key %>" accept="<%= d.accept %>"
+                   class="text-[9px] text-slate-600 font-semibold file:bg-indigo-50 file:border file:border-indigo-200 file:text-indigo-700 file:font-bold file:text-[9px] file:rounded-lg file:px-2 file:py-1 file:mr-1.5 hover:file:bg-indigo-100 cursor-pointer shrink-0" />
+          </div>
+        <% }) %>
+
+        <!-- Personal Info Fields -->
+        <div class="border-t border-slate-100 pt-4 space-y-3">
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Personal & Bank Details (optional)</p>
+          <% const infoFields = [
+            { name: 'phone', label: 'Mobile Number', val: candidate.phone },
+            { name: 'alternatePhone', label: 'Alternate Phone', val: candidate.alternatePhone },
+            { name: 'fatherName', label: "Father's Name", val: candidate.fatherName },
+            { name: 'motherName', label: "Mother's Name", val: candidate.motherName },
+            { name: 'aadhaarNumber', label: 'Aadhaar Number', val: candidate.aadhaarNumber },
+            { name: 'panNumber', label: 'PAN Number', val: candidate.panNumber },
+            { name: 'bankName', label: 'Bank Name', val: candidate.bankName },
+            { name: 'accountHolderName', label: 'Account Holder Name', val: candidate.accountHolderName },
+            { name: 'accountNumber', label: 'Account Number', val: candidate.accountNumber },
+            { name: 'ifscCode', label: 'IFSC Code', val: candidate.ifscCode },
+          ]; %>
+          <div class="grid grid-cols-2 gap-2">
+            <% infoFields.forEach(f => { %>
+              <div>
+                <label class="block mb-0.5 text-[9px] font-extrabold text-slate-400 uppercase tracking-wider"><%= f.label %></label>
+                <input type="text" name="<%= f.name %>" value="<%= f.val || '' %>"
+                       class="w-full border border-slate-200 focus:border-indigo-500 rounded-lg px-2.5 py-2 text-[10px] outline-none font-semibold text-slate-800 bg-white transition" />
+              </div>
+            <% }) %>
+            <div class="col-span-2">
+              <label class="block mb-0.5 text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Residential Address</label>
+              <textarea name="address" rows="2"
+                        class="w-full border border-slate-200 focus:border-indigo-500 rounded-lg px-2.5 py-2 text-[10px] outline-none font-semibold text-slate-800 bg-white transition resize-none"><%= candidate.address || '' %></textarea>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-3 rounded-xl transition shadow-md flex items-center justify-center gap-1.5">
+          <i class="fas fa-cloud-upload-alt text-[10px]"></i> Save & Upload All
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,384 @@
+<div class="w-full px-6 py-8 space-y-6">
+  <%- include('../flash.ejs') %>
+
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white border border-slate-100 p-6 rounded-3xl shadow-sm">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-slate-500 font-medium mb-1">
+        <a href="/admin/onboarding" class="hover:text-indigo-600 transition">Onboarding Pipeline</a>
+        <span>&bull;</span>
+        <span class="text-slate-800 font-bold"><%= candidate.name %></span>
+      </div>
+      <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-100 flex items-center justify-center text-indigo-700 font-extrabold text-base">
+          <%= (candidate.name || '?')[0].toUpperCase() %>
+        </div>
+        <%= candidate.name %>
+      </h1>
+      <p class="text-slate-500 text-xs mt-1"><%= candidate.email %> &bull; <%= candidate.department %> &bull; <%= candidate.designation %></p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <a href="/admin/onboarding"
+         class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs transition">
+        <i class="fas fa-chevron-left text-[10px]"></i> Back
+      </a>
+      <% if (candidate.offerStatus === 'Accepted') { %>
+        <form action="/admin/onboarding/<%= candidate._id %>/transfer" method="POST">
+          <button type="submit"
+                  onclick="return prompt('To transfer this candidate to Staff, type their name: \"<%= candidate.name %>\"') === '<%= candidate.name %>';"
+                  class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-sm">
+            <i class="fas fa-user-plus text-[10px]"></i> Transfer to Staff
+          </button>
+        </form>
+      <% } %>
+      <form action="/admin/onboarding/<%= candidate._id %>/delete" method="POST">
+        <button type="submit"
+                onclick="return prompt('To DELETE this candidate permanently, type their name:') === '<%= candidate.name %>';"
+                class="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-4 py-2.5 rounded-xl font-bold text-xs transition">
+          <i class="fas fa-trash text-[10px]"></i> Remove
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Two Column Layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Left: Details + Documents -->
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- Status Overview -->
+      <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm grid grid-cols-2 md:grid-cols-4 gap-4">
+        <% const offerColor = {None:'slate',Sent:'amber',Accepted:'emerald',Rejected:'rose'}[candidate.offerStatus] || 'slate'; %>
+        <div class="text-center">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Offer Status</p>
+          <span class="inline-block px-3 py-1.5 rounded-xl text-xs font-extrabold bg-<%= offerColor %>-100 text-<%= offerColor %>-700 border border-<%= offerColor %>-200">
+            <%= candidate.offerStatus %>
+          </span>
+        </div>
+        <div class="text-center">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Onboarding</p>
+          <span class="inline-block px-3 py-1.5 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200">
+            <%= candidate.onboardingStatus %>
+          </span>
+        </div>
+        <div class="text-center">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">System Role</p>
+          <span class="inline-block px-3 py-1.5 rounded-xl text-xs font-extrabold bg-indigo-100 text-indigo-700 border border-indigo-200">
+            <%= candidate.intendedRole %>
+          </span>
+        </div>
+        <div class="text-center">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Login Account</p>
+          <% if (candidate.linkedUser) { %>
+            <span class="inline-block px-3 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-100 text-emerald-700 border border-emerald-200">Created</span>
+          <% } else { %>
+            <span class="inline-block px-3 py-1.5 rounded-xl text-xs font-extrabold bg-rose-100 text-rose-700 border border-rose-200">Missing</span>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Documents Checklist -->
+      <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+        <h3 class="text-xs font-extrabold text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 pb-3 border-b border-slate-100 mb-4">
+          <i class="fas fa-paperclip"></i> Uploaded Documents
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <% const docs = candidate.documents || {}; %>
+          <% const docList = [
+            { key: 'photo', label: 'Passport Photo', icon: 'fa-portrait' },
+            { key: 'resume', label: 'Resume / CV', icon: 'fa-file-pdf' },
+            { key: 'aadhaar', label: 'Aadhaar Card', icon: 'fa-id-card' },
+            { key: 'pan', label: 'PAN Card', icon: 'fa-credit-card' },
+            { key: 'bankAccountPhoto', label: 'Bank Passbook', icon: 'fa-university' },
+            { key: 'experienceLetter', label: 'Experience Letter', icon: 'fa-certificate' },
+            { key: 'otherDocument', label: 'Other Document', icon: 'fa-file' },
+          ]; %>
+          <% docList.forEach(d => { %>
+            <div class="flex items-center justify-between p-3 bg-slate-50/50 border border-slate-100 rounded-2xl">
+              <div class="flex items-center gap-2">
+                <i class="fas <%= d.icon %> text-slate-400 text-[11px]"></i>
+                <span class="text-[10px] font-bold text-slate-600"><%= d.label %></span>
+              </div>
+              <% if (docs[d.key]) { %>
+                <a href="<%= docs[d.key] %>" target="_blank" class="text-[10px] text-indigo-600 hover:underline font-extrabold">
+                  <i class="fas fa-external-link-alt text-[9px]"></i> View
+                </a>
+              <% } else { %>
+                <span class="text-[9px] font-bold text-rose-400 italic">Missing</span>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- Personal Info -->
+      <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+        <h3 class="text-xs font-extrabold text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 pb-3 border-b border-slate-100 mb-4">
+          <i class="fas fa-user-circle"></i> Personal Information
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <% const fields = [
+            { label: 'Mobile Number', value: candidate.phone },
+            { label: 'Alternate Phone', value: candidate.alternatePhone },
+            { label: "Father's Name", value: candidate.fatherName },
+            { label: "Mother's Name", value: candidate.motherName },
+            { label: 'Aadhaar Number', value: candidate.aadhaarNumber },
+            { label: 'PAN Number', value: candidate.panNumber },
+            { label: 'Residential Address', value: candidate.address },
+            { label: 'Bank Name', value: candidate.bankName },
+            { label: 'Account Holder', value: candidate.accountHolderName },
+            { label: 'Account Number', value: candidate.accountNumber },
+            { label: 'IFSC Code', value: candidate.ifscCode },
+          ]; %>
+          <% fields.forEach(f => { %>
+            <div>
+              <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-0.5"><%= f.label %></p>
+              <p class="text-xs font-bold text-slate-800"><%= f.value || '-' %></p>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- Update Details Form -->
+      <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+        <h3 class="text-xs font-extrabold text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 pb-3 border-b border-slate-100 mb-4">
+          <i class="fas fa-edit"></i> Update Candidate Details
+        </h3>
+        <form action="/admin/onboarding/<%= candidate._id %>/update" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <% const editFields = [
+            {name:'name', label:'Full Name', val: candidate.name},
+            {name:'phone', label:'Mobile Number', val: candidate.phone},
+            {name:'alternatePhone', label:'Alternate Phone', val: candidate.alternatePhone},
+            {name:'fatherName', label:"Father's Name", val: candidate.fatherName},
+            {name:'motherName', label:"Mother's Name", val: candidate.motherName},
+            {name:'aadhaarNumber', label:'Aadhaar Number', val: candidate.aadhaarNumber},
+            {name:'panNumber', label:'PAN Number', val: candidate.panNumber},
+            {name:'department', label:'Department', val: candidate.department},
+            {name:'designation', label:'Designation', val: candidate.designation},
+            {name:'bankName', label:'Bank Name', val: candidate.bankName},
+            {name:'accountHolderName', label:'Account Holder Name', val: candidate.accountHolderName},
+            {name:'accountNumber', label:'Account Number', val: candidate.accountNumber},
+            {name:'ifscCode', label:'IFSC Code', val: candidate.ifscCode},
+          ]; %>
+          <% editFields.forEach(f => { %>
+            <div>
+              <label class="block mb-1 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider"><%= f.label %></label>
+              <input type="text" name="<%= f.name %>" value="<%= f.val || '' %>"
+                     class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3 py-2.5 text-xs outline-none font-semibold text-slate-800 bg-white transition" />
+            </div>
+          <% }) %>
+          <div class="md:col-span-2">
+            <label class="block mb-1 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Residential Address</label>
+            <textarea name="address" rows="2"
+                      class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3 py-2.5 text-xs outline-none font-semibold text-slate-800 bg-white transition resize-none"><%= candidate.address || '' %></textarea>
+          </div>
+          <div class="md:col-span-2 flex justify-end">
+            <button type="submit"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5">
+              <i class="fas fa-save text-[10px]"></i> Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right: Actions -->
+    <div class="space-y-5">
+
+      <!-- Offer Letter Card -->
+      <div class="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm space-y-4">
+        <h3 class="text-xs font-extrabold text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100">
+          <i class="fas fa-file-contract"></i> Offer Letter
+        </h3>
+
+        <% if (candidate.offerStatus === 'None') { %>
+          <div class="text-center py-3">
+            <p class="text-[10px] text-slate-500 font-semibold mb-3">No offer letter has been sent yet.</p>
+            <button type="button" onclick="document.getElementById('offerModal').classList.remove('hidden')"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-2.5 rounded-xl transition shadow-sm flex items-center justify-center gap-1">
+              <i class="fas fa-file-signature text-[10px]"></i> Send Offer Letter
+            </button>
+          </div>
+        <% } else if (candidate.offerStatus === 'Sent') { %>
+          <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 space-y-2">
+            <p class="text-xs font-bold text-amber-800"><i class="fas fa-clock"></i> Awaiting Candidate Signature</p>
+            <p class="text-[10px] text-amber-700 font-semibold">
+              Designation: <strong><%= candidate.offerDesignation %></strong><br>
+              Salary: <strong><%= candidate.offerSalary %></strong><br>
+              Joining: <strong><%= candidate.offerJoiningDate ? new Date(candidate.offerJoiningDate).toLocaleDateString('en-IN') : '-' %></strong>
+            </p>
+          </div>
+          <button type="button" onclick="document.getElementById('offerModal').classList.remove('hidden')"
+                  class="w-full bg-white hover:bg-amber-50 text-amber-700 border border-amber-200 font-bold text-xs py-2 rounded-xl transition">
+            <i class="fas fa-paper-plane text-[10px]"></i> Resend Offer Letter
+          </button>
+        <% } else if (candidate.offerStatus === 'Accepted') { %>
+          <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 space-y-2">
+            <p class="text-xs font-bold text-emerald-800"><i class="fas fa-signature"></i> Offer Accepted & Signed</p>
+            <p class="text-[10px] text-slate-600 font-semibold italic">/s/ <%= candidate.digitalSignature %></p>
+            <p class="text-[9px] text-slate-400 font-semibold">
+              Signed: <%= candidate.offerSignedAt ? new Date(candidate.offerSignedAt).toLocaleString('en-IN') : '-' %>
+            </p>
+          </div>
+        <% } else if (candidate.offerStatus === 'Rejected') { %>
+          <div class="bg-rose-50 border border-rose-100 rounded-2xl p-4 text-center">
+            <p class="text-xs font-bold text-rose-700"><i class="fas fa-times-circle"></i> Offer Rejected</p>
+            <p class="text-[10px] text-rose-600 font-semibold mt-1">Candidate rejected the offer. Discuss and resend if needed.</p>
+          </div>
+          <button type="button" onclick="document.getElementById('offerModal').classList.remove('hidden')"
+                  class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-2.5 rounded-xl transition">
+            <i class="fas fa-redo text-[10px]"></i> Send New Offer
+          </button>
+        <% } %>
+      </div>
+
+      <!-- Force Onboard OTP Card -->
+      <% if (candidate.offerStatus !== 'Accepted') { %>
+        <div class="bg-white border border-rose-100 rounded-3xl p-5 shadow-sm space-y-4">
+          <h3 class="text-xs font-extrabold text-rose-600 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-rose-100">
+            <i class="fas fa-shield-alt"></i> Force Onboard Override
+          </h3>
+          <p class="text-[10px] text-slate-500 font-semibold leading-relaxed">
+            Bypass the offer letter signature requirement. Sends a 6-digit OTP to the Superadmin's registered email for verification.
+          </p>
+          <button type="button" onclick="document.getElementById('forceOtpModal').classList.remove('hidden')"
+                  class="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1">
+            <i class="fas fa-bolt text-[10px]"></i> Force Onboard (OTP)
+          </button>
+        </div>
+      <% } %>
+
+      <!-- Transfer Card (when ready) -->
+      <% if (candidate.offerStatus === 'Accepted') { %>
+        <div class="bg-white border border-emerald-100 rounded-3xl p-5 shadow-sm space-y-4">
+          <h3 class="text-xs font-extrabold text-emerald-600 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-emerald-100">
+            <i class="fas fa-user-check"></i> Ready to Transfer
+          </h3>
+          <p class="text-[10px] text-slate-500 font-semibold">Offer signed. You can now promote this candidate to the Staff directory.</p>
+          <form action="/admin/onboarding/<%= candidate._id %>/transfer" method="POST">
+            <button type="submit"
+                    onclick="return prompt('Type the candidate name to confirm transfer:') === '<%= candidate.name %>';"
+                    class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-xl transition shadow-sm flex items-center justify-center gap-1.5">
+              <i class="fas fa-arrow-right text-[10px]"></i> Transfer to Staff Directory
+            </button>
+          </form>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Offer Letter Modal -->
+<div id="offerModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl border border-slate-100 max-w-md w-full shadow-2xl p-6 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-500 to-indigo-500"></div>
+    <div class="flex justify-between items-center mb-5">
+      <h3 class="text-base font-extrabold text-slate-900">Send Offer Letter</h3>
+      <button onclick="document.getElementById('offerModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <p class="text-[10px] text-slate-500 font-semibold mb-4">
+      The candidate will receive an email with a link to log into their portal and digitally sign the offer.
+    </p>
+    <form action="/admin/onboarding/<%= candidate._id %>/send-offer" method="POST" class="space-y-4">
+      <div>
+        <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Designation *</label>
+        <input type="text" name="offerDesignation" value="<%= candidate.designation %>" required
+               class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none font-semibold text-slate-800 transition" />
+      </div>
+      <div>
+        <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Salary / Compensation *</label>
+        <input type="text" name="offerSalary" required placeholder="e.g., ₹5,00,000 per annum"
+               class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none font-semibold text-slate-800 transition" />
+      </div>
+      <div>
+        <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Proposed Joining Date *</label>
+        <input type="date" name="offerJoiningDate" required
+               class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none font-semibold text-slate-800 transition" />
+      </div>
+      <div class="flex gap-2 pt-2 justify-end">
+        <button type="button" onclick="document.getElementById('offerModal').classList.add('hidden')"
+                class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition">Cancel</button>
+        <button type="submit"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-sm">Send Offer Letter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Force OTP Modal -->
+<div id="forceOtpModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl border border-slate-100 max-w-md w-full shadow-2xl p-6 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1.5 bg-rose-500"></div>
+    <div class="flex justify-between items-center mb-5">
+      <h3 class="text-base font-extrabold text-slate-900">Force Onboard Verification</h3>
+      <button onclick="closeForceModal()" class="text-slate-400 hover:text-slate-600 transition">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Step 1: Request OTP -->
+    <div id="otpStep1" class="text-center space-y-4 py-2">
+      <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 text-xl mx-auto border border-rose-100">
+        <i class="fas fa-shield-alt animate-pulse"></i>
+      </div>
+      <p class="text-xs text-slate-600 font-semibold leading-relaxed px-2">
+        A 6-digit OTP will be sent to the registered Superadmin email to authorize this action.
+      </p>
+      <button id="sendOtpBtn" onclick="sendOtp()"
+              class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-sm inline-flex items-center gap-1.5">
+        <i class="fas fa-paper-plane text-[10px]"></i> Send Authorization OTP
+      </button>
+    </div>
+
+    <!-- Step 2: Enter OTP -->
+    <form id="otpStep2" action="/admin/onboarding/<%= candidate._id %>/force-onboard-confirm" method="POST" class="space-y-4 hidden">
+      <div class="bg-rose-50 border border-rose-100 rounded-2xl p-3 text-center text-xs font-semibold text-rose-700">
+        <i class="fas fa-check-circle"></i> OTP sent to Superadmin inbox!
+      </div>
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Enter 6-Digit OTP *</label>
+        <input type="text" name="otp" maxlength="6" required placeholder="000000"
+               class="w-full text-center tracking-[0.5em] border border-slate-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-100 rounded-xl px-3.5 py-3 text-base outline-none font-extrabold text-slate-800 transition" />
+      </div>
+      <div class="flex gap-2 justify-end">
+        <button type="button" onclick="closeForceModal()"
+                class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition">Cancel</button>
+        <button type="submit"
+                class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-sm">Confirm & Transfer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function closeForceModal() {
+    document.getElementById('forceOtpModal').classList.add('hidden');
+    document.getElementById('otpStep1').classList.remove('hidden');
+    document.getElementById('otpStep2').classList.add('hidden');
+  }
+
+  async function sendOtp() {
+    const btn = document.getElementById('sendOtpBtn');
+    btn.disabled = true;
+    btn.innerText = 'Sending...';
+    try {
+      const res = await fetch('/admin/onboarding/<%= candidate._id %>/force-onboard-otp', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('otpStep1').classList.add('hidden');
+        document.getElementById('otpStep2').classList.remove('hidden');
+      } else {
+        alert('Error: ' + data.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane text-[10px]"></i> Send Authorization OTP';
+      }
+    } catch {
+      alert('Failed to send OTP. Please try again.');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane text-[10px]"></i> Send Authorization OTP';
+    }
+  }
+</script>
