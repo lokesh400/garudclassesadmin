@@ -17,7 +17,7 @@
       <p class="text-slate-500 text-sm mt-1">Manage employee details, roles, credentials, documents, and active status.</p>
     </div>
 
-    <a href="/admin/staff/new" class="inline-flex items-center gap-2 bg-indigo-650 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition shadow-md shadow-indigo-600/10">
+    <a href="/admin/staff/new" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition shadow-md shadow-indigo-600/10">
       <i class="fas fa-plus text-[10px]"></i> Add Staff Member
     </a>
   </div>
@@ -86,7 +86,7 @@
                   <a href="/admin/staff/<%= s._id %>" class="inline-flex items-center gap-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-705 font-bold text-[10px] px-2.5 py-1.5 rounded-xl border border-indigo-150 transition">
                     View Details
                   </a>
-                  <form action="/admin/staff/<%= s._id %>/toggle-status" method="POST" class="inline">
+                  <form action="/admin/staff/<%= s._id %>/toggle-status" method="POST" class="inline" <% if (s.status === 'Active') { %>onsubmit="return confirm('Are you sure you want to deactivate <%= s.name %>?');"<% } %>>
                     <input type="hidden" name="redirectTo" value="/admin/staff" />
                     <button type="submit" class="inline-flex items-center rounded-xl px-2.5 py-1.5 text-[10px] font-bold border transition <%= s.status === 'Active' ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-150' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-150' %>">
                       <%= s.status === 'Active' ? 'Deactivate' : 'Activate' %>

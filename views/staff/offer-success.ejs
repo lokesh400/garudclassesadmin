@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offer Accepted Successfully | Garud Classes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-full py-12 px-4 flex flex-col justify-center items-center">
+
+  <div class="w-full max-w-md bg-white border border-slate-200 rounded-3xl shadow-xl p-8 text-center space-y-6 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1.5 bg-emerald-500"></div>
+
+    <div class="w-16 h-16 bg-emerald-50 border border-emerald-150 rounded-full flex items-center justify-center text-emerald-500 text-2xl mx-auto shadow-sm animate-bounce">
+      <i class="fas fa-check-double"></i>
+    </div>
+
+    <div class="space-y-2">
+      <h1 class="text-xl font-extrabold text-slate-850">Offer Accepted!</h1>
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Digital Signature Recorded</p>
+    </div>
+
+    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs font-medium text-slate-600 space-y-2 text-left">
+      <p><strong>Staff Member:</strong> <%= staff.name %></p>
+      <p><strong>Designation:</strong> <%= staff.offerDesignation %></p>
+      <p><strong>Digitally Signed As:</strong> <span class="font-bold text-indigo-650 italic">/s/ <%= staff.digitalSignature %></span></p>
+      <p><strong>Signed At:</strong> <%= new Date(staff.offerSignedAt).toLocaleString('en-IN') %></p>
+    </div>
+
+    <p class="text-xs text-slate-500 font-semibold leading-relaxed">
+      Thank you for accepting the offer! The administration team has been notified. 
+      You will receive your system login credentials via email once your profile is activated.
+    </p>
+
+  </div>
+
+</body>
+</html>

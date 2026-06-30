@@ -12,9 +12,11 @@ async function generateRollNumber (batch) {
   const yearPart = batch.year[2].toString() + batch.year[3].toString()
   const classPart = batch.name
   let coursePart = ''
-  if (batch.courseType === 'JEE') coursePart = 'N'
-  else if (batch.courseType === 'NEET') coursePart = 'M'
-  else if (batch.courseType === 'Foundation') coursePart = 'F'
+  const cType = (batch.courseType || '').toUpperCase()
+  if (cType === 'JEE') coursePart = 'N'
+  else if (cType === 'NEET') coursePart = 'M'
+  else if (cType === 'FOUNDATION') coursePart = 'F'
+  else if (cType === 'NDA') coursePart = 'A'
   else coursePart = 'X'
   const count = await User.countDocuments({ batch: batch._id })
   const seqPart = String(count + 1).padStart(3, '0')
@@ -48,6 +50,48 @@ router.post('/create', isLoggedIn, requireRole('admin'), async (req, res) => {
     res.redirect('/forms/create')
   }
 })
+
+// ✅ Admin: create form for a specific batch automatically
+router.post('/create-for-batch/:batchId', isLoggedIn, requireRole('admin'), async (req, res) => {
+  try {
+    const { batchId } = req.params;
+    const batch = await Batch.findById(batchId);
+    if (!batch) {
+      req.flash('error', 'Batch not found');
+      return res.redirect('back');
+    }
+
+    // Check if form already exists for this batch
+    const existingForm = await Form.findOne({ batch: batchId });
+    if (existingForm) {
+      req.flash('error', 'A data collection form has already been created for this batch.');
+      return res.redirect('back');
+    }
+
+    // Create a new form with default required student data fields
+    const form = new Form({
+      title: `Admission Form - ${batch.name}`,
+      description: `Please fill this form to enroll in ${batch.name} (${batch.courseType} - ${batch.year})`,
+      date: new Date().toISOString().split('T')[0],
+      time: '10:00 AM',
+      batch: batchId,
+      fields: [
+        { label: 'NAME', type: 'text', required: true },
+        { label: "FATHER'S NAME", type: 'text', required: true },
+        { label: "MOTHER'S NAME", type: 'text', required: true },
+        { label: 'ADDRESS', type: 'text', required: true }
+      ]
+    });
+
+    await form.save();
+    req.flash('success', `Data collection form created successfully for batch: ${batch.name}`);
+    res.redirect('back');
+  } catch (err) {
+    console.error(err);
+    req.flash('error', 'Failed to create form for batch');
+    res.redirect('back');
+  }
+});
 
 //////////////////////////////////
 ///////delete form////////
@@ -268,14 +312,23 @@ router.post('/:formId/submit', async (req, res) => {
     const form = await Form.findById(req.params.formId)
     if (!form) return res.status(404).send('Form not found')
     const { mobileNumber, email } = req.body
-    const exist = await Submission.findOne({
-      form: form._id,
-      mobileNumber,
-      email,
-      NAME: req.body.NAME
-    })
-    if (exist) {
-      res.send('Form Already Submitted with same Mobile Number, Email and Name')
+    
+    const name = req.body["NAME"] ? req.body["NAME"].trim().toLowerCase() : "";
+    const emailNorm = email ? email.trim().toLowerCase() : "";
+    const mobileNorm = mobileNumber ? mobileNumber.toString() : "";
+
+    const submissions = await Submission.find({ form: form._id });
+    const isDuplicate = submissions.some(sub => {
+      const subName = sub.data && sub.data["NAME"] ? sub.data["NAME"].trim().toLowerCase() : "";
+      const subMobile = sub.mobileNumber ? sub.mobileNumber.toString() : "";
+      const subEmail = sub.email ? sub.email.trim().toLowerCase() : "";
+      
+      return subName === name &&
+             subMobile === mobileNorm &&
+             subEmail === emailNorm;
+    });
+    if (isDuplicate) {
+      return res.send('Form Already Submitted with same Name, Mobile Number, and Email');
     }
     const submission = new Submission({
       form: form._id,
@@ -362,10 +415,10 @@ router.post(
       }
       const uniqueMap = new Map();
       for (const sub of submissions) {
-        const key =
-          sub.data["NAME"].trim().toLowerCase() + "|" +
-          sub.data["FATHER'S NAME"].trim().toLowerCase() + "|" +
-          sub.data["MOTHER'S NAME"].trim().toLowerCase();
+        const name = sub.data && sub.data["NAME"] ? sub.data["NAME"].trim().toLowerCase() : "";
+        const mobile = sub.mobileNumber ? sub.mobileNumber.toString() : "";
+        const email = sub.email ? sub.email.trim().toLowerCase() : "";
+        const key = name + "|" + mobile + "|" + email;
         if (!uniqueMap.has(key)) {
           uniqueMap.set(key, sub);
         }
@@ -374,14 +427,20 @@ router.post(
       let createdUsers = 0;
       let skippedUsers = 0;
       for (const s of uniqueSubmissions) {
-        const exist = await User.findOne({
-          name: s.data["NAME"],
-          fatherName: s.data["FATHER'S NAME"],
-          motherName: s.data["MOTHER'S NAME"]
-        });
-        if (exist) {
-          skippedUsers++;
-          continue;
+        const subName = s.data && s.data["NAME"] ? s.data["NAME"].trim() : "";
+        const subMobile = s.mobileNumber ? s.mobileNumber : null;
+        const subEmail = s.email ? s.email.trim() : "";
+
+        if (subName && subEmail && subMobile) {
+          const exist = await User.findOne({
+            name: { $regex: new RegExp("^" + subName + "$", "i") },
+            number: subMobile,
+            email: { $regex: new RegExp("^" + subEmail + "$", "i") }
+          });
+          if (exist) {
+            skippedUsers++;
+            continue;
+          }
         }
         const roll = await generateRollNumber(batch);
         const user = new User({
@@ -412,6 +471,49 @@ router.post(
     }
   }
 );
+
+// ✅ Admin: create form for a specific event automatically
+router.post('/create-for-event/:eventId', isLoggedIn, requireRole('admin'), async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const Event = require('../models/Event.js');
+    const event = await Event.findById(eventId);
+    if (!event) {
+      req.flash('error', 'Event not found');
+      return res.redirect('back');
+    }
+
+    // Check if form already exists for this event
+    const existingForm = await Form.findOne({ event: eventId });
+    if (existingForm) {
+      req.flash('error', 'A registration form has already been created for this event.');
+      return res.redirect('back');
+    }
+
+    // Create a new form with default fields
+    const form = new Form({
+      title: `${event.name} Registration Form`,
+      description: event.description || `Please fill this form to register for ${event.name}.`,
+      date: new Date(event.date).toISOString().split('T')[0],
+      time: '10:00 AM',
+      event: eventId,
+      fields: [
+        { label: 'NAME', type: 'text', required: true },
+        { label: "FATHER'S NAME", type: 'text', required: true },
+        { label: "MOTHER'S NAME", type: 'text', required: true },
+        { label: 'ADDRESS', type: 'text', required: true }
+      ]
+    });
+
+    await form.save();
+    req.flash('success', `Registration form created successfully for event: ${event.name}`);
+    res.redirect('back');
+  } catch (err) {
+    console.error(err);
+    req.flash('error', 'Server error while creating form');
+    res.redirect('back');
+  }
+});
 
 
 module.exports = router

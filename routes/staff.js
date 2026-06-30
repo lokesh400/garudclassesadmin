@@ -4,6 +4,8 @@ const Staff = require("../models/Staff");
 const User = require("../models/User");
 const { uploadStaffDocs } = require("./upload");
 const { isAdmin } = require("../middleware/auth");
+const { sendStaffCredentialsEmail, sendOfferLetterEmail, sendForceHireOtpEmail } = require("../utils/mailer");
+const crypto = require("crypto");
 
 const staffUploadFields = [
   { name: "aadhaar" },
@@ -54,40 +56,74 @@ router.get("/new", isAdmin, async (req, res) => {
   });
 });
 
+// Helper to generate password
+function generateStrongPassword(length = 8) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
+  const randomBytes = crypto.randomBytes(length);
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    password += chars[randomBytes[i] % chars.length];
+  }
+  return password;
+}
+
 // ➕ Add Staff
 router.post(
   "/add",
   isAdmin,
-  uploadStaffDocs.fields(staffUploadFields),
   async (req, res) => {
     try {
-      const accountValidationError = validateAccountFields(req.body);
-      if (accountValidationError) {
-        return res.status(400).send(accountValidationError);
+      const { name, email, department, role } = req.body;
+      const username = String(email || "").trim().toLowerCase();
+
+      if (!name || !username || !department || !role) {
+        req.flash("error", "Name, email, department, and role are required.");
+        return res.redirect("/admin/staff/new");
       }
 
-      const docs = {};
-      for (let key in req.files) {
-        docs[key] = normalizePath(req.files[key][0].path);
+      const exists = await User.findOne({ username });
+      if (exists) {
+        req.flash("error", "A user account with this email/username already exists.");
+        return res.redirect("/admin/staff/new");
       }
 
-      const payload = {
-        ...req.body,
-        linkedUsers: normalizeLinkedUsers(req.body.linkedUsers),
-        salary: req.body.salary ? Number(req.body.salary) : null,
-        joiningDate: req.body.joiningDate || null,
-        documents: docs,
-      };
-
-      delete payload.confirmAccountNumber;
-
-      await Staff.create({
-        ...payload,
+      const password = generateStrongPassword(8);
+      const user = new User({
+        name: name.trim(),
+        username: username,
+        email: username,
+        role: role
       });
 
+      await User.register(user, password);
+
+      const fs = require("fs");
+      fs.writeFileSync("uploads/staff/temp_pwd.txt", `username: ${username}\npassword: ${password}`);
+
+      let subjects = [];
+      if (req.body.subjects) {
+        subjects = Array.isArray(req.body.subjects) ? req.body.subjects : [req.body.subjects];
+      }
+
+      const staff = await Staff.create({
+        name: name.trim(),
+        email: username,
+        department: department,
+        designation: role.toUpperCase(),
+        subjects: subjects,
+        linkedUsers: [user._id],
+        status: "Inactive",
+        hiringStatus: "Pending"
+      });
+
+      const loginLink = `${req.protocol}://${req.get("host")}/login`;
+      await sendStaffCredentialsEmail(username, name.trim(), username, password, loginLink);
+
+      req.flash("success", `Staff member registered and credential email sent to ${username}!`);
       res.redirect("/admin/staff");
     } catch (err) {
-      res.status(500).send(err.message);
+      req.flash("error", err.message);
+      res.redirect("/admin/staff/new");
     }
   }
 );
@@ -107,7 +143,7 @@ router.get("/", isAdmin, async (req, res) => {
 router.get("/:id", isAdmin, async (req, res) => {
   const [staff, eligibleUsers] = await Promise.all([
     Staff.findById(req.params.id).populate("linkedUsers", "name username role").lean(),
-    User.find({ role: { $in: ALLOWED_STAFF_LINK_ROLES } })
+    User.find({ role: { $in: ["admin", "superadmin", "receptionist"] } })
       .select("name username role")
       .sort({ name: 1 })
       .lean(),
@@ -130,36 +166,40 @@ router.get("/:id", isAdmin, async (req, res) => {
 router.post(
   "/:id/update",
   isAdmin,
-  uploadStaffDocs.fields(staffUploadFields),
   async (req, res) => {
-    const accountValidationError = validateAccountFields(req.body);
-    if (accountValidationError) {
-      return res.status(400).send(accountValidationError);
-    }
+    try {
+      const { name, employeeId, designation, department, joiningDate, salary, mobileNumber, phone, email, status } = req.body;
 
-    const existing = await Staff.findById(req.params.id).lean();
-    if (!existing) {
-      return res.status(404).send("Staff not found");
-    }
-
-    const updateData = {
-      ...req.body,
-      linkedUsers: normalizeLinkedUsers(req.body.linkedUsers),
-      salary: req.body.salary ? Number(req.body.salary) : null,
-      joiningDate: req.body.joiningDate || null,
-      documents: { ...(existing.documents || {}) },
-    };
-
-    delete updateData.confirmAccountNumber;
-
-    if (req.files && Object.keys(req.files).length) {
-      for (let key in req.files) {
-        updateData.documents[key] = normalizePath(req.files[key][0].path);
+      const existing = await Staff.findById(req.params.id);
+      if (!existing) {
+        req.flash("error", "Staff not found");
+        return res.redirect("/admin/staff");
       }
-    }
 
-    await Staff.findByIdAndUpdate(req.params.id, updateData);
-    res.redirect(`/admin/staff/${req.params.id}`);
+      let subjects = [];
+      if (req.body.subjects) {
+        subjects = Array.isArray(req.body.subjects) ? req.body.subjects : [req.body.subjects];
+      }
+
+      existing.name = name ? name.trim() : existing.name;
+      existing.employeeId = employeeId || existing.employeeId;
+      existing.designation = designation || existing.designation;
+      existing.department = department || existing.department;
+      existing.joiningDate = joiningDate || null;
+      existing.salary = salary ? Number(salary) : null;
+      existing.mobileNumber = mobileNumber || existing.mobileNumber;
+      existing.phone = phone || existing.phone;
+      existing.email = email || existing.email;
+      existing.status = status || existing.status;
+      existing.subjects = subjects;
+
+      await existing.save();
+      req.flash("success", "Staff profile updated successfully!");
+      res.redirect(`/admin/staff/${req.params.id}`);
+    } catch (err) {
+      req.flash("error", err.message);
+      res.redirect(`/admin/staff/${req.params.id}`);
+    }
   }
 );
 
@@ -173,8 +213,199 @@ router.post("/:id/toggle-status", isAdmin, async (req, res) => {
   staff.status = staff.status === "Active" ? "Inactive" : "Active";
   await staff.save();
 
+  // Propagate status change to associated User accounts
+  const isUserActive = staff.status === "Active";
+  if (staff.linkedUsers && staff.linkedUsers.length) {
+    await User.updateMany({ _id: { $in: staff.linkedUsers } }, { $set: { isActive: isUserActive } });
+  }
+
   const redirectTo = req.body.redirectTo || "/admin/staff";
   res.redirect(redirectTo);
+});
+
+// 🌐 Link External Portal Account
+router.post("/:id/portal-accounts", isAdmin, async (req, res) => {
+  try {
+    const { portalName, username } = req.body;
+    if (!portalName || !username) {
+      req.flash("error", "Portal name and username are required.");
+      return res.redirect(`/admin/staff/${req.params.id}`);
+    }
+
+    const staff = await Staff.findById(req.params.id);
+    if (!staff) {
+      req.flash("error", "Staff member not found.");
+      return res.redirect("/admin/staff");
+    }
+
+    staff.portalAccounts = staff.portalAccounts || [];
+    staff.portalAccounts.push({ portalName, username });
+    await staff.save();
+
+    req.flash("success", `Successfully linked account for ${portalName}!`);
+    res.redirect(`/admin/staff/${req.params.id}`);
+  } catch (err) {
+    req.flash("error", err.message);
+    res.redirect(`/admin/staff/${req.params.id}`);
+  }
+});
+
+// 👤 Assign User Account to Staff Member
+router.post("/:id/assign-user", isAdmin, async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      req.flash("error", "Please select a user to assign.");
+      return res.redirect(`/admin/staff/${req.params.id}`);
+    }
+
+    const staff = await Staff.findById(req.params.id);
+    if (!staff) {
+      req.flash("error", "Staff member not found.");
+      return res.redirect("/admin/staff");
+    }
+
+    // Check if user is already assigned
+    if (staff.linkedUsers.includes(userId)) {
+      req.flash("error", "This user account is already assigned to this staff member.");
+      return res.redirect(`/admin/staff/${req.params.id}`);
+    }
+
+    staff.linkedUsers.push(userId);
+    await staff.save();
+
+    req.flash("success", "Successfully assigned user to staff member!");
+    res.redirect(`/admin/staff/${req.params.id}`);
+  } catch (err) {
+    req.flash("error", err.message);
+    res.redirect(`/admin/staff/${req.params.id}`);
+  }
+});
+
+// ➕ Send Offer Letter Route
+router.post("/:id/send-offer", isAdmin, async (req, res) => {
+  try {
+    const { offerDesignation, offerSalary, offerJoiningDate } = req.body;
+    if (!offerDesignation || !offerSalary || !offerJoiningDate) {
+      req.flash("error", "Designation, salary, and joining date are required to send the offer letter.");
+      return res.redirect(`/admin/staff/${req.params.id}`);
+    }
+
+    const staff = await Staff.findById(req.params.id);
+    if (!staff) {
+      req.flash("error", "Staff member not found.");
+      return res.redirect("/admin/staff");
+    }
+
+    staff.offerStatus = "Sent";
+    staff.offerDesignation = offerDesignation.trim();
+    staff.offerSalary = offerSalary.trim();
+    staff.offerJoiningDate = new Date(offerJoiningDate);
+    await staff.save();
+
+    const offerLink = `${req.protocol}://${req.get("host")}/staff/offer-letter/${staff._id}`;
+    await sendOfferLetterEmail(
+      staff.email,
+      staff.name,
+      staff.offerDesignation,
+      staff.offerSalary,
+      staff.offerJoiningDate,
+      offerLink
+    );
+
+    req.flash("success", `Offer letter successfully generated and sent to ${staff.email}!`);
+    res.redirect(`/admin/staff/${req.params.id}`);
+  } catch (err) {
+    req.flash("error", err.message);
+    res.redirect(`/admin/staff/${req.params.id}`);
+  }
+});
+
+// ➕ Onboard/Hire Staff Route
+router.post("/:id/hire", isAdmin, async (req, res) => {
+  try {
+    const staff = await Staff.findById(req.params.id);
+    if (!staff) {
+      req.flash("error", "Staff member not found.");
+      return res.redirect("/admin/staff");
+    }
+
+    if (staff.offerStatus !== "Accepted") {
+      req.flash("error", "Staff member must accept the offer letter digitally before onboarding.");
+      return res.redirect(`/admin/staff/${req.params.id}`);
+    }
+
+    staff.hiringStatus = "Hired";
+    staff.status = "Active";
+    await staff.save();
+
+    req.flash("success", `Staff member ${staff.name} successfully onboarded and activated!`);
+    res.redirect(`/admin/staff/${req.params.id}`);
+  } catch (err) {
+    req.flash("error", err.message);
+    res.redirect(`/admin/staff/${req.params.id}`);
+  }
+});
+
+// ➕ Request Force Onboard OTP API
+router.post("/:id/force-hire-otp", isAdmin, async (req, res) => {
+  try {
+    const staff = await Staff.findById(req.params.id);
+    if (!staff) {
+      return res.status(404).json({ success: false, message: "Staff member not found" });
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    req.session.forceHireOtp = {
+      code: otpCode,
+      staffId: req.params.id,
+      expiresAt: Date.now() + 5 * 60 * 1000 // 5 mins
+    };
+
+    const superadmin = await User.findOne({ role: "superadmin" });
+    const recipientEmail = superadmin ? (superadmin.email || superadmin.username) : (req.user.email || req.user.username);
+
+    await sendForceHireOtpEmail(recipientEmail, staff.name, otpCode);
+
+    return res.status(200).json({ success: true, message: `OTP sent successfully.` });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+// ➕ Confirm Force Onboard Route
+router.post("/:id/force-hire-confirm", isAdmin, async (req, res) => {
+  try {
+    const { otp } = req.body;
+    if (!otp) {
+      req.flash("error", "OTP code is required.");
+      return res.redirect(`/admin/staff/${req.params.id}`);
+    }
+
+    const sessionOtp = req.session.forceHireOtp;
+    if (!sessionOtp || sessionOtp.staffId !== req.params.id || sessionOtp.code !== otp.trim() || sessionOtp.expiresAt < Date.now()) {
+      req.flash("error", "Invalid or expired OTP.");
+      return res.redirect(`/admin/staff/${req.params.id}`);
+    }
+
+    const staff = await Staff.findById(req.params.id);
+    if (!staff) {
+      req.flash("error", "Staff member not found.");
+      return res.redirect("/admin/staff");
+    }
+
+    req.session.forceHireOtp = null;
+
+    staff.hiringStatus = "Hired";
+    staff.status = "Active";
+    await staff.save();
+
+    req.flash("success", `Staff member ${staff.name} force-onboarded successfully!`);
+    res.redirect(`/admin/staff/${req.params.id}`);
+  } catch (err) {
+    req.flash("error", err.message);
+    res.redirect(`/admin/staff/${req.params.id}`);
+  }
 });
 
 // ❌ Delete Staff

@@ -2,45 +2,59 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Submit Success</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submission Successful</title>
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Google Fonts (Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
     @keyframes pop {
       0%   { transform: scale(0.5); opacity: 0 }
       60%  { transform: scale(1.1); opacity: 1 }
       100% { transform: scale(1); }
     }
     .animate-pop {
-      animation: pop 0.4s ease-out forwards;
+      animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
   </style>
 </head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-x-hidden">
+  
+  <!-- Decorative Background Glows -->
+  <div class="absolute -top-40 -left-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-
-
-  <!-- SUCCESS STATE -->
-  <div id="success"
-       class="bg-white p-8 rounded-xl shadow-lg w-96 text-center">
-
-    <div class="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4 animate-pop">
-      <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor"
-           stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M5 13l4 4L19 7" />
-      </svg>
+  <div class="max-w-md w-full bg-white border border-slate-200 shadow-xl rounded-3xl p-8 text-center relative z-10">
+    
+    <div class="mx-auto w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5 border border-emerald-100 shadow-sm animate-pop">
+      <i class="fas fa-check-circle text-3xl"></i>
     </div>
 
-    <h2 class="text-2xl font-bold text-gray-800">
-      Submitted!
+    <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">
+      Submitted Successfully!
     </h2>
 
-    <p class="text-gray-500 mt-2">
-      Your form has been submitted successfully.
+    <p class="text-slate-500 text-sm mt-3 leading-relaxed">
+      Your student registration details have been received. The administration will verify and review your application shortly.
     </p>
+    
+    <div class="mt-6 pt-6 border-t border-slate-100 flex justify-center">
+      <div class="inline-flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
+        <i class="fas fa-shield-alt text-[10px]"></i> Secured Portal | Garud Classes
+      </div>
+    </div>
   </div>
-
 
 </body>
 </html>

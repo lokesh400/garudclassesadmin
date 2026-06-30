@@ -122,6 +122,36 @@
     </div>
   </div>
 
+  <% if (typeof batchForm !== 'undefined' && batchForm) { %>
+    <!-- Batch Enrollment Form Details -->
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+      <div class="flex justify-between items-start gap-4">
+        <div>
+          <h3 class="font-bold text-slate-800 text-sm">Active Data Collection Form</h3>
+          <p class="text-xs text-slate-500 mt-1">Collect student details and import registrations directly</p>
+        </div>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-150">
+          Form Active
+        </span>
+      </div>
+
+      <div class="bg-slate-50 border border-slate-150 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="truncate">
+          <p class="text-xs font-extrabold text-slate-700 truncate"><%= batchForm.title %></p>
+          <p class="text-[11px] text-slate-500 mt-0.5 select-all truncate" id="batchFormLink"></p>
+        </div>
+        <div class="flex flex-wrap gap-2 flex-shrink-0">
+          <button onclick="copyFormLink('<%= batchForm._id %>')" class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition">
+            <i class="fas fa-copy text-[11px]"></i> Copy Link
+          </button>
+          <a href="/forms/<%= batchForm._id %>/submissions" class="inline-flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2.5 rounded-xl font-bold text-xs transition">
+            <i class="fas fa-list-ul text-[10px]"></i> View Submissions
+          </a>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
   <!-- Operational Actions -->
   <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
     <div>
@@ -259,5 +289,24 @@
 
     document.getElementById('confirmForm').action =
       "/forms/" + formId + "/import/<%= batch._id %>";
+  }
+
+  function copyFormLink(formId) {
+    const link = `${window.location.origin}/forms/fill/${formId}`;
+    navigator.clipboard.writeText(link)
+      .then(() => {
+        if (typeof showToast === 'function') {
+          showToast("Form link copied to clipboard!", "success");
+        } else {
+          alert("Form link copied!");
+        }
+      })
+      .catch(() => alert("Unable to copy link"));
+  }
+  
+  // Set the text of batchFormLink if exists
+  const linkEl = document.getElementById("batchFormLink");
+  if (linkEl) {
+    linkEl.textContent = `${window.location.origin}/forms/fill/<%= batchForm ? batchForm._id : '' %>`;
   }
 </script>

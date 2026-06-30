@@ -38,6 +38,9 @@ const resetPasswordRoute = require("./routes/password");
 const recruitmentsRoutes = require("./routes/recruitments");
 const recruitmentPublicRoutes = require("./routes/recruitmentPublic");
 const staffRoutes = require("./routes/staff");
+const staffPortalRoutes = require("./routes/staffPortal");
+const staffPublicRoutes = require("./routes/staffPublic");
+const eventRoutes = require("./routes/event");
 
 const mobileAuthRoutes = require("./routes/mobile/auth");
 const mobileFeeRoutes = require("./routes/mobile/fee");
@@ -128,6 +131,7 @@ app.use("/fees", feeRouter);
 app.use("/forms", formRouter);
 app.use("/admitcard", admitcardRouter);
 app.use("/marks", marksRouter);
+app.use("/events", eventRoutes);
 app.use("/", webAuthRoutes);
 app.use("/", queryRoutes);
 app.use("/", dataRoutes);
@@ -179,6 +183,8 @@ app.get("/admin/staff-management", isLoggedIn, requireRole("superadmin"), async 
 app.use("/admin/recruitments", recruitmentsRoutes);
 app.use("/recruitments", recruitmentPublicRoutes);
 app.use("/admin/staff", staffRoutes);
+app.use("/staff", staffPortalRoutes);
+app.use("/staff", staffPublicRoutes);
 
 
 // app.get("/whatsapp", isLoggedIn, requireRole("superadmin"), async (req, res) => {

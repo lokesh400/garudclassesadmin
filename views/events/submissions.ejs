@@ -1,0 +1,182 @@
+<div class="w-full px-6 py-8">
+  <!-- Header & Navigation -->
+  <div class="mb-6 flex items-center justify-between">
+    <a href="/events" class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition">
+      <i class="fas fa-arrow-left"></i> Back to Events
+    </a>
+  </div>
+
+  <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-slate-200 mb-8 gap-4">
+    <div>
+      <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight"><%= event.name %> Submissions</h1>
+      <p class="text-slate-500 text-sm mt-1.5">View candidates registered via the online form and track attendance.</p>
+    </div>
+    <button id="downloadExcelBtn" 
+            class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-5 py-3 rounded-2xl transition shadow-md shadow-emerald-100 outline-none">
+      <i class="fas fa-file-excel text-[15px]"></i> Export to Excel
+    </button>
+  </div>
+
+  <!-- Controls -->
+  <div class="flex flex-wrap gap-4 mb-6 items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl p-4">
+    <div class="relative w-full max-w-sm">
+      <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
+        <i class="fas fa-search"></i>
+      </span>
+      <input
+        type="text"
+        id="searchCandidate"
+        placeholder="Search submissions..."
+        class="w-full pl-11 pr-4 py-2.5 border border-slate-300 bg-white text-slate-800 placeholder-slate-405 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl text-sm outline-none transition"
+      />
+    </div>
+    <div class="text-xs text-slate-500 font-bold">
+      Total Registered: <span class="text-slate-800" id="candidateCount"><%= submissions.length %></span> Candidates
+    </div>
+  </div>
+
+  <!-- Submissions Table Card -->
+  <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-left" id="submissionsTable">
+        <thead class="bg-slate-50 text-[10px] uppercase font-extrabold text-slate-550 tracking-wider">
+          <tr>
+            <th class="px-6 py-4 text-center w-12">#</th>
+            <th class="px-6 py-4">Name</th>
+            <th class="px-6 py-4">Contact Number</th>
+            <th class="px-6 py-4">Email</th>
+            
+            <!-- Dynamic Form Field Headers -->
+            <% const keys = submissions.length ? Object.keys(submissions[0].data) : []; %>
+            <% keys.forEach(key => { %>
+              <% if (key !== 'NAME') { %>
+                <th class="px-6 py-4"><%= key %></th>
+              <% } %>
+            <% }) %>
+            
+            <th class="px-6 py-4 text-center w-36">Attendance</th>
+            <th class="px-6 py-4 text-center w-20">Registered At</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm font-bold text-slate-900" id="submissionsBody">
+          <% if (submissions.length > 0) { %>
+            <% submissions.forEach((sub, i) => { %>
+              <tr data-id="<%= sub._id %>" class="hover:bg-slate-50/50 transition <%= sub.attendance ? 'bg-emerald-50/20' : '' %>">
+                <td class="px-6 py-4 text-center text-slate-400 font-bold"><%= i + 1 %></td>
+                <td class="px-6 py-4">
+                  <div class="font-bold text-slate-900"><%= sub.data['NAME'] || 'N/A' %></div>
+                </td>
+                <td class="px-6 py-4 text-slate-900 font-bold"><%= sub.mobileNumber ? '+91 ' + sub.mobileNumber : 'N/A' %></td>
+                <td class="px-6 py-4 text-slate-900 font-bold lowercase"><%= sub.email || 'N/A' %></td>
+                
+                <!-- Dynamic Field Values -->
+                <% keys.forEach(key => { %>
+                  <% if (key !== 'NAME') { %>
+                    <td class="px-6 py-4 text-slate-900 font-bold"><%= sub.data[key] || '' %></td>
+                  <% } %>
+                <% }) %>
+                
+                <!-- Attendance Switch Toggle -->
+                <td class="px-6 py-4 text-center">
+                  <div class="flex items-center justify-center">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" 
+                             class="sr-only peer attendance-toggle" 
+                             data-id="<%= sub._id %>"
+                             <%= sub.attendance ? 'checked' : '' %> />
+                      <div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                    </label>
+                    <span class="ml-2.5 text-[10px] font-extrabold uppercase tracking-wide min-w-[50px] text-center <%= sub.attendance ? 'text-emerald-700' : 'text-slate-400' %>" id="status-label-<%= sub._id %>">
+                      <%= sub.attendance ? 'Present' : 'Absent' %>
+                    </span>
+                  </div>
+                </td>
+                
+                <td class="px-6 py-4 text-center text-slate-400">
+                  <%= new Date(sub.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="<%= 5 + keys.length %>" class="px-6 py-12 text-center text-slate-400 italic">
+                No submissions found for this event yet.
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- XLSX Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+  // Filter submissions
+  document.getElementById("searchCandidate").addEventListener("input", (e) => {
+    const val = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll("#submissionsBody tr");
+    let matchCount = 0;
+    
+    rows.forEach(row => {
+      if (row.innerText.toLowerCase().includes(val)) {
+        row.style.display = "";
+        matchCount++;
+      } else {
+        row.style.display = "none";
+      }
+    });
+    
+    document.getElementById("candidateCount").innerText = val ? matchCount : "<%= submissions.length %>";
+  });
+
+  // AJAX Attendance toggling
+  document.querySelectorAll(".attendance-toggle").forEach(toggle => {
+    toggle.addEventListener("change", async (e) => {
+      const submissionId = e.target.dataset.id;
+      const checked = e.target.checked;
+      const label = document.getElementById(`status-label-${submissionId}`);
+      const row = e.target.closest("tr");
+
+      try {
+        const res = await fetch(`/events/attendance/${submissionId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ attendance: checked })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          if (data.attendance) {
+            label.innerText = "Present";
+            label.className = "ml-2.5 text-[10px] font-extrabold uppercase tracking-wide min-w-[50px] text-center text-emerald-700";
+            row.classList.add("bg-emerald-50/20");
+          } else {
+            label.innerText = "Absent";
+            label.className = "ml-2.5 text-[10px] font-extrabold uppercase tracking-wide min-w-[50px] text-center text-slate-400";
+            row.classList.remove("bg-emerald-50/20");
+          }
+          if (typeof showToast === 'function') {
+            showToast(`Candidate marked ${data.attendance ? 'Present' : 'Absent'}.`, "success");
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        e.target.checked = !checked; // revert
+        if (typeof showToast === 'function') {
+          showToast("Failed to update attendance.", "error");
+        }
+      }
+    });
+  });
+
+  // Export to Excel sheet
+  document.getElementById("downloadExcelBtn").addEventListener("click", () => {
+    // Generate simple Excel from submissionsTable
+    const table = document.getElementById("submissionsTable");
+    const wb = XLSX.utils.table_to_book(table, { sheet: "<%= event.name %>" });
+    XLSX.writeFile(wb, "<%= event.name.replace(/\s+/g, '_') %>_submissions.xlsx");
+  });
+</script>

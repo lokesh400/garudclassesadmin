@@ -1,179 +1,230 @@
-<div class="bg-white p-6 shadow rounded mt-8">
+<div class="w-full px-6 py-8">
+  <!-- Back Navigation Link -->
+  <div class="mb-6">
+    <a href="/forms/list" class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition">
+      <i class="fas fa-arrow-left"></i> Back to Forms
+    </a>
+  </div>
 
-  <!-- HEADER -->
-  <h1 class="text-3xl font-bold mb-6">Form Submissions</h1>
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-slate-200 mb-8 gap-4">
+    <div>
+      <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">Form Submissions</h1>
+      <p class="text-slate-500 text-sm mt-1.5">Manage entries, edit candidate information, generate admit cards, and track attendance.</p>
+    </div>
+  </div>
 
-  <!-- TOP ACTIONS -->
-  <div class="flex flex-wrap gap-3 mb-6 items-center">
+  <!-- Top Actions & Controls -->
+  <div class="flex flex-wrap gap-4 mb-6 items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl p-4">
+    <!-- Search Field -->
+    <div class="relative w-full max-w-xs">
+      <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
+        <i class="fas fa-search"></i>
+      </span>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search submissions..."
+        class="w-full pl-11 pr-4 py-2.5 border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl text-sm outline-none transition"
+      />
+    </div>
 
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="Search..."
-      class="border p-2 rounded w-64 focus:outline-none focus:ring">
-
-    <button
-      id="downloadBtn"
-      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-      Download Excel
-    </button>
-
-    <form action="/admitcard/send/update/<%= form._id %>" method="post">
+    <!-- Operational Actions -->
+    <div class="flex flex-wrap items-center gap-3">
+      <!-- Download Excel -->
       <button
-        type="submit"
-        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Send Notification
+        id="downloadBtn"
+        class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-md shadow-emerald-100 outline-none">
+        <i class="fas fa-file-excel"></i> Export Excel
       </button>
-    </form>
 
-    <button
-      onclick="openGenerateModal()"
-      class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
-      Generate Admit Cards
-    </button>
+      <!-- Send Notification -->
+      <form action="/admitcard/send/update/<%= form._id %>" method="post">
+        <button
+          type="submit"
+          class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-md shadow-indigo-100 outline-none">
+          <i class="fas fa-envelope"></i> Send Notification
+        </button>
+      </form>
 
+      <!-- Generate Admit Cards -->
+      <button
+        onclick="openGenerateModal()"
+        class="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-md shadow-violet-100 outline-none">
+        <i class="fas fa-id-card"></i> Admit Cards
+      </button>
+    </div>
   </div>
 
-  <!-- TABLE -->
-  <div class="overflow-x-auto">
-    <table class="min-w-full border divide-y divide-gray-200" id="submissionsTable">
+  <!-- Table Card -->
+  <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-left" id="submissionsTable">
+        <thead class="bg-slate-50 text-[10px] uppercase font-extrabold text-slate-550 tracking-wider">
+          <tr>
+            <th class="px-6 py-4 text-center w-12">#</th>
+            <th class="px-6 py-4 text-center w-24">Actions</th>
+            <th class="px-6 py-4">Contact</th>
+            <th class="px-6 py-4">Email</th>
 
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="px-4 py-2 text-center">#</th>
-          <th class="px-4 py-2 text-center">Delete</th>
-          <th class="px-4 py-2 text-center">Edit</th>
+            <% const keys = submissions.length ? Object.keys(submissions[0].data) : []; %>
+            <% keys.forEach(key => { %>
+              <th class="px-6 py-4"><%= key %></th>
+            <% }) %>
 
-          <% const keys = submissions.length ? Object.keys(submissions[0].data) : []; %>
-          <% keys.forEach(key => { %>
-            <th class="px-4 py-2 text-left"><%= key %></th>
-          <% }) %>
+            <th class="px-6 py-4 text-center w-36">Attendance</th>
+            <th class="px-6 py-4 text-center w-28">Submitted At</th>
+          </tr>
+        </thead>
 
-          <th class="px-4 py-2 text-center">Attendance</th>
-          <th class="px-4 py-2 text-left">Submitted At</th>
-        </tr>
-      </thead>
+        <tbody id="tableBody" class="divide-y divide-slate-100 text-sm font-bold text-slate-900">
+          <% if (submissions.length > 0) { %>
+            <% submissions.forEach((sub, i) => { %>
+              <tr data-id="<%= sub._id %>" class="hover:bg-slate-50/50 transition <%= sub.attendance ? 'bg-emerald-50/20' : '' %>">
+                <td class="px-6 py-4 text-center text-slate-400 font-bold"><%= i + 1 %></td>
 
-      <tbody id="tableBody" class="divide-y">
+                <!-- ACTIONS (EDIT/DELETE) -->
+                <td class="px-6 py-4 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <!-- Edit Button -->
+                    <button
+                      class="p-2 text-amber-600 hover:bg-amber-50 rounded-xl transition outline-none"
+                      data-id="<%= sub._id %>"
+                      data-data='<%- JSON.stringify(sub.data) %>'
+                      onclick="handleEditClick(this)"
+                      title="Edit Submission">
+                      <i class="fas fa-edit text-sm"></i>
+                    </button>
 
-        <% submissions.forEach((sub, i) => { %>
-        <tr data-id="<%= sub._id %>" class="<%= sub.attendance ? 'bg-green-100' : '' %>">
+                    <!-- Delete Form -->
+                    <form method="POST"
+                          action="/forms/<%= form._id %>/submission/<%= sub._id %>/delete"
+                          onsubmit="return confirm('Delete this submission?')">
+                      <button class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition outline-none" title="Delete Submission">
+                        <i class="fas fa-trash-alt text-sm"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
 
-          <td class="px-4 py-2 text-center"><%= i + 1 %></td>
+                <td class="px-6 py-4 text-slate-900 font-bold"><%= sub.mobileNumber ? '+91 ' + sub.mobileNumber : 'N/A' %></td>
+                <td class="px-6 py-4 text-slate-900 font-bold lowercase"><%= sub.email || 'N/A' %></td>
 
-          <!-- DELETE -->
-          <td class="px-4 py-2 text-center">
-            <form method="POST"
-              action="/forms/<%= form._id %>/submission/<%= sub._id %>/delete"
-              onsubmit="return confirm('Delete this submission?')">
-              <button class="text-red-600 font-semibold hover:underline">
-                Delete
-              </button>
-            </form>
-          </td>
+                <% keys.forEach(key => { %>
+                  <td class="px-6 py-4 text-slate-900 font-bold"><%= sub.data[key] || '' %></td>
+                <% }) %>
 
-          <!-- EDIT -->
-          <td class="px-4 py-2 text-center">
-            <button
-              class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-              data-id="<%= sub._id %>"
-              data-data='<%- JSON.stringify(sub.data) %>'
-              onclick="handleEditClick(this)">
-              Edit
-            </button>
-          </td>
+                <!-- ATTENDANCE TOGGLE -->
+                <td class="px-6 py-4 text-center">
+                  <div class="flex items-center justify-center">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" 
+                             class="sr-only peer attendanceCheckbox" 
+                             <%= sub.attendance ? 'checked' : '' %> />
+                      <div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                    </label>
+                    <span class="ml-2.5 text-[10px] font-extrabold uppercase tracking-wide min-w-[50px] text-center attendanceText <%= sub.attendance ? 'text-emerald-700' : 'text-slate-400' %>">
+                      <%= sub.attendance ? 'Present' : 'Absent' %>
+                    </span>
+                  </div>
+                </td>
 
-          <% keys.forEach(key => { %>
-            <td class="px-4 py-2"><%= sub.data[key] %></td>
-          <% }) %>
-
-          <!-- ATTENDANCE -->
-          <td class="px-4 py-2 text-center">
-            <span class="attendanceText block mb-1">
-              <%= sub.attendance ? 'Present' : 'Absent' %>
-            </span>
-            <input type="checkbox" class="attendanceCheckbox"
-              <%= sub.attendance ? 'checked' : '' %>>
-          </td>
-
-          <td class="px-4 py-2">
-            <%= new Date(sub.createdAt).toLocaleString() %>
-          </td>
-
-        </tr>
-        <% }) %>
-
-      </tbody>
-    </table>
+                <td class="px-6 py-4 text-center text-slate-450">
+                  <%= new Date(sub.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="<%= 6 + keys.length %>" class="px-6 py-12 text-center text-slate-450 italic">
+                No submissions found for this form yet.
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
 
-<!-- ====================== -->
-<!-- EDIT SUBMISSION MODAL -->
-<!-- ====================== -->
-<div id="editModal" class="fixed inset-0 bg-black bg-opacity-40 hidden z-50">
-  <div class="flex items-center justify-center min-h-screen">
-    <div class="bg-white w-full max-w-2xl rounded shadow p-6">
+  <!-- ====================== -->
+  <!-- EDIT SUBMISSION MODAL -->
+  <!-- ====================== -->
+  <div id="editModal" class="hidden fixed inset-0 bg-slate-955/40 flex items-center justify-center z-50 p-4 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 relative border border-slate-100 transform transition-all duration-300">
+      <button onclick="closeEditModal()" class="absolute top-4 right-4 text-slate-405 hover:text-slate-600 transition">
+        <i class="fas fa-times text-lg"></i>
+      </button>
 
-      <h2 class="text-xl font-bold mb-4">Edit Submission</h2>
+      <div class="mb-5">
+        <h2 class="text-xl font-bold text-slate-800">Edit Submission Details</h2>
+        <p class="text-slate-500 text-xs mt-1">Modify applicant's dynamic form details.</p>
+      </div>
 
-      <form method="POST" id="editSubmissionForm">
-        <div id="editFieldsContainer" class="space-y-4"></div>
+      <form method="POST" id="editSubmissionForm" class="space-y-4">
+        <div id="editFieldsContainer" class="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
+          <!-- Fields injected by JS -->
+        </div>
 
-        <div class="flex justify-end gap-3 mt-6">
-          <button type="button"
-            onclick="closeEditModal()"
-            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <button type="button" onclick="closeEditModal()" 
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-3.5 rounded-xl transition">
             Cancel
           </button>
-
-          <button type="submit"
-            class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+          <button type="submit" 
+                  class="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs py-3.5 rounded-xl transition shadow-md shadow-amber-100">
             Save Changes
           </button>
         </div>
       </form>
-
     </div>
   </div>
-</div>
 
-<!-- ====================== -->
-<!-- GENERATE ADMIT MODAL -->
-<!-- ====================== -->
-<div id="generateModal" class="fixed inset-0 bg-black bg-opacity-40 hidden z-50">
-  <div class="flex items-center justify-center min-h-screen">
-    <div class="bg-white w-full max-w-md rounded shadow p-6 text-center">
+  <!-- ====================== -->
+  <!-- GENERATE ADMIT MODAL -->
+  <!-- ====================== -->
+  <div id="generateModal" class="hidden fixed inset-0 bg-slate-955/40 flex items-center justify-center z-50 p-4 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 relative border border-slate-100 transform transition-all duration-300">
+      <button onclick="closeGenerateModal()" class="absolute top-4 right-4 text-slate-405 hover:text-slate-600 transition">
+        <i class="fas fa-times text-lg"></i>
+      </button>
 
-      <h2 class="text-xl font-bold mb-4">Generate Admit Cards?</h2>
-      <p class="text-gray-600 mb-6">
-        Are you sure you want to generate admit cards?
-      </p>
+      <div class="text-center p-4">
+        <div class="inline-flex items-center justify-center w-12 h-12 bg-violet-50 text-violet-600 rounded-2xl mb-4 border border-violet-100 shadow-sm animate-pop">
+          <i class="fas fa-id-card text-xl"></i>
+        </div>
+        <h2 class="text-xl font-bold text-slate-800">Generate Admit Cards?</h2>
+        <p class="text-slate-500 text-xs mt-2 leading-relaxed">
+          Are you sure you want to generate and update admit cards for all submissions in this form?
+        </p>
 
-      <div class="flex justify-center gap-4">
-        <button onclick="closeGenerateModal()"
-          class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-          Cancel
-        </button>
-
-        <a href="/admitcard/generate/<%= form._id %>"
-          class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
-          Generate
-        </a>
+        <div class="grid grid-cols-2 gap-3 pt-6">
+          <button onclick="closeGenerateModal()" 
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-3.5 rounded-xl transition">
+            Cancel
+          </button>
+          <a href="/admitcard/generate/<%= form._id %>"
+             class="bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs py-3.5 rounded-xl transition shadow-md shadow-violet-100 flex items-center justify-center">
+            Generate
+          </a>
+        </div>
       </div>
-
     </div>
   </div>
 </div>
 
 <!-- ====================== -->
-<!-- JAVASCRIPT -->
+<!-- JAVASCRIPT & SOCKETS -->
 <!-- ====================== -->
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-  const socket = io();
+  let socket;
+  try {
+    socket = io();
+  } catch(e) {
+    console.warn("Socket.io not loaded");
+  }
 
   // ---------- EDIT MODAL ----------
   function handleEditClick(btn) {
@@ -182,6 +233,7 @@
     openEditModal(data, submissionId);
   }
 
+  // Open Edit Modal
   function openEditModal(data, submissionId) {
     const modal = document.getElementById("editModal");
     const container = document.getElementById("editFieldsContainer");
@@ -192,12 +244,12 @@
       const value = data[key] ?? "";
       container.innerHTML += `
         <div>
-          <label class="block font-medium mb-1">${key}</label>
+          <label class="block text-slate-700 font-bold mb-1.5 text-[11px] uppercase tracking-wider">${key}</label>
           <input
             type="text"
             name="data[${key}]"
             value="${value}"
-            class="w-full border p-2 rounded focus:ring focus:outline-none">
+            class="w-full px-4 py-2.5 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl text-sm outline-none transition font-semibold" required>
         </div>
       `;
     });
@@ -206,19 +258,30 @@
       "/submissions/" + submissionId + "/edit";
 
     modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    document.body.style.overflow = "hidden";
   }
 
   function closeEditModal() {
-    document.getElementById("editModal").classList.add("hidden");
+    const modal = document.getElementById("editModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+    document.body.style.overflow = "";
   }
 
   // ---------- GENERATE MODAL ----------
   function openGenerateModal() {
-    document.getElementById("generateModal").classList.remove("hidden");
+    const modal = document.getElementById("generateModal");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    document.body.style.overflow = "hidden";
   }
 
   function closeGenerateModal() {
-    document.getElementById("generateModal").classList.add("hidden");
+    const modal = document.getElementById("generateModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+    document.body.style.overflow = "";
   }
 
   // ---------- SEARCH ----------
@@ -230,28 +293,62 @@
   });
 
   // ---------- ATTENDANCE ----------
-  document.getElementById("tableBody").addEventListener("change", e => {
+  document.getElementById("tableBody").addEventListener("change", async e => {
     if (!e.target.classList.contains("attendanceCheckbox")) return;
 
     const row = e.target.closest("tr");
     const checked = e.target.checked;
+    const submissionId = row.dataset.id;
 
-    row.classList.toggle("bg-green-100", checked);
-    row.querySelector(".attendanceText").textContent =
-      checked ? "Present" : "Absent";
+    // 1. Visually update local state immediately for snappy user experience
+    row.classList.toggle("bg-emerald-50/20", checked);
+    const label = row.querySelector(".attendanceText");
+    label.textContent = checked ? "Present" : "Absent";
+    label.className = `ml-2.5 text-[10px] font-extrabold uppercase tracking-wide min-w-[50px] text-center attendanceText ${checked ? 'text-emerald-700' : 'text-slate-400'}`;
 
-    socket.emit("updateAttendance", {
-      submissionId: row.dataset.id,
-      attendance: checked
-    });
+    // 2. Perform dynamic HTTP POST update to backend
+    try {
+      const res = await fetch(`/events/attendance/${submissionId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attendance: checked })
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (typeof showToast === 'function') {
+          showToast(`Candidate marked ${data.attendance ? 'Present' : 'Absent'}.`, "success");
+        }
+      } else {
+        throw new Error(data.message || "Failed update");
+      }
+    } catch(err) {
+      console.error(err);
+      // Fallback to socket if socket is active
+      if (socket) {
+        socket.emit("updateAttendance", {
+          submissionId,
+          attendance: checked
+        });
+      } else {
+        if (typeof showToast === 'function') {
+          showToast("Failed to update attendance.", "error");
+        }
+      }
+    }
   });
 
   // ---------- EXCEL EXPORT ----------
   document.getElementById("downloadBtn").addEventListener("click", () => {
-    const wb = XLSX.utils.table_to_book(
-      document.getElementById("submissionsTable"),
-      { sheet: "Submissions" }
-    );
+    const table = document.getElementById("submissionsTable");
+    const wb = XLSX.utils.table_to_book(table, { sheet: "Submissions" });
     XLSX.writeFile(wb, "form_submissions.xlsx");
+  });
+
+  // Close modals on clicking outside
+  window.addEventListener("click", (e) => {
+    const editModal = document.getElementById("editModal");
+    const generateModal = document.getElementById("generateModal");
+    if (e.target === editModal) closeEditModal();
+    if (e.target === generateModal) closeGenerateModal();
   });
 </script>

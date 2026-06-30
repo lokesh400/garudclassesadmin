@@ -98,6 +98,36 @@ const staffSchema = new mongoose.Schema({
     enum: ["Active", "Inactive"],
     default: "Active"
   },
+  hiringStatus: {
+    type: String,
+    enum: ["Pending", "Hired"],
+    default: "Pending"
+  },
+  offerStatus: {
+    type: String,
+    enum: ["None", "Sent", "Accepted", "Rejected"],
+    default: "None"
+  },
+  offerDesignation: {
+    type: String,
+    default: ""
+  },
+  offerSalary: {
+    type: String,
+    default: ""
+  },
+  offerJoiningDate: {
+    type: Date,
+    default: null
+  },
+  digitalSignature: {
+    type: String,
+    default: ""
+  },
+  offerSignedAt: {
+    type: Date,
+    default: null
+  },
 
   documents: {
     aadhaar: {
@@ -132,6 +162,16 @@ const staffSchema = new mongoose.Schema({
       type: String,
       default: "",
     },
+  },
+
+  portalAccounts: [{
+    portalName: { type: String, required: true },
+    username: { type: String, required: true }
+  }],
+
+  subjects: {
+    type: [String],
+    default: []
   },
 
   createdAt: {

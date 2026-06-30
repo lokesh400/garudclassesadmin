@@ -15,6 +15,8 @@ const formSchema = new mongoose.Schema({
       required: { type: Boolean, default: false }
     }
   ],
+  batch: { type: mongoose.Schema.Types.ObjectId, ref: "Batch", unique: true, sparse: true },
+  event: { type: mongoose.Schema.Types.ObjectId, ref: "Event", unique: true, sparse: true },
   isActive:{ type:Boolean, default:true }
 }, { timestamps: true });
 

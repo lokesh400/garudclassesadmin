@@ -123,10 +123,17 @@
                   </button>
                   <a 
                     href="/api/students/documents/<%= u._id %>"
-                    class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-150 font-extrabold text-[10px] px-3 py-1.5 rounded-xl transition"
+                    class="bg-indigo-55 text-indigo-705 border border-indigo-150 font-extrabold text-[10px] px-3 py-1.5 rounded-xl transition"
                   >
                     Documents
                   </a>
+                  <button
+                    type="button"
+                    class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-150 font-extrabold text-[10px] px-3 py-1.5 rounded-xl transition outline-none"
+                    onclick="triggerDeleteStudent('<%= u._id %>', '<%= u.name %>')"
+                  >
+                    Delete
+                  </button>
                 </div>
               </td>
             </tr>
@@ -326,6 +333,149 @@
       }
     } catch (err) {
       showToast("An error occurred while saving details", "error");
+    }
+  });
+</script>
+
+<!-- 🗑️ Delete Student OTP Modal -->
+<div id="deleteOtpModal" class="hidden fixed inset-0 bg-slate-950/50 items-center justify-center z-[60] p-4 transition-all duration-300">
+  <div class="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 relative border border-slate-100 transform transition-all duration-300">
+    <button onclick="closeDeleteOtpModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-650 transition">
+      <i class="fas fa-times text-lg"></i>
+    </button>
+
+    <div class="text-center mb-6">
+      <span class="inline-flex p-4 bg-rose-50 text-rose-600 rounded-full mb-3">
+        <i class="fas fa-user-shield text-2xl animate-pulse"></i>
+      </span>
+      <h2 class="text-xl font-extrabold text-slate-850">Authorization Required</h2>
+      <p class="text-slate-500 text-xs mt-2 px-4">
+        To delete <strong id="deleteStudentName" class="text-slate-800"></strong> permanently, an OTP has been sent to your registered administrator email address.
+      </p>
+    </div>
+
+    <form id="deleteOtpForm" class="space-y-4">
+      <input type="hidden" id="deleteStudentId" />
+      
+      <div>
+        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 text-center font-semibold">Enter Verification Code</label>
+        <input type="text" id="deleteOtpInput" placeholder="------" maxlength="6" required autocomplete="off"
+               class="w-full text-center border-2 border-slate-200 focus:border-rose-500 focus:ring-4 focus:ring-rose-50 rounded-2xl px-4 py-3 text-2xl font-bold tracking-[8px] outline-none text-slate-800 transition" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 pt-2">
+        <button type="button" onclick="closeDeleteOtpModal()" 
+                class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-3.5 rounded-xl transition">
+          Cancel
+        </button>
+        <button type="submit" 
+                class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-3.5 rounded-xl transition shadow-md shadow-rose-100">
+          Verify & Delete
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  /**
+   * 🗑️ Trigger Deletion Flow (Step 1)
+   */
+  async function triggerDeleteStudent(id, name) {
+    if (!confirm(`Are you sure you want to request deletion of student "${name}"?`)) {
+      return;
+    }
+    
+    try {
+      if (typeof showToast === 'function') {
+        showToast("Sending OTP to your email...", "info");
+      }
+      
+      const res = await fetch('/api/students/delete-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: id })
+      });
+      const result = await res.json();
+      
+      if (result.success) {
+        document.getElementById("deleteStudentId").value = id;
+        document.getElementById("deleteStudentName").innerText = name;
+        document.getElementById("deleteOtpInput").value = "";
+        
+        const deleteModal = document.getElementById("deleteOtpModal");
+        deleteModal.classList.remove("hidden");
+        deleteModal.classList.add("flex");
+        document.body.style.overflow = "hidden";
+        
+        if (typeof showToast === 'function') {
+          showToast(result.message, "success");
+        } else {
+          alert(result.message);
+        }
+      } else {
+        if (typeof showToast === 'function') {
+          showToast(result.message || "Failed to request deletion OTP", "error");
+        } else {
+          alert(result.message || "Failed to request deletion OTP");
+        }
+      }
+    } catch (err) {
+      if (typeof showToast === 'function') {
+        showToast("An error occurred while initiating deletion", "error");
+      } else {
+        alert("An error occurred while initiating deletion.");
+      }
+    }
+  }
+
+  /**
+   * ❌ Close Delete OTP Modal
+   */
+  function closeDeleteOtpModal() {
+    const modal = document.getElementById("deleteOtpModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+    document.body.style.overflow = "";
+  }
+
+  /**
+   * 🔒 Confirm Deletion (Step 2)
+   */
+  document.getElementById("deleteOtpForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const id = document.getElementById("deleteStudentId").value;
+    const otp = document.getElementById("deleteOtpInput").value;
+    
+    try {
+      const res = await fetch('/api/students/delete-confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: id, otp: otp })
+      });
+      const result = await res.json();
+      
+      if (result.success) {
+        closeDeleteOtpModal();
+        if (typeof showToast === 'function') {
+          showToast(result.message, "success");
+        } else {
+          alert(result.message);
+        }
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        if (typeof showToast === 'function') {
+          showToast(result.message || "Invalid OTP verification failed.", "error");
+        } else {
+          alert(result.message || "Invalid OTP verification failed.");
+        }
+      }
+    } catch (err) {
+      if (typeof showToast === 'function') {
+        showToast("Error processing student deletion", "error");
+      } else {
+        alert("Error processing student deletion.");
+      }
     }
   });
 </script>

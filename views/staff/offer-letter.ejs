@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employment Offer Letter | Garud Classes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-full py-12 px-4 flex flex-col justify-center items-center">
+
+  <div class="w-full max-w-3xl bg-white border border-slate-200 rounded-3xl shadow-xl p-8 md:p-12 space-y-8 relative overflow-hidden">
+    <!-- Top Accent Bar -->
+    <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-indigo-600 to-purple-600"></div>
+
+    <!-- Letterhead Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-8 gap-4">
+      <div class="flex items-center gap-3">
+        <img src="/logo.png" alt="Garud Classes" class="h-12 w-12 rounded-xl object-contain bg-slate-50 p-1 border border-slate-150">
+        <div>
+          <h1 class="font-extrabold text-slate-900 tracking-wider text-lg">GARUD CLASSES</h1>
+          <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest mt-0.5">Academic Excellence Portal</p>
+        </div>
+      </div>
+      <div class="text-left sm:text-right text-xs text-slate-500 font-semibold space-y-1">
+        <p>Garud Classes Head Office</p>
+        <p>support@garudclasses.com</p>
+        <p><%= new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) %></p>
+      </div>
+    </div>
+
+    <!-- Letter Body -->
+    <div class="space-y-6 text-slate-700 text-sm leading-relaxed font-medium">
+      <p class="text-base text-slate-900">Dear <strong class="font-bold"><%= staff.name %></strong>,</p>
+
+      <p>
+        Following our recent discussions and evaluations, we are absolutely delighted to offer you the position of 
+        <strong class="text-indigo-700 font-bold"><%= staff.offerDesignation %></strong> at Garud Classes. 
+        We were incredibly impressed by your background, experience, and dedication to academic quality.
+      </p>
+
+      <div class="bg-slate-50 border border-slate-150 rounded-2xl p-6 my-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Position Offered</span>
+          <span class="font-bold text-slate-800 text-sm mt-1 block"><%= staff.offerDesignation %></span>
+        </div>
+        <div>
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Salary / Compensation</span>
+          <span class="font-bold text-slate-800 text-sm mt-1 block">₹ <%= staff.offerSalary %></span>
+        </div>
+        <div>
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Proposed Joining Date</span>
+          <span class="font-bold text-slate-800 text-sm mt-1 block">
+            <%= staff.offerJoiningDate ? new Date(staff.offerJoiningDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A' %>
+          </span>
+        </div>
+      </div>
+
+      <p>
+        As a member of our team, we expect you to uphold the highest standards of professional conduct, pedagogy, and student mentorship. 
+        Detailed terms of service, policies, and operational details will be provided to you upon your formal onboarding process.
+      </p>
+
+      <p>
+        Please review the details above. If you accept these terms, please verify your consent by typing your full name as your 
+        <strong>Digital Signature</strong> in the authorization box below.
+      </p>
+    </div>
+
+    <!-- Signing form -->
+    <form action="/staff/offer-letter/<%= staff._id %>/accept" method="POST" class="border-t border-slate-100 pt-8 space-y-6">
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4 max-w-xl mx-auto">
+        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+          <i class="fas fa-signature text-indigo-500"></i> Secure Digital Signature Authorization
+        </h3>
+        
+        <div>
+          <label class="block mb-1.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Type your full name to sign this document *</label>
+          <input 
+            type="text" 
+            name="signature" 
+            placeholder="Type: <%= staff.name %>" 
+            required
+            class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-4 py-3 text-sm outline-none font-bold text-slate-800 transition"
+          />
+          <p class="text-[10px] text-slate-500 mt-2 font-medium">
+            * By signing dynamically, you confirm your acceptance of the employment offer and authorize the activation of your system profile.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-3">
+        <button 
+          type="submit" 
+          class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-8 py-3.5 rounded-xl transition shadow-md flex items-center gap-2"
+        >
+          <i class="fas fa-check-circle"></i> Accept & Sign Offer Letter
+        </button>
+      </div>
+    </form>
+
+  </div>
+
+</body>
+</html>

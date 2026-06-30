@@ -454,9 +454,154 @@ async function sendStudentResultsEmail(email, studentName, testTitle, examType, 
   return brevo.sendTransacEmail(mail);
 }
 
+async function sendDeleteOtpEmail(email, studentName, otp) {
+  const mail = new Brevo.SendSmtpEmail();
+  mail.to = [{ email }];
+  mail.sender = { 
+    email: process.env.SENDER_EMAIL, 
+    name: process.env.SENDER_NAME 
+  };
+  mail.subject = "⚠️ Security Authorization Required: Student Deletion Request";
+  mail.htmlContent = `
+    <html>
+      <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; line-height: 1.6; background-color: #f3f4f6; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e5e7eb;">
+          <h2 style="color: #ef4444; text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 24px; border-bottom: 2px solid #fee2e2; padding-bottom: 15px;">⚠️ Deletion Authorization Required</h2>
+          
+          <p style="font-size: 16px;">Hello,</p>
+          <p style="font-size: 16px; color: #4b5563;">You have requested to permanently delete the student: <strong style="color: #111827;">${studentName}</strong>.</p>
+          
+          <div style="background-color: #fef2f2; padding: 20px; border-radius: 12px; border: 1px solid #fecaca; margin: 20px 0; text-align: center;">
+            <p style="font-size: 14px; color: #991b1b; margin-top: 0; font-weight: 600;">YOUR ONE-TIME PASSWORD (OTP)</p>
+            <h1 style="font-size: 36px; letter-spacing: 6px; color: #b91c1c; margin: 10px 0; font-weight: 800;">${otp}</h1>
+            <p style="font-size: 12px; color: #991b1b; margin-bottom: 0;">This OTP is valid for 5 minutes and can only be used once.</p>
+          </div>
+
+          <p style="font-size: 14px; color: #6b7280; text-align: center;">
+            If you did not request this action, please secure your account immediately.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return brevo.sendTransacEmail(mail);
+}
+
+async function sendStaffCredentialsEmail(email, name, username, password, loginLink) {
+  const mail = new Brevo.SendSmtpEmail();
+  mail.to = [{ email }];
+  mail.sender = { 
+    email: process.env.SENDER_EMAIL, 
+    name: process.env.SENDER_NAME 
+  };
+  mail.subject = "Welcome to Garud Classes - Your Staff Account Credentials";
+  mail.htmlContent = `
+    <html>
+      <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; line-height: 1.6; background-color: #f3f4f6; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e5e7eb;">
+          <h2 style="color: #4f46e5; text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 24px; border-bottom: 2px solid #e0e7ff; padding-bottom: 15px;">Welcome to Garud Classes!</h2>
+          
+          <p style="font-size: 16px;">Dear <strong>${name}</strong>,</p>
+          <p style="font-size: 16px; color: #4b5563;">An account has been successfully created for you as a staff member of Garud Classes. Here are your portal login credentials:</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 12px; border: 1px solid #f3f4f6; margin: 20px 0;">
+            <p style="font-size: 15px; margin: 8px 0;"><strong>Username / Email:</strong> ${username}</p>
+            <p style="font-size: 15px; margin: 8px 0;"><strong>Password:</strong> ${password}</p>
+          </div>
+ 
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${loginLink}" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 15px; display: inline-block; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);">Log In to Portal</a>
+          </div>
+ 
+          <p style="font-size: 14px; color: #6b7280; text-align: center;">
+            Please log in and submit your required documents as soon as possible.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+ 
+  return brevo.sendTransacEmail(mail);
+}
+
+async function sendOfferLetterEmail(email, name, designation, salary, joiningDate, offerLink) {
+  const mail = new Brevo.SendSmtpEmail();
+  mail.to = [{ email }];
+  mail.sender = { 
+    email: process.env.SENDER_EMAIL, 
+    name: process.env.SENDER_NAME 
+  };
+  mail.subject = "Offer Letter from Garud Classes";
+  mail.htmlContent = `
+    <html>
+      <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; line-height: 1.6; background-color: #f3f4f6; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e5e7eb;">
+          <h2 style="color: #4f46e5; text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 24px; border-bottom: 2px solid #e0e7ff; padding-bottom: 15px;">Employment Offer Letter</h2>
+          
+          <p style="font-size: 16px;">Dear <strong>${name}</strong>,</p>
+          <p style="font-size: 16px; color: #4b5563;">We are pleased to offer you employment at Garud Classes. Here are the key details of your offer:</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 12px; border: 1px solid #f3f4f6; margin: 20px 0;">
+            <p style="font-size: 15px; margin: 8px 0;"><strong>Designation:</strong> ${designation}</p>
+            <p style="font-size: 15px; margin: 8px 0;"><strong>Salary / Compensation:</strong> ${salary}</p>
+            <p style="font-size: 15px; margin: 8px 0;"><strong>Joining Date:</strong> ${new Date(joiningDate).toLocaleDateString('en-IN')}</p>
+          </div>
+ 
+          <p style="font-size: 16px; color: #4b5563;">Please review, sign, and accept this offer letter by clicking the link below:</p>
+ 
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${offerLink}" style="background-color: #4f46e5; color: #ffffff; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 15px; display: inline-block; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);">View & Sign Offer Letter</a>
+          </div>
+ 
+          <p style="font-size: 14px; color: #6b7280; text-align: center;">
+            This offer is contingent upon successful verification of your digital signature and documents.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+ 
+  return brevo.sendTransacEmail(mail);
+}
+
+async function sendForceHireOtpEmail(email, candidateName, otp) {
+  const mail = new Brevo.SendSmtpEmail();
+  mail.to = [{ email }];
+  mail.sender = { 
+    email: process.env.SENDER_EMAIL, 
+    name: process.env.SENDER_NAME 
+  };
+  mail.subject = "⚠️ Security Authorization Required: Force Hire Candidate Request";
+  mail.htmlContent = `
+    <html>
+      <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; line-height: 1.6; background-color: #f3f4f6; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e5e7eb;">
+          <h2 style="color: #ef4444; text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 24px; border-bottom: 2px solid #fee2e2; padding-bottom: 15px;">⚠️ Force Hire Authorization Required</h2>
+          
+          <p style="font-size: 16px;">Hello,</p>
+          <p style="font-size: 16px; color: #4b5563;">You have requested to force hire the candidate: <strong style="color: #111827;">${candidateName}</strong> without offer letter acceptance.</p>
+          
+          <div style="background-color: #fef2f2; padding: 20px; border-radius: 12px; border: 1px solid #fecaca; margin: 20px 0; text-align: center;">
+            <p style="font-size: 14px; color: #991b1b; margin-top: 0; font-weight: 600;">YOUR ONE-TIME PASSWORD (OTP)</p>
+            <h1 style="font-size: 36px; letter-spacing: 6px; color: #b91c1c; margin: 10px 0; font-weight: 800;">${otp}</h1>
+            <p style="font-size: 12px; color: #991b1b; margin-bottom: 0;">This OTP is valid for 5 minutes and can only be used once.</p>
+          </div>
+ 
+          <p style="font-size: 14px; color: #6b7280; text-align: center;">
+            If you did not request this action, please secure your account immediately.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+ 
+  return brevo.sendTransacEmail(mail);
+}
+ 
 const axios = require("axios");
-
-
+ 
+ 
 // EXPORTS
 module.exports = {
   sendUserCredentials,
@@ -465,5 +610,9 @@ module.exports = {
   sendStudentTimeTable,
   sendAdmitCardUpdate,
   sendOtp,
-  sendStudentResultsEmail
+  sendStudentResultsEmail,
+  sendDeleteOtpEmail,
+  sendStaffCredentialsEmail,
+  sendOfferLetterEmail,
+  sendForceHireOtpEmail
 };

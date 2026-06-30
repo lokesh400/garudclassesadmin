@@ -23,18 +23,8 @@ router.get("/download/:batchId", isLoggedIn, requireRole("admin"), async (req, r
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet(`${batch.name} Marks`);
     const columns =
-      batch.courseType === "JEE"
+      batch.courseType === "NEET"
         ? [
-            { header: "Name", key: "name", width: 25 },
-            { header: "Roll Number", key: "rollNumber", width: 15 },
-            { header: "Physics Total", key: "physicsTotal", width: 15 },
-            { header: "Physics", key: "physics", width: 15 },
-            { header: "Chemistry Total", key: "chemistryTotal", width: 15 },
-            { header: "Chemistry", key: "chemistry", width: 15 },
-            { header: "Maths Total", key: "mathsTotal", width: 15 },
-            { header: "Maths", key: "math", width: 15 },
-          ]
-        : [
             { header: "Name", key: "name", width: 25 },
             { header: "Roll Number", key: "rollNumber", width: 15 },
             { header: "Physics Total", key: "physicsTotal", width: 15 },
@@ -45,6 +35,16 @@ router.get("/download/:batchId", isLoggedIn, requireRole("admin"), async (req, r
             { header: "Botany", key: "botany", width: 15 },
             { header: "Zoology Total", key: "zoologyTotal", width: 15 },
             { header: "Zoology", key: "zoology", width: 15 },
+          ]
+        : [
+            { header: "Name", key: "name", width: 25 },
+            { header: "Roll Number", key: "rollNumber", width: 15 },
+            { header: "Physics Total", key: "physicsTotal", width: 15 },
+            { header: "Physics", key: "physics", width: 15 },
+            { header: "Chemistry Total", key: "chemistryTotal", width: 15 },
+            { header: "Chemistry", key: "chemistry", width: 15 },
+            { header: "Maths Total", key: "mathsTotal", width: 15 },
+            { header: "Maths", key: "math", width: 15 },
           ];
     sheet.columns = columns;
     students.forEach((s) => {
@@ -79,28 +79,7 @@ router.post("/upload/:batchId",isLoggedIn,requireRole("admin"), upload.single("e
     await workbook.xlsx.readFile(filePath);
     const worksheet = workbook.getWorksheet(1);
     const marksData = [];
-    if(type==="JEE"){
-        worksheet.eachRow(async (row, rowNumber) => {
-      if (rowNumber === 1) return; // skip header
-      const [studentName, rollNumber ,physicsTotal, physics,chemistryTotal, chemistry, mathsTotal, maths] = row.values.slice(1);
-      const newResult = new Marks({
-      batch: batchId,
-      student:studentName,
-      rollNo: rollNumber,
-      physicsTotal:  physicsTotal ,
-      physics: physics,
-      chemistryTotal: chemistryTotal,
-      chemistry: chemistry,
-      mathTotal: mathsTotal,
-      math: maths,
-      marks: marksData,
-      total: physics + chemistry + maths,
-      testTitle: req.body.testTitle,
-      examType: type,
-    });
-    await newResult.save();
-    });
-    } else if(type==="NEET"){
+    if(type==="NEET"){
         worksheet.eachRow(async (row, rowNumber) => {
       if (rowNumber === 1) return; // skip header
       const [studentName, rollNumber, physicsTotal, physics, chemistryTotal, chemistry, botanyTotal, botany, zoologyTotal, zoology] = row.values.slice(1);
@@ -118,6 +97,27 @@ router.post("/upload/:batchId",isLoggedIn,requireRole("admin"), upload.single("e
       zoology: zoology,
       marks: marksData,
       total: physics + chemistry + botany + zoology,
+      testTitle: req.body.testTitle,
+      examType: type,
+    });
+    await newResult.save();
+    });
+    } else {
+        worksheet.eachRow(async (row, rowNumber) => {
+      if (rowNumber === 1) return; // skip header
+      const [studentName, rollNumber ,physicsTotal, physics,chemistryTotal, chemistry, mathsTotal, maths] = row.values.slice(1);
+      const newResult = new Marks({
+      batch: batchId,
+      student:studentName,
+      rollNo: rollNumber,
+      physicsTotal:  physicsTotal ,
+      physics: physics,
+      chemistryTotal: chemistryTotal,
+      chemistry: chemistry,
+      mathTotal: mathsTotal,
+      math: maths,
+      marks: marksData,
+      total: physics + chemistry + maths,
       testTitle: req.body.testTitle,
       examType: type,
     });

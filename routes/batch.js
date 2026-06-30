@@ -15,13 +15,26 @@ const router = express.Router();
 router.get("/", isLoggedIn, requireRole("admin"), async (req, res) => {
   try {
     const batches = await Batch.find().sort({ createdAt: -1 });
-    res.render("batch/all-batches", { batches,
+    
+    // Find all forms associated with these batches
+    const forms = await Form.find({ batch: { $in: batches.map(b => b._id) } });
+    const batchFormMap = {};
+    forms.forEach(f => {
+      if (f.batch) {
+        batchFormMap[f.batch.toString()] = f;
+      }
+    });
+
+    res.render("batch/all-batches", { 
+      batches,
+      batchFormMap,
       title: 'All Batches',
       pageTitle: 'All Batches',
       activePage: 'batches',
       messages:req.flash(),
      });
   } catch (err) {
+    console.error(err);
     res.status(500).send("Server Error");
   }
 });
@@ -83,6 +96,7 @@ router.get("/:id", async (req, res) => {
   const inactiveStudentsCount = await User.countDocuments({ batch: batchId, role: "student", isActive: false });
   const totalTests = await Marks.countDocuments({ batch: batchId }); // if test schema exists
   const forms = await Form.find();
+  const batchForm = await Form.findOne({ batch: batchId });
   res.render("batch/particularBatch", {
     batch,
     studentsCount,
@@ -90,6 +104,7 @@ router.get("/:id", async (req, res) => {
     inactiveStudentsCount,
     totalTests,
     forms,
+    batchForm,
     title: 'Batch Details',
     pageTitle: 'Batch Details',
     activePage: 'batches',
@@ -209,6 +224,79 @@ router.get("/data/download/:batchId", isLoggedIn, requireRole("admin"), async (r
   } catch (err) {
     console.error(err);
     res.status(500).send("Error generating Excel template");
+  }
+});
+
+const fieldMap = {
+  name: { header: "Name", width: 25 },
+  rollNumber: { header: "Roll Number", width: 15 },
+  username: { header: "Username", width: 15 },
+  email: { header: "Email", width: 20 },
+  number: { header: "Mobile Number", width: 15 },
+  fatherName: { header: "Father's Name", width: 15 },
+  motherName: { header: "Mother's Name", width: 15 },
+  address: { header: "Address", width: 30 },
+  role: { header: "Role", width: 12 },
+  isActive: { header: "Status", width: 12 }
+};
+
+router.post("/data/download-custom/:batchId", isLoggedIn, requireRole("admin"), async (req, res) => {
+  try {
+    const batchId = req.params.batchId;
+    const batch = await Batch.findById(batchId);
+    if (!batch) return res.status(404).send("Batch not found");
+
+    let requestedFields = req.body.fields;
+    if (!requestedFields) {
+      requestedFields = ["name", "rollNumber", "username", "email", "number"];
+    }
+    if (!Array.isArray(requestedFields)) {
+      requestedFields = [requestedFields];
+    }
+
+    const students = await User.find({ batch: batchId }).sort({ rollNumber: 1 });
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet(`${batch.name} Students`);
+
+    const columns = [];
+    requestedFields.forEach(field => {
+      if (fieldMap[field]) {
+        columns.push({
+          header: fieldMap[field].header,
+          key: field,
+          width: fieldMap[field].width
+        });
+      }
+    });
+    sheet.columns = columns;
+
+    students.forEach((s) => {
+      const rowData = {};
+      requestedFields.forEach(field => {
+        if (field === "isActive") {
+          rowData[field] = (s.isActive !== false) ? "Active" : "Inactive";
+        } else {
+          rowData[field] = s[field] || "";
+        }
+      });
+      sheet.addRow(rowData);
+    });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${batch.name.replace(/\s+/g, "_")}_student_details.xlsx`
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error exporting student details to Excel");
   }
 });
 

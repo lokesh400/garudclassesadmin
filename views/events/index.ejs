@@ -1,0 +1,279 @@
+<div class="w-full px-6 py-8">
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-slate-200 mb-8 gap-4">
+    <div>
+      <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">Event Management</h1>
+      <p class="text-slate-500 text-sm mt-1.5">Manage administrative events, online registration forms, and track applicant attendance.</p>
+    </div>
+    <button onclick="openAddEventModal()" 
+            class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-5 py-3 rounded-2xl transition shadow-md shadow-indigo-100 outline-none">
+      <i class="fas fa-calendar-plus text-[15px]"></i> Add Event
+    </button>
+  </div>
+
+  <!-- Events Grid List -->
+  <% if (events.length > 0) { %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <% events.forEach(event => { %>
+        <% const hasForm = eventFormMap[event._id.toString()]; %>
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between relative overflow-hidden <%= event.isActive === false ? 'border-rose-200 bg-rose-50/10' : '' %>">
+          
+          <!-- Decorative left border -->
+          <div class="absolute top-0 left-0 w-2.5 h-full <%= event.isActive === false ? 'bg-rose-400' : 'bg-indigo-600' %>"></div>
+
+          <div class="pl-3 flex-1 flex flex-col justify-between">
+            <div>
+              <!-- Header event info -->
+              <div class="flex justify-between items-start gap-4 mb-3">
+                <div>
+                  <h3 class="text-xl font-bold text-slate-800 line-clamp-1"><%= event.name %></h3>
+                  <p class="text-slate-500 text-xs mt-1 font-bold">
+                    <i class="far fa-calendar-alt text-indigo-500 mr-1.5"></i>
+                    Date: <%= new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
+                  </p>
+                </div>
+
+                <!-- Status Switch/Badge -->
+                <div class="flex items-center gap-2">
+                  <button onclick="toggleEventStatus('<%= event._id %>')" 
+                          id="status-btn-<%= event._id %>"
+                          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border transition duration-200 <%= event.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-slate-50 text-slate-650 border-slate-200 hover:bg-slate-100' %>">
+                    <%= event.isActive ? 'Active' : 'Draft' %>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Description -->
+              <% if (event.description) { %>
+                <p class="text-slate-600 text-xs line-clamp-2 leading-relaxed mb-4 mt-2">
+                  <%= event.description %>
+                </p>
+              <% } else { %>
+                <p class="text-slate-400 text-xs italic mb-4 mt-2">No description provided.</p>
+              <% } %>
+
+              <!-- Actions list -->
+              <div class="grid grid-cols-2 gap-3 my-5 border-t border-b border-slate-200 py-4">
+                <!-- Form Management -->
+                <div class="space-y-2 border-r border-slate-200 pr-2">
+                  <p class="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider">Event Form</p>
+                  <div class="flex flex-col gap-1">
+                    <% if (!hasForm) { %>
+                      <form action="/forms/create-for-event/<%= event._id %>" method="POST">
+                        <button type="submit" class="w-full inline-flex items-center gap-1.5 text-xs text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/50 p-1.5 rounded-lg transition duration-200 font-semibold text-left">
+                          <i class="fas fa-file-signature text-indigo-500 text-[10px] w-4 text-center"></i> Create Form
+                        </button>
+                      </form>
+                    <% } else { %>
+                      <button onclick="openShareModal('<%= hasForm._id %>')" class="inline-flex items-center gap-1.5 text-xs text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/50 p-1.5 rounded-lg transition duration-200 font-semibold text-left">
+                        <i class="fas fa-share-alt text-indigo-500 text-[10px] w-4 text-center"></i> Share Form
+                      </button>
+                      <a href="/events/submissions/<%= event._id %>" class="inline-flex items-center gap-1.5 text-xs text-slate-700 hover:text-indigo-650 hover:bg-indigo-50/50 p-1.5 rounded-lg transition duration-200 font-semibold">
+                        <i class="fas fa-clipboard-list text-indigo-500 text-[10px] w-4 text-center"></i> View Submissions
+                      </a>
+                    <% } %>
+                  </div>
+                </div>
+
+                <!-- General Controls -->
+                <div class="space-y-2 pl-3">
+                  <p class="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider">Administrative</p>
+                  <div class="flex flex-col gap-1">
+                    <form action="/events/delete/<%= event._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this event? This will also remove any registration form and candidate submissions.')">
+                      <button type="submit" class="w-full inline-flex items-center gap-1.5 text-xs text-rose-600 hover:bg-rose-50 p-1.5 rounded-lg transition duration-200 font-semibold text-left">
+                        <i class="fas fa-trash-alt text-[10px] w-4 text-center"></i> Delete Event
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <!-- Empty Slate -->
+    <div class="bg-white border border-slate-200 rounded-3xl p-12 text-center shadow-sm">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-slate-50 text-slate-400 rounded-2xl mb-4 border border-slate-100">
+        <i class="fas fa-calendar-alt text-2xl"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-800">No events found</h3>
+      <p class="text-slate-500 text-xs mt-1.5 max-w-sm mx-auto">Create a new academic or admission event (e.g. Scholarship Test) to open application forms and mark candidate attendance.</p>
+      <button onclick="openAddEventModal()" 
+              class="mt-6 inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-md shadow-indigo-100">
+        Add Event Now
+      </button>
+    </div>
+  <% } %>
+
+  <!-- ➕ Add Event Modal -->
+  <div id="addEventModal" class="hidden fixed inset-0 bg-slate-950/40 flex items-center justify-center z-50 p-4 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 relative border border-slate-100 transform transition-all duration-300">
+      <button onclick="closeAddEventModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition">
+        <i class="fas fa-times text-lg"></i>
+      </button>
+
+      <div class="mb-5">
+        <h2 class="text-xl font-bold text-slate-800">Create New Event</h2>
+        <p class="text-slate-500 text-xs mt-1">Specify the name, date, and description for the event.</p>
+      </div>
+
+      <form action="/events/create" method="POST" class="space-y-4">
+        <div>
+          <label for="name" class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Event Name</label>
+          <input type="text" name="name" id="name" placeholder="e.g. Scholarship Test 2026" 
+                 class="w-full px-4 py-3 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200" required />
+        </div>
+
+        <div>
+          <label for="date" class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Event Date</label>
+          <input type="date" name="date" id="date" 
+                 class="w-full px-4 py-3 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200 bg-white" required />
+        </div>
+
+        <div>
+          <label for="description" class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Description</label>
+          <textarea name="description" id="description" rows="3" placeholder="Optional details or rules for the event..." 
+                    class="w-full px-4 py-3 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200 resize-none"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <button type="button" onclick="closeAddEventModal()" 
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-3.5 rounded-xl transition">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-3.5 rounded-xl transition shadow-md shadow-indigo-100">
+            Create Event
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 🔗 Share Modal (Same as batch modal for compatibility) -->
+  <div id="shareModal" class="hidden fixed inset-0 bg-slate-950/40 flex items-center justify-center z-50 p-4 transition-all duration-300">
+    <div class="bg-white rounded-3xl shadow-xl w-full max-w-md p-6 relative border border-slate-100 transform transition-all duration-300">
+      <button onclick="closeShareModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition">
+        <i class="fas fa-times text-lg"></i>
+      </button>
+
+      <div class="mb-5">
+        <h2 class="text-xl font-bold text-slate-800">Share Registration Form</h2>
+        <p class="text-slate-500 text-xs mt-1">Copy the registration link or share it with applicants.</p>
+      </div>
+
+      <!-- Link Box -->
+      <div class="bg-slate-50 rounded-2xl border border-slate-100 p-4 mb-5 flex items-center justify-between gap-3">
+        <div id="shareLink" class="text-xs font-semibold text-slate-600 select-all truncate"></div>
+        <button onclick="copyShareLink()" class="text-indigo-600 hover:text-indigo-700 font-bold text-xs shrink-0 flex items-center gap-1 outline-none">
+          <i class="far fa-copy text-sm"></i> Copy Link
+        </button>
+      </div>
+
+      <!-- Socials / Quick Action -->
+      <div class="grid grid-cols-2 gap-3">
+        <!-- WhatsApp -->
+        <a id="whatsappShare" href="" target="_blank"
+           class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3.5 rounded-xl transition w-full">
+          <i class="fab fa-whatsapp text-[14px]"></i> Share on WhatsApp
+        </a>
+        
+        <!-- Email -->
+        <a id="emailShare" href=""
+           class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3.5 rounded-xl transition w-full">
+          <i class="far fa-envelope text-[14px]"></i> Share via Email
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Add Event Modal
+  function openAddEventModal() {
+    const modal = document.getElementById("addEventModal");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeAddEventModal() {
+    const modal = document.getElementById("addEventModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+    document.body.style.overflow = "";
+  }
+
+  // Share Link Modal
+  let currentShareLink = "";
+  function openShareModal(formId) {
+    currentShareLink = `${window.location.origin}/forms/fill/${formId}`;
+    document.getElementById('shareLink').textContent = currentShareLink;
+    document.getElementById('whatsappShare').href = 
+      `https://wa.me/?text=${encodeURIComponent(currentShareLink)}`;
+    document.getElementById('emailShare').href =
+      `mailto:?subject=Event Registration Form&body=${encodeURIComponent(currentShareLink)}`;
+    
+    const modal = document.getElementById('shareModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  function closeShareModal() {
+    const modal = document.getElementById('shareModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  function copyShareLink() {
+    navigator.clipboard.writeText(currentShareLink)
+      .then(() => {
+        if (typeof showToast === 'function') {
+          showToast("Registration link copied to clipboard!", "success");
+        } else {
+          alert("Registration link copied!");
+        }
+      })
+      .catch(() => alert("Unable to copy link"));
+  }
+
+  // Ajax status toggle
+  async function toggleEventStatus(eventId) {
+    try {
+      const res = await fetch(`/events/toggle/${eventId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      const data = await res.json();
+      if (data.success) {
+        const btn = document.getElementById(`status-btn-${eventId}`);
+        if (data.isActive) {
+          btn.innerText = "Active";
+          btn.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border transition duration-200 bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100";
+        } else {
+          btn.innerText = "Draft";
+          btn.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border transition duration-200 bg-slate-50 text-slate-650 border-slate-200 hover:bg-slate-100";
+        }
+        if (typeof showToast === 'function') {
+          showToast("Event status updated.", "success");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      if (typeof showToast === 'function') {
+        showToast("Failed to toggle status.", "error");
+      }
+    }
+  }
+
+  // Close modals on click outside
+  window.addEventListener("click", (e) => {
+    const addEventModal = document.getElementById("addEventModal");
+    const shareModal = document.getElementById("shareModal");
+    if (e.target === addEventModal) closeAddEventModal();
+    if (e.target === shareModal) closeShareModal();
+  });
+</script>

@@ -1,0 +1,129 @@
+<div class="w-full px-6 py-8 space-y-6">
+  <!-- Flash messages -->
+  <%- include('../flash.ejs') %>
+
+  <!-- Top Dashboard Banner -->
+  <div class="bg-white border border-slate-200 p-6 rounded-3xl shadow-sm mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-1">
+          <span>Staff Portal</span>
+          <span>&bull;</span>
+          <span class="text-slate-800 font-bold">Document Center</span>
+        </div>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+          <span>📁 Submit Verification Documents</span>
+        </h1>
+        <p class="text-slate-500 text-sm mt-1">Hello, <span class="font-bold text-slate-700"><%= staff.name %></span>. Please upload copies of your Aadhaar Card, PAN Card, Resume, and provide your Bank details below.</p>
+      </div>
+    </div>
+  </div>
+
+  <form action="/staff/documents/upload" method="POST" enctype="multipart/form-data" class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-8 max-w-4xl mx-auto">
+    
+    <!-- Aadhaar Verification Section -->
+    <div class="space-y-4">
+      <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100">
+        <i class="fas fa-id-card"></i> Aadhaar Card Verification
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Aadhaar Card Photo/Copy</label>
+          <input type="file" name="aadhaar" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition" />
+          <% if (staff.documents && staff.documents.aadhaar) { %>
+            <div class="mt-2">
+              <a href="/<%= staff.documents.aadhaar %>" target="_blank" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-indigo-650 hover:underline">
+                <i class="fas fa-eye"></i> View Uploaded Aadhaar File
+              </a>
+            </div>
+          <% } %>
+        </div>
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Aadhaar Card Number</label>
+          <input type="text" name="aadhaarNumber" placeholder="12-Digit Aadhaar Number" value="<%= staff.aadhaarNumber || '' %>"
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+      </div>
+    </div>
+
+    <!-- PAN Card Verification Section -->
+    <div class="space-y-4">
+      <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100">
+        <i class="fas fa-credit-card"></i> PAN Card Verification
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">PAN Card Photo/Copy</label>
+          <input type="file" name="pan" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition" />
+          <% if (staff.documents && staff.documents.pan) { %>
+            <div class="mt-2">
+              <a href="/<%= staff.documents.pan %>" target="_blank" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-indigo-650 hover:underline">
+                <i class="fas fa-eye"></i> View Uploaded PAN File
+              </a>
+            </div>
+          <% } %>
+        </div>
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">PAN Card Number</label>
+          <input type="text" name="panNumber" placeholder="10-Digit Alphanumeric PAN Number" value="<%= staff.panNumber || '' %>"
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Bank Details Section -->
+    <div class="space-y-4">
+      <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100">
+        <i class="fas fa-university"></i> Bank Account Information
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Bank Name</label>
+          <input type="text" name="bankName" placeholder="e.g. State Bank of India" value="<%= staff.bankName || '' %>"
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Account Holder Name</label>
+          <input type="text" name="accountHolderName" placeholder="Name as in bank record" value="<%= staff.accountHolderName || '' %>"
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Bank Account Number</label>
+          <input type="text" name="accountNumber" placeholder="Account Number" value="<%= staff.accountNumber || '' %>"
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+        <div>
+          <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">IFSC Code</label>
+          <input type="text" name="ifscCode" placeholder="IFSC Code" value="<%= staff.ifscCode || '' %>"
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Resume Section -->
+    <div class="space-y-4">
+      <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100">
+        <i class="fas fa-file-alt"></i> Resume / Curriculum Vitae
+      </h3>
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Upload Resume (PDF/Photo)</label>
+        <input type="file" name="resume" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition" />
+        <% if (staff.documents && staff.documents.resume) { %>
+          <div class="mt-2">
+            <a href="/<%= staff.documents.resume %>" target="_blank" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-indigo-650 hover:underline">
+              <i class="fas fa-eye"></i> View Uploaded Resume File
+            </a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="pt-6 border-t border-slate-100 flex items-center justify-end">
+      <button type="submit" class="bg-indigo-650 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-3 rounded-xl transition shadow-md shadow-indigo-100 flex items-center gap-2">
+        <i class="fas fa-cloud-upload-alt"></i> Submit Details & Upload Documents
+      </button>
+    </div>
+
+  </form>
+</div>

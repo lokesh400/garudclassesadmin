@@ -18,7 +18,7 @@
     </div>
 
     <div class="flex gap-2">
-      <form action="/admin/staff/<%= staff._id %>/toggle-status" method="POST" class="inline">
+      <form action="/admin/staff/<%= staff._id %>/toggle-status" method="POST" class="inline" <% if (staff.status === 'Active') { %>onsubmit="return prompt('To deactivate this staff account, please type the staff name &quot;<%= staff.name %>&quot; below:') === '<%= staff.name %>';"<% } %>>
         <input type="hidden" name="redirectTo" value="/admin/staff/<%= staff._id %>" />
         <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold border transition <%= staff.status === 'Active' ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-150' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-150' %>">
           <%= staff.status === 'Active' ? 'Deactivate Account' : 'Activate Account' %>
@@ -47,6 +47,15 @@
           <p class="text-slate-500 font-semibold">Employee ID: <span class="text-slate-850 font-bold block mt-1"><%= staff.employeeId || '-' %></span></p>
           <p class="text-slate-500 font-semibold">Department: <span class="text-indigo-705 font-bold block mt-1"><%= staff.department || '-' %></span></p>
           <p class="text-slate-500 font-semibold">Designation: <span class="text-slate-850 font-bold block mt-1"><%= staff.designation || '-' %></span></p>
+          <% if (staff.department === 'Academics' && staff.subjects && staff.subjects.length) { %>
+            <p class="text-slate-500 font-semibold md:col-span-2">Assigned Subjects:
+              <span class="block mt-1 flex flex-wrap gap-1.5">
+                <% staff.subjects.forEach(sub => { %>
+                  <span class="inline-block bg-indigo-50 border border-indigo-150 text-indigo-700 font-bold px-2 py-0.5 rounded text-[10px]"><%= sub %></span>
+                <% }) %>
+              </span>
+            </p>
+          <% } %>
           <p class="text-slate-500 font-semibold">Joining Date: <span class="text-slate-850 font-bold block mt-1"><%= staff.joiningDate ? new Date(staff.joiningDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '-' %></span></p>
           <p class="text-slate-500 font-semibold">Salary / Compensation: <span class="text-slate-850 font-bold block mt-1"><%= staff.salary ?? '-' %></span></p>
           <p class="text-slate-500 font-semibold">Mobile Number: <span class="text-slate-850 font-bold block mt-1"><%= staff.mobileNumber || '-' %></span></p>
@@ -79,32 +88,66 @@
     <div class="space-y-6">
       
       <!-- Linked ERP Login Accounts -->
-      <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
-        <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-100 mb-4">
-          <i class="fas fa-key"></i> Linked ERP Accounts
-        </h3>
+      <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+          <h3 class="text-xs font-extrabold text-indigo-650 uppercase tracking-widest flex items-center gap-1.5">
+            <i class="fas fa-key"></i> Credentials & Portals
+          </h3>
+          <div class="flex gap-1.5">
+            <button type="button" onclick="openModal('linkPortalModal')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2.5 py-1.5 rounded-lg font-bold text-[10px] transition">
+              + Link Portal
+            </button>
+            <button type="button" onclick="openModal('assignUserModal')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 px-2.5 py-1.5 rounded-lg font-bold text-[10px] transition">
+              + Assign User
+            </button>
+          </div>
+        </div>
 
         <div class="space-y-3">
-          <% if (staff.linkedUsers && staff.linkedUsers.length) { %>
-            <div class="flex flex-col gap-2">
-              <% staff.linkedUsers.forEach((u) => { %>
-                <div class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-2xl">
-                  <div class="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-150 flex items-center justify-center text-xs font-bold text-indigo-700">
-                    <%= u.username ? u.username.slice(0,2).toUpperCase() : 'GC' %>
+          <!-- System Accounts -->
+          <div>
+            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Linked System Accounts</h4>
+            <% if (staff.linkedUsers && staff.linkedUsers.length) { %>
+              <div class="flex flex-col gap-2">
+                <% staff.linkedUsers.forEach((u) => { %>
+                  <div class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-2xl">
+                    <div class="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-150 flex items-center justify-center text-xs font-bold text-indigo-755">
+                      <%= u.username ? u.username.slice(0,2).toUpperCase() : 'GC' %>
+                    </div>
+                    <div>
+                      <p class="text-sm font-bold text-slate-805"><%= u.name %> (<%= u.username %>)</p>
+                      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-0.5"><%= u.role %></p>
+                    </div>
                   </div>
-                  <div>
-                    <p class="text-xs font-bold text-slate-800"><%= u.name %> (<%= u.username %>)</p>
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-0.5"><%= u.role %></p>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <div class="text-center py-6 bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
+                <p class="text-xs font-bold text-slate-500">No login credentials linked</p>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- External Portal Accounts -->
+          <div class="pt-2 border-t border-slate-100/60">
+            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Linked External Portals</h4>
+            <% if (staff.portalAccounts && staff.portalAccounts.length) { %>
+              <div class="flex flex-col gap-2">
+                <% staff.portalAccounts.forEach((acc) => { %>
+                  <div class="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-100 rounded-xl">
+                    <div>
+                      <p class="text-sm font-bold text-slate-805"><%= acc.username %></p>
+                      <p class="text-[9px] font-bold text-indigo-600 uppercase tracking-wider"><%= acc.portalName %></p>
+                    </div>
                   </div>
-                </div>
-              <% }) %>
-            </div>
-          <% } else { %>
-            <div class="text-center py-6 bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
-              <i class="fas fa-shield-alt text-slate-400 text-lg mb-1"></i>
-              <p class="text-xs font-bold text-slate-500">No login credentials linked</p>
-            </div>
-          <% } %>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <div class="text-center py-6 bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
+                <p class="text-xs font-bold text-slate-500">No external portal accounts linked</p>
+              </div>
+            <% } %>
+          </div>
         </div>
       </div>
 
@@ -152,7 +195,7 @@
       📝 Update Staff Details
     </h3>
 
-    <form action="/admin/staff/<%= staff._id %>/update" method="POST" enctype="multipart/form-data" class="space-y-6">
+    <form action="/admin/staff/<%= staff._id %>/update" method="POST" class="space-y-6">
       
       <!-- Main Grid Inputs -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -167,23 +210,16 @@
                  class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
         </div>
         <div>
-          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Father's Name</label>
-          <input name="fatherName" value="<%= staff.fatherName || '' %>" 
-                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
-        </div>
-        <div>
-          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Mother's Name</label>
-          <input name="motherName" value="<%= staff.motherName || '' %>" 
-                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Department <span class="text-red-500">*</span></label>
+          <select name="department" required class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none bg-white font-semibold text-slate-705 transition">
+            <option value="Academics" <%= staff.department === 'Academics' ? 'selected' : '' %>>Academics</option>
+            <option value="Non Teaching" <%= staff.department === 'Non Teaching' ? 'selected' : '' %>>Non Teaching</option>
+            <option value="House Keeping" <%= staff.department === 'House Keeping' ? 'selected' : '' %>>House Keeping</option>
+          </select>
         </div>
         <div>
           <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Designation</label>
           <input name="designation" value="<%= staff.designation || '' %>" 
-                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
-        </div>
-        <div>
-          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Department</label>
-          <input name="department" value="<%= staff.department || '' %>" 
                  class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
         </div>
         <div>
@@ -212,123 +248,65 @@
                  class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
         </div>
         <div>
-          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Aadhaar Number</label>
-          <input name="aadhaarNumber" value="<%= staff.aadhaarNumber || '' %>" 
-                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
-        </div>
-        <div>
-          <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">PAN Number</label>
-          <input name="panNumber" value="<%= staff.panNumber || '' %>" 
-                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
-        </div>
-        <div>
           <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</label>
           <select name="status" class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none bg-white font-semibold text-slate-700 transition">
             <option value="Active" <%= staff.status === 'Active' ? 'selected' : '' %>>Active</option>
             <option value="Inactive" <%= staff.status === 'Inactive' ? 'selected' : '' %>>Inactive</option>
           </select>
         </div>
-      </div>
 
-      <!-- Assign Login Credentials -->
-      <div class="space-y-3">
-        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Linked ERP User Credentials</label>
-        <select name="linkedUsers" multiple class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl p-4 text-xs outline-none bg-white font-semibold text-slate-750 min-h-[140px] transition">
-          <% const selectedUserIds = (staff.linkedUsers || []).map((u) => String(u._id)); %>
-          <% (eligibleUsers || []).forEach((user) => { %>
-            <option value="<%= user._id %>" <%= selectedUserIds.includes(String(user._id)) ? 'selected' : '' %>>
-              <%= user.name %> (<%= user.username %>) - <%= user.role %>
-            </option>
-          <% }) %>
-        </select>
-        <p class="text-[10px] text-slate-400 font-bold italic">Hold Ctrl/Cmd to select multiple accounts. Leave unselected to clear.</p>
-      </div>
+        <!-- Subjects block for edit -->
+        <div id="editSubjectsSection" class="<%= staff.department === 'Academics' ? '' : 'hidden' %> md:col-span-3 space-y-2">
+          <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Subjects taught <span class="text-slate-455 font-normal">(Select one or more)</span></label>
+          <div class="flex gap-2">
+            <select id="editSubjectDropdown" class="flex-1 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none bg-white font-semibold text-slate-750 transition">
+              <option value="" disabled selected>-- Select Subject --</option>
+              <option value="Maths">Maths</option>
+              <option value="Physics">Physics</option>
+              <option value="Chemistry">Chemistry</option>
+              <option value="Biology">Biology</option>
+              <option value="English">English</option>
+              <option value="Social Studies">Social Studies</option>
+              <option value="GK">General Knowledge (GK)</option>
+              <option value="custom">-- Add Custom Subject --</option>
+            </select>
+            <button type="button" id="editAddSubjectBtn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs px-4 py-2.5 rounded-2xl transition">
+              Add
+            </button>
+          </div>
+          
+          <div id="editCustomSubjectDiv" class="hidden flex gap-2 mt-2">
+            <input type="text" id="editCustomSubjectInput" placeholder="Enter custom subject name"
+                   class="flex-1 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+            <button type="button" id="editConfirmCustomSubjectBtn" class="bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold text-xs px-4 py-2.5 rounded-2xl transition">
+              Confirm
+            </button>
+          </div>
 
-      <!-- Address -->
-      <div class="space-y-3">
-        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Residential Address</label>
-        <textarea name="address" placeholder="Write full address details..." 
-                  class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl p-4 text-xs outline-none font-semibold text-slate-750 h-24 resize-none transition"><%= staff.address || '' %></textarea>
-      </div>
-
-      <!-- Bank details -->
-      <div class="space-y-4">
-        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider pb-1 border-b border-slate-100">
-          Bank Account Details
-        </h4>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Bank Name</label>
-            <input name="bankName" value="<%= staff.bankName || '' %>" 
-                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
+          <div id="editSubjectChipsContainer" class="flex flex-wrap gap-2 pt-2">
+            <!-- Chips for existing subjects -->
+            <% if (staff.subjects && staff.subjects.length) { %>
+              <% staff.subjects.forEach(sub => { %>
+                <div class="inline-flex items-center gap-1 bg-indigo-50 border border-indigo-150 text-indigo-700 px-2.5 py-1 rounded-xl text-[10px] font-bold" data-sub="<%= sub %>">
+                  <span><%= sub %></span>
+                  <button type="button" class="text-indigo-400 hover:text-indigo-700 font-bold ml-1 outline-none edit-remove-chip-btn">&times;</button>
+                </div>
+              <% }) %>
+            <% } %>
           </div>
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Account Holder Name</label>
-            <input name="accountHolderName" value="<%= staff.accountHolderName || '' %>" 
-                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
-          </div>
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Account Number</label>
-            <input id="accountNumber" name="accountNumber" value="<%= staff.accountNumber || '' %>" 
-                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
-          </div>
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Confirm Account Number</label>
-            <input id="confirmAccountNumber" name="confirmAccountNumber" value="<%= staff.accountNumber || '' %>" 
-                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
-          </div>
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">IFSC Code</label>
-            <input name="ifscCode" value="<%= staff.ifscCode || '' %>" 
-                   class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-xs outline-none font-semibold text-slate-700 transition" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Replace documents -->
-      <div class="space-y-4">
-        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider pb-1 border-b border-slate-100">
-          Upload / Replace Documents
-        </h4>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Passport Photo</label>
-            <input type="file" name="photo" class="text-xs text-slate-500" />
-          </div>
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Resume PDF</label>
-            <input type="file" name="resume" class="text-xs text-slate-500" />
-          </div>
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Aadhaar File</label>
-            <input type="file" name="aadhaar" class="text-xs text-slate-500" />
-          </div>
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">PAN File</label>
-            <input type="file" name="pan" class="text-xs text-slate-500" />
-          </div>
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Bank Photo</label>
-            <input type="file" name="bankAccountPhoto" class="text-xs text-slate-500" />
-          </div>
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Offer Letter</label>
-            <input type="file" name="offerLetter" class="text-xs text-slate-500" />
-          </div>
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Experience Certificate</label>
-            <input type="file" name="experienceLetter" class="text-xs text-slate-500" />
-          </div>
-          <div>
-            <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Other Document</label>
-            <input type="file" name="otherDocument" class="text-xs text-slate-500" />
+          <div id="editHiddenSubjectsInputs">
+            <% if (staff.subjects && staff.subjects.length) { %>
+              <% staff.subjects.forEach(sub => { %>
+                <input type="hidden" name="subjects" value="<%= sub %>" />
+              <% }) %>
+            <% } %>
           </div>
         </div>
       </div>
 
       <!-- Action buttons -->
       <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
-        <button type="submit" class="bg-indigo-650 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition shadow-md">
+        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition shadow-md">
           Save Profile Updates
         </button>
       </div>
@@ -338,21 +316,184 @@
 
 </div>
 
+<!-- Modals -->
+<!-- Link Portal Account Modal -->
+<div id="linkPortalModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm p-4 flex items-center justify-center">
+  <div class="bg-white w-full max-w-md rounded-3xl shadow-xl border border-slate-150 p-6 space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-base font-bold text-slate-850">Link Portal Account</h3>
+      <button type="button" onclick="closeModal('linkPortalModal')" class="text-slate-400 hover:text-slate-700 outline-none">
+        <i class="fas fa-times text-lg"></i>
+      </button>
+    </div>
+    <form action="/admin/staff/<%= staff._id %>/portal-accounts" method="POST" class="space-y-4">
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Select Portal</label>
+        <select name="portalName" required class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-sm outline-none bg-white font-semibold text-slate-800 transition">
+          <option value="ERP Portal">ERP Portal</option>
+          <option value="Test Portal">Test Portal</option>
+          <option value="Attendance Portal">Attendance Portal</option>
+        </select>
+      </div>
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Username</label>
+        <input type="text" name="username" placeholder="Enter external portal username" required
+               class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-sm outline-none font-semibold text-slate-800 transition" />
+      </div>
+      <div class="pt-4 flex items-center justify-end gap-2">
+        <button type="button" onclick="closeModal('linkPortalModal')" class="bg-slate-105 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition">
+          Cancel
+        </button>
+        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-md">
+          Link Account
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Assign Username Modal -->
+<div id="assignUserModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm p-4 flex items-center justify-center">
+  <div class="bg-white w-full max-w-md rounded-3xl shadow-xl border border-slate-150 p-6 space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-base font-bold text-slate-850">Assign Username</h3>
+      <button type="button" onclick="closeModal('assignUserModal')" class="text-slate-400 hover:text-slate-700 outline-none">
+        <i class="fas fa-times text-lg"></i>
+      </button>
+    </div>
+    <form action="/admin/staff/<%= staff._id %>/assign-user" method="POST" class="space-y-4">
+      <div>
+        <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Select Admin / Superadmin / Receptionist User</label>
+        <select name="userId" required class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl px-4 py-2.5 text-sm outline-none bg-white font-semibold text-slate-800 transition">
+          <option value="" disabled selected>-- Select User --</option>
+          <% (eligibleUsers || []).forEach((u) => { %>
+            <option value="<%= u._id %>"><%= u.name %> (<%= u.username %>) [<%= u.role %>]</option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="pt-4 flex items-center justify-end gap-2">
+        <button type="button" onclick="closeModal('assignUserModal')" class="bg-slate-105 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition">
+          Cancel
+        </button>
+        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-md">
+          Assign User
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
+  function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.remove('hidden');
+    }
+  }
+
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('hidden');
+    }
+  }
+
   (function() {
-    const accountInput = document.getElementById("accountNumber");
-    const confirmInput = document.getElementById("confirmAccountNumber");
+    const editDeptSelect = document.querySelector('select[name="department"]');
+    const editSubjectsSection = document.getElementById("editSubjectsSection");
+    const editSubjectDropdown = document.getElementById("editSubjectDropdown");
+    const editAddSubjectBtn = document.getElementById("editAddSubjectBtn");
+    const editCustomSubjectDiv = document.getElementById("editCustomSubjectDiv");
+    const editCustomSubjectInput = document.getElementById("editCustomSubjectInput");
+    const editConfirmCustomSubjectBtn = document.getElementById("editConfirmCustomSubjectBtn");
+    const editSubjectChipsContainer = document.getElementById("editSubjectChipsContainer");
+    const editHiddenInputsContainer = document.getElementById("editHiddenSubjectsInputs");
 
-    const syncAccountRequired = () => {
-      const hasAccount = Boolean(accountInput?.value?.trim());
-      const hasConfirm = Boolean(confirmInput?.value?.trim());
+    // Initialize selected subjects from EJS data
+    let selectedSubjects = [];
+    document.querySelectorAll('#editHiddenSubjectsInputs input').forEach(input => {
+      if (input.value) selectedSubjects.push(input.value);
+    });
 
-      if (accountInput) accountInput.required = hasConfirm;
-      if (confirmInput) confirmInput.required = hasAccount;
+    const updateChips = () => {
+      editSubjectChipsContainer.innerHTML = "";
+      editHiddenInputsContainer.innerHTML = "";
+
+      selectedSubjects.forEach(sub => {
+        // Render Chip
+        const chip = document.createElement("div");
+        chip.className = "inline-flex items-center gap-1 bg-indigo-50 border border-indigo-150 text-indigo-700 px-2.5 py-1 rounded-xl text-[10px] font-bold";
+        chip.innerHTML = `
+          <span>${sub}</span>
+          <button type="button" class="text-indigo-400 hover:text-indigo-700 font-bold ml-1 outline-none">&times;</button>
+        `;
+        chip.querySelector("button").addEventListener("click", () => {
+          selectedSubjects = selectedSubjects.filter(s => s !== sub);
+          updateChips();
+        });
+        editSubjectChipsContainer.appendChild(chip);
+
+        // Hidden input
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = "subjects";
+        hiddenInput.value = sub;
+        editHiddenInputsContainer.appendChild(hiddenInput);
+      });
     };
 
-    accountInput?.addEventListener("input", syncAccountRequired);
-    confirmInput?.addEventListener("input", syncAccountRequired);
-    syncAccountRequired();
+    // Bind original EJS remove buttons
+    document.querySelectorAll(".edit-remove-chip-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const sub = e.target.closest("div").getAttribute("data-sub");
+        selectedSubjects = selectedSubjects.filter(s => s !== sub);
+        updateChips();
+      });
+    });
+
+    if (editAddSubjectBtn) {
+      editAddSubjectBtn.addEventListener("click", () => {
+        const val = editSubjectDropdown.value;
+        if (!val) return;
+
+        if (val === "custom") {
+          editCustomSubjectDiv.classList.remove("hidden");
+          editCustomSubjectInput.focus();
+        } else {
+          if (!selectedSubjects.includes(val)) {
+            selectedSubjects.push(val);
+            updateChips();
+          }
+          editSubjectDropdown.value = "";
+        }
+      });
+    }
+
+    if (editConfirmCustomSubjectBtn) {
+      editConfirmCustomSubjectBtn.addEventListener("click", () => {
+        const val = editCustomSubjectInput.value.trim();
+        if (val) {
+          if (!selectedSubjects.includes(val)) {
+            selectedSubjects.push(val);
+            updateChips();
+          }
+          editCustomSubjectInput.value = "";
+          editCustomSubjectDiv.classList.add("hidden");
+          editSubjectDropdown.value = "";
+        }
+      });
+    }
+
+    if (editDeptSelect) {
+      editDeptSelect.addEventListener("change", function() {
+        if (editDeptSelect.value === "Academics") {
+          editSubjectsSection.classList.remove("hidden");
+        } else {
+          editSubjectsSection.classList.add("hidden");
+          selectedSubjects = [];
+          updateChips();
+        }
+      });
+    }
   })();
 </script>

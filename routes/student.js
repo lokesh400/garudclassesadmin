@@ -4,18 +4,20 @@ const Batch = require("../models/Batch.js");
 const Fee = require("../models/Fee.js");
 const passport = require("passport");
 const crypto = require("crypto");
-const { sendStudentCredentials } = require("../utils/mailer.js");
+const { sendStudentCredentials, sendDeleteOtpEmail } = require("../utils/mailer.js");
 const { isLoggedIn, requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
 async function generateRollNumber(batch) {
   const yearPart = batch.year[2].toString() + batch.year[3].toString();
-  const classPart = batch.name
+  const classPart = batch.name;
   let coursePart = '';
-  if (batch.courseType === 'JEE') coursePart = 'N';
-  else if (batch.courseType === 'NEET') coursePart = 'M';
-  else if (batch.courseType === 'Foundation') coursePart = 'F';
+  const cType = (batch.courseType || '').toUpperCase();
+  if (cType === 'JEE') coursePart = 'N';
+  else if (cType === 'NEET') coursePart = 'M';
+  else if (cType === 'FOUNDATION') coursePart = 'F';
+  else if (cType === 'NDA') coursePart = 'A';
   else coursePart = 'X';
   const count = await User.countDocuments({ batch: batch._id});
   const seqPart = String(count + 1).padStart(3, '0');
@@ -43,6 +45,19 @@ router.post('/create', isLoggedIn, requireRole("superadmin"), async (req, res) =
     const { name,email, batchId,number,fatherName,motherName,address,admissionFee,tuitionFee,transportFee,otherFee } = req.body;
     if (!name || !email || !batchId)
       return res.status(400).json({ message: 'All fields are required' });
+
+    // Prevent duplicate student registration by checking Name, Number, and Email
+    if (name && email && number) {
+      const duplicateStudent = await User.findOne({
+        name: { $regex: new RegExp("^" + name.trim() + "$", "i") },
+        number: number,
+        email: { $regex: new RegExp("^" + email.trim() + "$", "i") }
+      });
+      if (duplicateStudent) {
+        return res.status(400).json({ message: "A student with the same Name, Mobile Number, and Email already exists in the system." });
+      }
+    }
+
     const batch = await Batch.findById(batchId);
     if (!batch) return res.status(404).json({ message: 'Batch not found' });
     const roll = await generateRollNumber(batch);
@@ -231,5 +246,81 @@ router.get('/send/details/:BatchId',isLoggedIn,requireRole('superadmin', 'admin'
 )
 
 
+
+// Route to request student deletion (generates and emails OTP to the admin)
+router.post('/delete-request', isLoggedIn, requireRole('superadmin', 'admin'), async (req, res) => {
+  try {
+    const { studentId } = req.body;
+    if (!studentId) {
+      return res.status(400).json({ success: false, message: 'Student ID is required.' });
+    }
+    const student = await User.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found.' });
+    }
+
+    const adminEmail = req.user.email;
+    if (!adminEmail) {
+      return res.status(400).json({ success: false, message: 'No active email registered for your administrator account. Please configure an email address.' });
+    }
+
+    // Generate random 6-digit OTP
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Store details in session
+    req.session.deleteStudentOtp = {
+      studentId: studentId,
+      otp: code,
+      expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes validity
+    };
+
+    // Send email with OTP to current logged-in user
+    await sendDeleteOtpEmail(adminEmail, student.name, code);
+
+    res.json({ success: true, message: `OTP sent to your administrator email (${adminEmail}).` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Internal Server Error.' });
+  }
+});
+
+// Route to verify OTP and confirm student deletion
+router.post('/delete-confirm', isLoggedIn, requireRole('superadmin', 'admin'), async (req, res) => {
+  try {
+    const { studentId, otp } = req.body;
+    if (!studentId || !otp) {
+      return res.status(400).json({ success: false, message: 'Student ID and OTP are required.' });
+    }
+
+    const sessionOtp = req.session.deleteStudentOtp;
+    if (!sessionOtp) {
+      return res.status(400).json({ success: false, message: 'No active deletion request found. Please request OTP again.' });
+    }
+
+    if (sessionOtp.studentId !== studentId) {
+      return res.status(400).json({ success: false, message: 'Inconsistent student ID. Please request OTP again.' });
+    }
+
+    if (sessionOtp.otp !== otp.toString().trim()) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP. Please check and try again.' });
+    }
+
+    if (Date.now() > sessionOtp.expiresAt) {
+      return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new OTP.' });
+    }
+
+    // Perform permanent deletion
+    await User.findByIdAndDelete(studentId);
+    await Fee.deleteMany({ student: studentId });
+
+    // Clear session OTP
+    req.session.deleteStudentOtp = null;
+
+    res.json({ success: true, message: 'Student has been permanently deleted.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Internal Server Error.' });
+  }
+});
 
 module.exports = router;
