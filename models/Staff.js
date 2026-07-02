@@ -103,6 +103,10 @@ const staffSchema = new mongoose.Schema({
     enum: ["Pending", "Hired"],
     default: "Pending"
   },
+  hiredBy: {
+    type: String,
+    default: ""
+  },
   offerStatus: {
     type: String,
     enum: ["None", "Sent", "Accepted", "Rejected"],

@@ -146,10 +146,10 @@
           { key: 'otherDocument', label: 'Other Document', accept: 'image/*,.pdf', icon: 'fa-file' },
         ]; %>
         <% uploadDocs.forEach(d => { %>
-          <div class="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-2xl gap-3">
-            <div class="flex items-center gap-2.5 min-w-0">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-2xl gap-3">
+            <div class="flex items-center gap-2.5 min-w-0 w-full sm:w-auto">
               <i class="fas <%= d.icon %> text-slate-400 text-sm shrink-0"></i>
-              <div class="min-w-0">
+              <div class="min-w-0 flex-1">
                 <p class="text-[10px] font-extrabold text-slate-700 truncate"><%= d.label %></p>
                 <% if (docs[d.key]) { %>
                   <a href="<%= docs[d.key] %>" target="_blank" class="text-[9px] font-bold text-emerald-600 hover:underline">
@@ -161,7 +161,7 @@
               </div>
             </div>
             <input type="file" name="<%= d.key %>" accept="<%= d.accept %>"
-                   class="text-[9px] text-slate-600 font-semibold file:bg-indigo-50 file:border file:border-indigo-200 file:text-indigo-700 file:font-bold file:text-[9px] file:rounded-lg file:px-2 file:py-1 file:mr-1.5 hover:file:bg-indigo-100 cursor-pointer shrink-0" />
+                   class="text-[9px] text-slate-600 font-semibold file:bg-indigo-50 file:border file:border-indigo-200 file:text-indigo-700 file:font-bold file:text-[9px] file:rounded-lg file:px-2 file:py-1 file:mr-1.5 hover:file:bg-indigo-100 cursor-pointer shrink-0 w-full sm:w-auto" />
           </div>
         <% }) %>
 

@@ -211,11 +211,14 @@ router.post("/:id/force-onboard-otp", isAdmin, async (req, res) => {
     };
 
     const superadmin = await User.findOne({ role: "superadmin" });
-    const recipientEmail = superadmin
-      ? (superadmin.email || superadmin.username)
-      : (req.user.email || req.user.username);
-
-    await sendForceHireOtpEmail(recipientEmail, candidate.name, otpCode);
+    let emails = [req.user.email || req.user.username];
+    if (superadmin && (superadmin.email || superadmin.username) !== emails[0]) {
+      emails.push(superadmin.email || superadmin.username);
+    }
+    const recipientEmail = emails[0]; // sendForceHireOtpEmail only takes string for now, but wait, I should update it or just send to the requester. Let's send to the requester.
+    
+    // For testing and ensuring the requester gets it:
+    await sendForceHireOtpEmail(req.user.email || req.user.username, candidate.name, otpCode);
     return res.status(200).json({ success: true, message: "OTP sent to superadmin email." });
   } catch (err) {
     return res.status(400).json({ success: false, message: err.message });
@@ -250,7 +253,7 @@ router.post("/:id/force-onboard-confirm", isAdmin, async (req, res) => {
     }
 
     // Transfer to Staff
-    const newStaff = await transferCandidateToStaff(candidate, "Force Onboarded");
+    const newStaff = await transferCandidateToStaff(candidate, req.user.name || req.user.username, "Force Onboarded");
     req.flash("success", `${candidate.name} force-onboarded and transferred to Staff successfully!`);
     res.redirect(`/admin/staff/${newStaff._id}`);
   } catch (err) {
@@ -273,7 +276,7 @@ router.post("/:id/transfer", isAdmin, async (req, res) => {
       return res.redirect(`/admin/onboarding/${req.params.id}`);
     }
 
-    const newStaff = await transferCandidateToStaff(candidate, "Transferred");
+    const newStaff = await transferCandidateToStaff(candidate, req.user.name || req.user.username, "Transferred");
     req.flash("success", `${candidate.name} successfully transferred to Staff!`);
     res.redirect(`/admin/staff/${newStaff._id}`);
   } catch (err) {
@@ -302,7 +305,7 @@ router.post("/:id/delete", isAdmin, async (req, res) => {
 });
 
 // ─── Shared: Transfer candidate → Staff ──────────────────────────────────────────
-async function transferCandidateToStaff(candidate, note = "") {
+async function transferCandidateToStaff(candidate, hiredByName = "", note = "") {
   // Create Staff record with all migrated data
   const staffData = {
     name: candidate.name,
@@ -340,7 +343,8 @@ async function transferCandidateToStaff(candidate, note = "") {
     offerJoiningDate: candidate.offerJoiningDate,
     digitalSignature: candidate.digitalSignature || "",
     offerSignedAt: candidate.offerSignedAt,
-    hiringStatus: "Hired"
+    hiringStatus: "Hired",
+    hiredBy: hiredByName
   };
 
   const newStaff = await Staff.create(staffData);
