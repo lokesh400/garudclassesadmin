@@ -306,8 +306,34 @@ router.post("/:id/delete", isAdmin, async (req, res) => {
 
 // ─── Shared: Transfer candidate → Staff ──────────────────────────────────────────
 async function transferCandidateToStaff(candidate, hiredByName = "", note = "") {
+  // Generate employeeId if candidate's email does not contain @garudclasses.com
+  const email = candidate.email || "";
+  const regex = /@garudclasses\s*\.?\s*com/i;
+  const containsGarud = regex.test(email) || email.toLowerCase().includes('garudclasses.com') || email.toLowerCase().includes('garudclasses .com');
+
+  let employeeId = "";
+  if (!containsGarud) {
+    try {
+      const lastStaff = await Staff.findOne({ employeeId: /^GC\d{6}$/ })
+        .sort({ employeeId: -1 })
+        .exec();
+
+      let nextNum = 1;
+      if (lastStaff && lastStaff.employeeId) {
+        const lastNum = parseInt(lastStaff.employeeId.slice(2), 10);
+        if (!isNaN(lastNum)) {
+          nextNum = lastNum + 1;
+        }
+      }
+      employeeId = "GC" + String(nextNum).padStart(6, "0");
+    } catch (err) {
+      console.error("Error generating employeeId:", err);
+    }
+  }
+
   // Create Staff record with all migrated data
   const staffData = {
+    employeeId: employeeId,
     name: candidate.name,
     email: candidate.email,
     phone: candidate.phone,

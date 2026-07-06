@@ -12,18 +12,18 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  isActive:{
-    type:Boolean,
-    default:true
+  isActive: {
+    type: Boolean,
+    default: true
   },
   email: String,
-  image:String,
+  image: String,
   rollNumber: String,
   number: Number,
   fatherName: String,
   motherName: String,
   address: String,
-  editAllowed:Boolean,
+  editAllowed: Boolean,
   allowStudentPhotoReupload: { type: Boolean, default: true },
   allowClass10MarksheetReupload: { type: Boolean, default: true },
   allowClass12MarksheetReupload: { type: Boolean, default: true },

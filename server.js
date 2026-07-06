@@ -187,7 +187,29 @@ app.use("/staff", staffPortalRoutes);
 app.use("/admin/onboarding", onboardingRoutes);
 app.use("/onboarding", onboardingPortalRoutes);
 
-app.post("/me/:id", async (req, res) => {
+/* ---------------- INTERNAL SECURITY MIDDLEWARE ---------------- */
+function requireInternalApiKey(req, res, next) {
+  const authHeader = req.headers['authorization'] || req.headers['x-api-key'];
+  const expectedKey = process.env.INTERNAL_API_KEY;
+
+  if (!expectedKey) {
+    console.error('INTERNAL_API_KEY is not set in environment variables.');
+    return res.status(500).json({ error: 'Server configuration error' });
+  }
+
+  let apiKey = authHeader;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    apiKey = authHeader.substring(7);
+  }
+
+  if (!apiKey || apiKey !== expectedKey) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid API Key' });
+  }
+
+  next();
+}
+
+app.post("/me/:id", requireInternalApiKey, async (req, res) => {
   try {
     const userId = req.params.id;
     const user = await User.findById(userId).populate("batch");
@@ -198,7 +220,7 @@ app.post("/me/:id", async (req, res) => {
   }
 });
 
-app.get("/attendance/get/students/all", async (req, res) => {
+app.get("/attendance/get/students/all", requireInternalApiKey, async (req, res) => {
   try {
     const students = await User.find({ role: "student" }).populate("batch");
     res.json(students);
@@ -207,9 +229,12 @@ app.get("/attendance/get/students/all", async (req, res) => {
   }
 });
 
-app.get("/attendance/get/staff/all", async (req, res) => {
+app.get("/attendance/get/staff/all", requireInternalApiKey, async (req, res) => {
   try {
-    const staff = await User.find({ role: { $in: ["teacher", "admin", "superadmin", "hr", "mts", "receptionist"] } });
+    const staff = await User.find({
+      role: { $in: ["teacher", "admin", "superadmin", "hr", "mts", "receptionist"] },
+      username: { $not: /@garudclasses\s*\.?\s*com/i }
+    });
     console.log(staff)
     res.json(staff);
   } catch (err) {
