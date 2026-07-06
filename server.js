@@ -22,7 +22,6 @@ const { isLoggedIn, requireRole } = require("./middleware/auth");
 /* ---------------- ROUTES ---------------- */
 const authRoutes = require("./routes/auth");
 const studentRoutes = require("./routes/student");
-const attendanceRoutes = require("./routes/attendance");
 const timetableRoutes = require("./routes/timetable");
 const formRouter = require("./routes/form");
 const admitcardRouter = require("./routes/admitCard");
@@ -73,6 +72,7 @@ app.use(
     "https://p.garudclasses.com": true,
     "https://garudclasses.com": true,
     "http://localhost:8081": true,
+    "http://localhost:3000": true
   })
 );
 
@@ -125,7 +125,6 @@ app.use((req, res, next) => {
 /* ---------------- API ROUTES ---------------- */
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
-app.use("/api/attendance", attendanceRoutes);
 app.use("/api/timetable", timetableRoutes);
 app.use("/api/batches", batchRoutes);
 app.use("/fees", feeRouter);
@@ -188,32 +187,6 @@ app.use("/staff", staffPortalRoutes);
 app.use("/admin/onboarding", onboardingRoutes);
 app.use("/onboarding", onboardingPortalRoutes);
 
-
-// app.get("/whatsapp", isLoggedIn, requireRole("superadmin"), async (req, res) => {
-//   const response = await axios.get("http://localhost:3000/whatsapp");
-//       console.log(response.data);
-//       const qrImage = await QRCode.toDataURL(response.data.status.qr);
-//       res.render("whatsapp/index", {
-//       status: response.data.status,
-//       qrImage,
-//       title: "WhatsApp",
-//       pageTitle: "WhatsApp",
-//       activePage: "whatsapp",
-//     });
-//    });
-
-// app.get("/send",isLoggedIn,requireRole("superadmin"), async (req, res) => {
-//   const users = await User.find({role:"student"}).populate("batch");
-//   console.log(users);
-//   res.render("whatsapp/message", {
-//     users,
-//     status: waStatus,
-//     title: "WhatsApp",
-//     pageTitle: "WhatsApp",
-//     activePage: "whatsapp",
-//   });
-// });
-
 app.post("/me/:id", async (req, res) => {
   try {
     const userId = req.params.id;
@@ -230,6 +203,17 @@ app.get("/attendance/get/students/all", async (req, res) => {
     const students = await User.find({ role: "student" }).populate("batch");
     res.json(students);
   } catch (err) {
+    res.status(500).json({ message: "Server error", err });
+  }
+});
+
+app.get("/attendance/get/staff/all", async (req, res) => {
+  try {
+    const staff = await User.find({ role: { $in: ["teacher", "admin", "superadmin", "hr", "mts", "receptionist"] } });
+    console.log(staff)
+    res.json(staff);
+  } catch (err) {
+    console.log(err)
     res.status(500).json({ message: "Server error", err });
   }
 });

@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const Fee = require("../models/Fee");
 const Otp = require("../models/Otp");
-const Attendance = require("../models/Attendance");
 const Query = require("../models/Query");
 const StudioBooking = require("../models/StudioBooking");
 const { isLoggedIn } = require("../middleware/auth");
