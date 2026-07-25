@@ -1,10 +1,18 @@
 function isLoggedIn(req, res, next) {
+  const isApiRequest = req.originalUrl.startsWith("/api/") || req.originalUrl.startsWith("/auth/") || req.xhr || (req.headers.accept && req.headers.accept.includes("json"));
+
   if (!req.isAuthenticated()) {
+    if (isApiRequest) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
     return res.redirect("/login");
   }
   if (!req.user || req.user.isActive === false) {
     req.logout(function (err) {
       if (err) return next(err);
+      if (isApiRequest) {
+        return res.status(403).json({ error: "Your account is inactive. Please contact the administration." });
+      }
       req.flash(
         "success",
         "Your account is inactive. Please contact the administration."

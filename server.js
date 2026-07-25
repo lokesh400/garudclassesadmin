@@ -72,7 +72,7 @@ app.use(
     "https://p.garudclasses.com": true,
     "https://garudclasses.com": true,
     "http://localhost:8081": true,
-    "http://localhost:3000": true
+    "http://localhost:3000": true,
   })
 );
 
@@ -209,7 +209,15 @@ function requireInternalApiKey(req, res, next) {
   next();
 }
 
-app.post("/me/:id", requireInternalApiKey, async (req, res) => {
+app.post("/me/:id", (req, res, next) => {
+  if (req.isAuthenticated() && req.user) {
+    const userId = req.params.id;
+    if (req.user.id === userId || String(req.user._id) === userId || req.user.role === "admin" || req.user.role === "superadmin") {
+      return next();
+    }
+  }
+  requireInternalApiKey(req, res, next);
+}, async (req, res) => {
   try {
     const userId = req.params.id;
     const user = await User.findById(userId).populate("batch");
