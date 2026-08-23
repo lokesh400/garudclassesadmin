@@ -152,4 +152,27 @@ router.post("/portal/reject-offer", isOnboardingCandidate, async (req, res) => {
   }
 });
 
+// ─── GET: View Formal Offer Letter Contract ──────────────────────────────────
+router.get("/portal/offer-letter", isOnboardingCandidate, async (req, res) => {
+  try {
+    const candidate = await Onboarding.findOne({ linkedUser: req.user._id });
+    if (!candidate) {
+      req.flash("error", "No onboarding profile found.");
+      return res.redirect("/login");
+    }
+
+    if (candidate.offerStatus === "None") {
+      req.flash("error", "No offer letter has been generated for your profile yet.");
+      return res.redirect("/onboarding/portal");
+    }
+
+    res.render("onboarding/offer-letter", {
+      candidate,
+      layout: false
+    });
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
 module.exports = router;

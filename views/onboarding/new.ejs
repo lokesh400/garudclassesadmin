@@ -92,13 +92,27 @@
       </div>
 
       <!-- Designation -->
-      <div>
+      <div id="designationGroup">
         <label class="block mb-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">Designation <span class="text-red-500">*</span></label>
-        <div class="relative">
+        
+        <!-- Designation Select Dropdown -->
+        <div class="relative mb-2">
           <span class="absolute left-4 top-3.5 text-slate-400 text-sm"><i class="fas fa-briefcase"></i></span>
-          <input type="text" name="designation" placeholder="e.g. Senior Teacher, HR Executive" required
+          <select id="designationSelect" required
+                  class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs outline-none bg-slate-50 font-semibold text-slate-700 transition">
+            <option value="" disabled selected>-- Select Department First --</option>
+          </select>
+        </div>
+
+        <!-- Custom Designation Input (hidden by default) -->
+        <div id="customDesignationDiv" class="hidden relative">
+          <span class="absolute left-4 top-3.5 text-slate-400 text-sm"><i class="fas fa-edit"></i></span>
+          <input type="text" id="customDesignationInput" placeholder="Enter custom designation"
                  class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-xs outline-none font-semibold text-slate-700 transition" />
         </div>
+
+        <!-- Hidden input to submit the actual value -->
+        <input type="hidden" name="designation" id="finalDesignation" required />
       </div>
 
       <!-- Intended Role -->
@@ -136,8 +150,96 @@
   const hiddenSubjectInputs = document.getElementById('hiddenSubjectInputs');
   let selectedSubjects = [];
 
+  const designationSelect = document.getElementById('designationSelect');
+  const customDesignationDiv = document.getElementById('customDesignationDiv');
+  const customDesignationInput = document.getElementById('customDesignationInput');
+  const finalDesignation = document.getElementById('finalDesignation');
+
+  const designationsByDept = {
+    Academics: [
+      "HOD (Head of Department)",
+      "Senior Faculty",
+      "Junior Faculty",
+      "Subject Matter Expert",
+      "Academic Coordinator"
+    ],
+    Administration: [
+      "Center Manager",
+      "Receptionist",
+      "Office Assistant",
+      "Front Desk Executive",
+      "Branch Admin"
+    ],
+    HR: [
+      "HR Manager",
+      "HR Recruiter",
+      "HR Executive"
+    ],
+    Operations: [
+      "Operations Manager",
+      "Operations Executive",
+      "Telecaller",
+      "Sales Executive",
+      "Academic Counselor"
+    ],
+    Finance: [
+      "Finance Manager",
+      "Accountant",
+      "Accounts Executive"
+    ],
+    MTS: [
+      "Lab Assistant",
+      "Technical Assistant",
+      "Support Staff",
+      "Peon / Office Boy"
+    ]
+  };
+
+  function updateDesignations() {
+    const dept = deptSelect.value;
+    designationSelect.innerHTML = '<option value="" disabled selected>-- Select Designation --</option>';
+    
+    if (designationsByDept[dept]) {
+      designationsByDept[dept].forEach(desg => {
+        const opt = document.createElement('option');
+        opt.value = desg;
+        opt.textContent = desg;
+        designationSelect.appendChild(opt);
+      });
+      
+      const customOpt = document.createElement('option');
+      customOpt.value = 'custom';
+      customOpt.textContent = '+ Add Custom Designation';
+      designationSelect.appendChild(customOpt);
+    }
+    
+    // Reset custom view & value
+    customDesignationDiv.classList.add('hidden');
+    customDesignationInput.required = false;
+    customDesignationInput.value = '';
+    finalDesignation.value = '';
+  }
+
   deptSelect.addEventListener('change', () => {
     subjectsSection.classList.toggle('hidden', deptSelect.value !== 'Academics');
+    updateDesignations();
+  });
+
+  designationSelect.addEventListener('change', function() {
+    if (designationSelect.value === 'custom') {
+      customDesignationDiv.classList.remove('hidden');
+      customDesignationInput.required = true;
+      customDesignationInput.focus();
+      finalDesignation.value = customDesignationInput.value;
+    } else {
+      customDesignationDiv.classList.add('hidden');
+      customDesignationInput.required = false;
+      finalDesignation.value = designationSelect.value;
+    }
+  });
+
+  customDesignationInput.addEventListener('input', function() {
+    finalDesignation.value = customDesignationInput.value;
   });
 
   const updateChips = () => {

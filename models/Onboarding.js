@@ -38,10 +38,19 @@ const onboardingSchema = new mongoose.Schema({
     default: "None"
   },
   offerDesignation: { type: String, default: "" },
-  offerSalary: { type: String, default: "" },
+  offerSalary: { type: String, default: "" }, // Keep annual CTC string for display
   offerJoiningDate: { type: Date, default: null },
   digitalSignature: { type: String, default: "" },
   offerSignedAt: { type: Date, default: null },
+  offerShiftTimings: { type: String, default: "" },
+  offerProbationPeriod: { type: String, default: "" },
+  offerSalaryBasic: { type: Number, default: 0 },
+  offerSalaryHra: { type: Number, default: 0 },
+  offerSalarySpecial: { type: Number, default: 0 },
+  offerSalaryPf: { type: Number, default: 0 },
+  offerSalaryTax: { type: Number, default: 0 },
+  offerSalaryNet: { type: Number, default: 0 },
+  offerSalaryGross: { type: Number, default: 0 },
 
   // Documents (Cloudinary URLs)
   documents: {

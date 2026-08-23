@@ -98,6 +98,13 @@ const staffSchema = new mongoose.Schema({
     enum: ["Active", "Inactive"],
     default: "Active"
   },
+  statusHistory: [
+    {
+      status: { type: String, required: true },
+      updatedBy: { type: String, required: true },
+      updatedAt: { type: Date, default: Date.now }
+    }
+  ],
   hiringStatus: {
     type: String,
     enum: ["Pending", "Hired"],
@@ -132,6 +139,15 @@ const staffSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  offerShiftTimings: { type: String, default: "" },
+  offerProbationPeriod: { type: String, default: "" },
+  offerSalaryBasic: { type: Number, default: 0 },
+  offerSalaryHra: { type: Number, default: 0 },
+  offerSalarySpecial: { type: Number, default: 0 },
+  offerSalaryPf: { type: Number, default: 0 },
+  offerSalaryTax: { type: Number, default: 0 },
+  offerSalaryNet: { type: Number, default: 0 },
+  offerSalaryGross: { type: Number, default: 0 },
 
   documents: {
     aadhaar: {

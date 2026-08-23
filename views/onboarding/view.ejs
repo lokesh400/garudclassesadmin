@@ -271,38 +271,112 @@
 
 <!-- Offer Letter Modal -->
 <div id="offerModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl border border-slate-100 max-w-md w-full shadow-2xl p-6 relative overflow-hidden">
+  <div class="bg-white rounded-3xl border border-slate-100 max-w-2xl w-full shadow-2xl p-6 relative overflow-hidden flex flex-col max-h-[90vh]">
     <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-purple-500 to-indigo-500"></div>
-    <div class="flex justify-between items-center mb-5">
-      <h3 class="text-base font-extrabold text-slate-900">Send Offer Letter</h3>
+    
+    <div class="flex justify-between items-center mb-4 shrink-0">
+      <h3 class="text-base font-extrabold text-slate-900">Send Offer Letter & Contract</h3>
       <button onclick="document.getElementById('offerModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition">
-        <i class="fas fa-times"></i>
+        <i class="fas fa-times text-lg"></i>
       </button>
     </div>
-    <p class="text-[10px] text-slate-500 font-semibold mb-4">
-      The candidate will receive an email with a link to log into their portal and digitally sign the offer.
-    </p>
-    <form action="/admin/onboarding/<%= candidate._id %>/send-offer" method="POST" class="space-y-4">
-      <div>
-        <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Designation *</label>
-        <input type="text" name="offerDesignation" value="<%= candidate.designation %>" required
-               class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none font-semibold text-slate-800 transition" />
+
+    <form action="/admin/onboarding/<%= candidate._id %>/send-offer" method="POST" class="space-y-4 overflow-y-auto pr-1 flex-1">
+      
+      <!-- Primary Appointment Details -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Designation *</label>
+          <input type="text" name="offerDesignation" value="<%= candidate.designation %>" required
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none font-semibold text-slate-800 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Proposed Joining Date *</label>
+          <input type="date" name="offerJoiningDate" required
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none font-semibold text-slate-800 transition" />
+        </div>
       </div>
-      <div>
-        <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Salary / Compensation *</label>
-        <input type="text" name="offerSalary" required placeholder="e.g., ₹5,00,000 per annum"
-               class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none font-semibold text-slate-800 transition" />
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Shift Timings *</label>
+          <input type="text" name="offerShiftTimings" required placeholder="e.g. 9:00 AM - 6:00 PM"
+                 class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none font-semibold text-slate-808 transition" />
+        </div>
+        <div>
+          <label class="block mb-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Probation Period *</label>
+          <select name="offerProbationPeriod" required
+                  class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none bg-white font-semibold text-slate-700 transition">
+            <option value="No Probation">No Probation</option>
+            <option value="3 Months" selected>3 Months</option>
+            <option value="6 Months">6 Months</option>
+            <option value="1 Year">1 Year</option>
+          </select>
+        </div>
       </div>
-      <div>
-        <label class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-wider">Proposed Joining Date *</label>
-        <input type="date" name="offerJoiningDate" required
-               class="w-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl px-3.5 py-2.5 text-xs outline-none font-semibold text-slate-800 transition" />
+
+      <!-- Salary Structure Section -->
+      <div class="border-t border-slate-100 pt-4">
+        <h4 class="text-xs font-extrabold text-indigo-650 uppercase tracking-wider mb-3">Salary Structure Setup (Monthly)</h4>
+        
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block mb-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">Basic Salary (₹) *</label>
+            <input type="number" id="salBasic" name="offerSalaryBasic" required value="0" min="0"
+                   class="w-full border border-slate-200 focus:border-indigo-500 rounded-xl px-3 py-2 text-xs outline-none font-semibold text-slate-800 transition" />
+          </div>
+          <div>
+            <label class="block mb-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">HRA (₹) *</label>
+            <input type="number" id="salHra" name="offerSalaryHra" required value="0" min="0"
+                   class="w-full border border-slate-200 focus:border-indigo-500 rounded-xl px-3 py-2 text-xs outline-none font-semibold text-slate-800 transition" />
+          </div>
+          <div>
+            <label class="block mb-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">Special Allowance (₹) *</label>
+            <input type="number" id="salSpecial" name="offerSalarySpecial" required value="0" min="0"
+                   class="w-full border border-slate-200 focus:border-indigo-500 rounded-xl px-3 py-2 text-xs outline-none font-semibold text-slate-800 transition" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-3">
+          <div>
+            <label class="block mb-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">PF Deduction (₹) *</label>
+            <input type="number" id="salPf" name="offerSalaryPf" required value="0" min="0"
+                   class="w-full border border-slate-200 focus:border-indigo-500 rounded-xl px-3 py-2 text-xs outline-none font-semibold text-slate-800 transition" />
+          </div>
+          <div>
+            <label class="block mb-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">Professional Tax (₹) *</label>
+            <input type="number" id="salTax" name="offerSalaryTax" required value="0" min="0"
+                   class="w-full border border-slate-200 focus:border-indigo-500 rounded-xl px-3 py-2 text-xs outline-none font-semibold text-slate-800 transition" />
+          </div>
+        </div>
+
+        <!-- Calculated Summary Table -->
+        <div class="mt-4 bg-slate-50 border border-slate-150 rounded-2xl p-4">
+          <div class="flex justify-between items-center text-xs font-bold text-slate-600 mb-2 pb-2 border-b border-slate-200/60">
+            <span>Gross Monthly Salary:</span>
+            <span class="text-slate-800">₹ <span id="lblGross">0</span></span>
+          </div>
+          <div class="flex justify-between items-center text-xs font-bold text-slate-600 mb-2 pb-2 border-b border-slate-200/60">
+            <span>Net Take-Home Monthly:</span>
+            <span class="text-emerald-700 font-extrabold">₹ <span id="lblNet">0</span></span>
+          </div>
+          <div class="flex justify-between items-center text-xs font-bold text-slate-600">
+            <span>Annual CTC Package:</span>
+            <span class="text-indigo-600 font-extrabold text-sm">₹ <span id="lblCtc">0</span> P.A.</span>
+          </div>
+        </div>
+
+        <!-- Hidden Calculated Values (submitted to backend) -->
+        <input type="hidden" id="salGross" name="offerSalaryGross" value="0" />
+        <input type="hidden" id="salNet" name="offerSalaryNet" value="0" />
+        <input type="hidden" id="salOfferSalary" name="offerSalary" value="0" />
       </div>
-      <div class="flex gap-2 pt-2 justify-end">
+
+      <div class="flex gap-2 pt-4 justify-end border-t border-slate-100 shrink-0">
         <button type="button" onclick="document.getElementById('offerModal').classList.add('hidden')"
                 class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl transition">Cancel</button>
         <button type="submit"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-sm">Send Offer Letter</button>
+                class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-sm">Send Offer & Contract</button>
       </div>
     </form>
   </div>
@@ -381,4 +455,48 @@
       btn.innerHTML = '<i class="fas fa-paper-plane text-[10px]"></i> Send Authorization OTP';
     }
   }
+
+  (function() {
+    const basic = document.getElementById('salBasic');
+    const hra = document.getElementById('salHra');
+    const special = document.getElementById('salSpecial');
+    const pf = document.getElementById('salPf');
+    const tax = document.getElementById('salTax');
+
+    const lblGross = document.getElementById('lblGross');
+    const lblNet = document.getElementById('lblNet');
+    const lblCtc = document.getElementById('lblCtc');
+
+    const hiddenGross = document.getElementById('salGross');
+    const hiddenNet = document.getElementById('salNet');
+    const hiddenOfferSalary = document.getElementById('salOfferSalary');
+
+    function calculate() {
+      const b = Number(basic.value || 0);
+      const h = Number(hra.value || 0);
+      const s = Number(special.value || 0);
+      const p = Number(pf.value || 0);
+      const t = Number(tax.value || 0);
+
+      const gross = b + h + s;
+      const net = gross - p - t;
+      const ctc = gross * 12;
+
+      lblGross.textContent = gross.toLocaleString('en-IN');
+      lblNet.textContent = net.toLocaleString('en-IN');
+      lblCtc.textContent = ctc.toLocaleString('en-IN');
+
+      hiddenGross.value = gross;
+      hiddenNet.value = net;
+      hiddenOfferSalary.value = '₹' + ctc.toLocaleString('en-IN') + ' P.A.';
+    }
+
+    [basic, hra, special, pf, tax].forEach(input => {
+      if (input) {
+        input.addEventListener('input', calculate);
+      }
+    });
+
+    calculate();
+  })();
 </script>

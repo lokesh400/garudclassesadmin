@@ -157,7 +157,21 @@ router.post("/:id/update", isAdmin, async (req, res) => {
 // ─── POST: Send Offer Letter ─────────────────────────────────────────────────────
 router.post("/:id/send-offer", isAdmin, async (req, res) => {
   try {
-    const { offerDesignation, offerSalary, offerJoiningDate } = req.body;
+    const { 
+      offerDesignation, 
+      offerSalary, 
+      offerJoiningDate,
+      offerShiftTimings,
+      offerProbationPeriod,
+      offerSalaryBasic,
+      offerSalaryHra,
+      offerSalarySpecial,
+      offerSalaryPf,
+      offerSalaryTax,
+      offerSalaryGross,
+      offerSalaryNet
+    } = req.body;
+
     if (!offerDesignation || !offerSalary || !offerJoiningDate) {
       req.flash("error", "Designation, salary, and joining date are required.");
       return res.redirect(`/admin/onboarding/${req.params.id}`);
@@ -173,6 +187,15 @@ router.post("/:id/send-offer", isAdmin, async (req, res) => {
     candidate.offerDesignation = offerDesignation.trim();
     candidate.offerSalary = offerSalary.trim();
     candidate.offerJoiningDate = new Date(offerJoiningDate);
+    candidate.offerShiftTimings = (offerShiftTimings || "").trim();
+    candidate.offerProbationPeriod = (offerProbationPeriod || "").trim();
+    candidate.offerSalaryBasic = Number(offerSalaryBasic || 0);
+    candidate.offerSalaryHra = Number(offerSalaryHra || 0);
+    candidate.offerSalarySpecial = Number(offerSalarySpecial || 0);
+    candidate.offerSalaryPf = Number(offerSalaryPf || 0);
+    candidate.offerSalaryTax = Number(offerSalaryTax || 0);
+    candidate.offerSalaryGross = Number(offerSalaryGross || 0);
+    candidate.offerSalaryNet = Number(offerSalaryNet || 0);
     candidate.onboardingStatus = "Offer Sent";
     await candidate.save();
 
@@ -369,6 +392,15 @@ async function transferCandidateToStaff(candidate, hiredByName = "", note = "") 
     offerJoiningDate: candidate.offerJoiningDate,
     digitalSignature: candidate.digitalSignature || "",
     offerSignedAt: candidate.offerSignedAt,
+    offerShiftTimings: candidate.offerShiftTimings || "",
+    offerProbationPeriod: candidate.offerProbationPeriod || "",
+    offerSalaryBasic: candidate.offerSalaryBasic || 0,
+    offerSalaryHra: candidate.offerSalaryHra || 0,
+    offerSalarySpecial: candidate.offerSalarySpecial || 0,
+    offerSalaryPf: candidate.offerSalaryPf || 0,
+    offerSalaryTax: candidate.offerSalaryTax || 0,
+    offerSalaryNet: candidate.offerSalaryNet || 0,
+    offerSalaryGross: candidate.offerSalaryGross || 0,
     hiringStatus: "Hired",
     hiredBy: hiredByName
   };

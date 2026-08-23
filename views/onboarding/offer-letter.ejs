@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employment Agreement & Contract - Garud Classes</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght=0,600;0,700;1,600&display=swap"
+    rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f1f5f9;
+    }
+
+    .serif-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .page-break {
+      page-break-after: always;
+      break-after: page;
+      min-height: 1040px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 4rem;
+      background-color: #ffffff;
+      position: relative;
+    }
+
+    .contract-text p {
+      color: #334155;
+      font-size: 0.825rem;
+      line-height: 1.7;
+      margin-bottom: 0.85rem;
+      text-align: justify;
+    }
+
+    .contract-text ul,
+    .contract-text ol {
+      margin-bottom: 1.25rem;
+      padding-left: 1.25rem;
+    }
+
+    .contract-text li {
+      color: #334155;
+      font-size: 0.8rem;
+      line-height: 1.65;
+      margin-bottom: 0.5rem;
+      list-style-type: decimal;
+      text-align: justify;
+    }
+
+    .contract-text h4 {
+      color: #0f172a;
+      font-weight: 800;
+      font-size: 0.95rem;
+      margin-top: 1.75rem;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 0.35rem;
+    }
+
+    @media print {
+      body {
+        background-color: #ffffff;
+        padding: 0;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .print-shadow-none {
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+      }
+
+      .page-break {
+        min-height: 100vh;
+        padding: 3rem;
+      }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen py-10 px-4 sm:px-6 relative overflow-x-hidden">
+
+  <!-- Top Action Bar (No print) -->
+  <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center no-print">
+    <a href="/onboarding/portal"
+      class="inline-flex items-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs transition">
+      <i class="fas fa-arrow-left"></i> Back to Portal
+    </a>
+    <button onclick="window.print()"
+      class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition shadow-md shadow-indigo-150">
+      <i class="fas fa-print"></i> Print / Save Contract
+    </button>
+  </div>
+
+  <div
+    class="max-w-4xl mx-auto bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden print-shadow-none">
+
+    <!-- PAGE 1: TITLE PAGE -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="absolute top-0 left-0 right-0 h-3 bg-gradient-to-r from-indigo-750 to-indigo-650"></div>
+
+      <div class="flex items-center justify-between border-b border-slate-200 pb-8">
+        <div class="flex items-center gap-4">
+          <img src="/logo.png" alt="Garud Classes"
+            class="h-16 w-16 rounded-2xl object-contain bg-slate-50 p-1.5 border border-slate-150 shadow-sm" />
+          <div>
+            <h1 class="font-extrabold text-slate-900 tracking-wider text-xl">GARUD CLASSES</h1>
+            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest mt-0.5">Academic Excellence Portal
+            </p>
+          </div>
+        </div>
+        <div class="text-right text-xs text-slate-500 font-semibold leading-relaxed">
+          <p>Garud Classes Head Office</p>
+          <p>hr@garudclasses.com</p>
+          <p>www.garudclasses.com</p>
+        </div>
+      </div>
+
+      <div class="my-auto text-center space-y-8">
+        <span
+          class="inline-flex px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full font-bold text-[10px] uppercase tracking-widest">
+          Strictly Confidential & Legally Binding
+        </span>
+        <h2
+          class="serif-title text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight uppercase">
+          Master Service Agreement & Employment Contract
+        </h2>
+        <div class="w-20 h-1 bg-indigo-650 mx-auto rounded-full"></div>
+
+        <div class="max-w-md mx-auto bg-slate-50 border border-slate-200 rounded-3xl p-6 text-left space-y-4">
+          <div>
+            <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Name of Appointee</span>
+            <span class="font-extrabold text-slate-800 text-base mt-0.5 block">
+              <%= candidate.name %>
+            </span>
+          </div>
+          <div>
+            <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Designation / Title</span>
+            <span class="font-extrabold text-indigo-700 text-sm mt-0.5 block">
+              <%= candidate.offerDesignation %>
+            </span>
+          </div>
+          <div>
+            <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Department</span>
+            <span class="font-extrabold text-slate-800 text-sm mt-0.5 block">
+              <%= candidate.department %>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>© <%= new Date().getFullYear() %> Garud Classes Private Limited</span>
+        <span>Page 1 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 2: WELCOME LETTER -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Letter of Appointment
+        </h3>
+
+        <p>Date: <%= new Date().toLocaleDateString('en-IN', { day: 'numeric' , month: 'long' , year: 'numeric' }) %>
+        </p>
+        <p class="font-semibold text-slate-808">
+          To,<br />
+          <%= candidate.name %><br />
+            <%= candidate.address || 'Registered Candidate Address' %><br />
+              Mobile: <%= candidate.phone || '-' %>
+        </p>
+
+        <p class="text-slate-900 font-extrabold mt-6 border-l-4 border-indigo-650 pl-3">
+          Subject: Offer of Appointment as <%= candidate.offerDesignation %>
+        </p>
+
+        <p>Dear <%= candidate.name %>,</p>
+
+        <p>
+          Following our recent discussion, interviews, and evaluation of your pedagogical background, we are absolutely
+          delighted to offer you the position of <strong>
+            <%= candidate.offerDesignation %>
+          </strong> within the <strong>
+            <%= candidate.department %>
+          </strong> department at Garud Classes. Your proposed date of joining is set as <strong>
+            <%= candidate.offerJoiningDate ? new Date(candidate.offerJoiningDate).toLocaleDateString('en-IN', {
+              day: 'numeric' , month: 'long' , year: 'numeric' }) : 'N/A' %>
+          </strong>.
+        </p>
+
+        <p>
+          At Garud Classes, we are dedicated to delivering academic leadership, quality mentorship, and exam preparation
+          excellence. We expect our staff members to model the highest professional standards, academic integrity, and
+          pedagogical innovation.
+        </p>
+
+        <p>
+          This document details your formal terms of employment, compensation components, code of conduct, leave
+          policies, and organizational security commitments. Please review each page. To confirm your acceptance, type
+          your full name in the signature panel on page 20.
+        </p>
+
+        <p class="pt-8">Sincerely,</p>
+        <div class="space-y-1">
+          <p class="font-bold text-slate-900">Garud Classes Private Limited</p>
+          <p class="text-xs text-slate-500">Authorized Human Resource Representative</p>
+        </div>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 2 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 3: DEFINITIONS & INTERPRETATIONS -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 1: Definitions & Interpretations
+        </h3>
+
+        <p>
+          In this Agreement, unless the context otherwise requires, the following expressions shall have the meanings
+          assigned to them:
+        </p>
+
+        <ol class="space-y-4 list-decimal pl-5 font-semibold text-slate-700">
+          <li><strong>"Company"</strong> refers to Garud Classes Private Limited, including all branch locations,
+            corporate offices, study centers, and virtual learning networks.</li>
+          <li><strong>"Employee"</strong> refers to the appointee <%= candidate.name %>, who executes this contract of
+              service.</li>
+          <li><strong>"Territory"</strong> refers to all districts and locations where Garud Classes conducts physical
+            classrooms, test centers, or digital live streams.</li>
+          <li><strong>"Confidential Information"</strong> includes student lead details, parent coordinates, question
+            banks, study guides, codebase, lesson videos, financial projections, CRM systems access, and administrative
+            circulars.</li>
+          <li><strong>"Academic Session"</strong> refers to the complete cycle of student tutoring, starting from the
+            batch commencement (typically April/May) up to the final school/board or competitive entrance examinations
+            (typically March/April of the subsequent year).</li>
+          <li><strong>"Statutory Deductions"</strong> refers to Professional Tax (PT), EPF contributions, and Tax
+            Deducted at Source (TDS) as mandated by state and federal laws.</li>
+        </ol>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 3 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 4: COMPENSATION DETAILS -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 2: Annexure A - Compensation Structure
+        </h3>
+
+        <p>
+          Your total Annual Cost to Company (CTC) is structured as <strong>
+            <%= candidate.offerSalary %>
+          </strong>, with components listed below:
+        </p>
+
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden my-4 shadow-sm">
+          <table class="w-full text-xs">
+            <thead
+              class="bg-indigo-50 border-b border-slate-200 font-extrabold text-slate-700 uppercase tracking-wider">
+              <tr>
+                <th class="py-3 px-4 text-left">Salary Component</th>
+                <th class="py-3 px-4 text-right">Monthly (₹)</th>
+                <th class="py-3 px-4 text-right">Annual (₹)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-150 font-semibold text-slate-700">
+              <tr>
+                <td class="py-2.5 px-4 font-bold text-slate-850">Basic Salary</td>
+                <td class="py-2.5 px-4 text-right">₹ <%= (candidate.offerSalaryBasic || 0).toLocaleString('en-IN') %>
+                </td>
+                <td class="py-2.5 px-4 text-right">₹ <%= ((candidate.offerSalaryBasic || 0) *
+                    12).toLocaleString('en-IN') %>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4 font-bold text-slate-850">House Rent Allowance (HRA)</td>
+                <td class="py-2.5 px-4 text-right">₹ <%= (candidate.offerSalaryHra || 0).toLocaleString('en-IN') %>
+                </td>
+                <td class="py-2.5 px-4 text-right">₹ <%= ((candidate.offerSalaryHra || 0) * 12).toLocaleString('en-IN')
+                    %>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4 font-bold text-slate-850">Special Allowance</td>
+                <td class="py-2.5 px-4 text-right">₹ <%= (candidate.offerSalarySpecial || 0).toLocaleString('en-IN') %>
+                </td>
+                <td class="py-2.5 px-4 text-right">₹ <%= ((candidate.offerSalarySpecial || 0) *
+                    12).toLocaleString('en-IN') %>
+                </td>
+              </tr>
+              <tr class="bg-indigo-50/30 font-bold text-slate-850">
+                <td class="py-2.5 px-4">Gross Earnings (A)</td>
+                <td class="py-2.5 px-4 text-right">₹ <%= (candidate.offerSalaryGross || 0).toLocaleString('en-IN') %>
+                </td>
+                <td class="py-2.5 px-4 text-right">₹ <%= ((candidate.offerSalaryGross || 0) *
+                    12).toLocaleString('en-IN') %>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4 text-rose-600 font-bold">EPF Contribution</td>
+                <td class="py-2.5 px-4 text-right text-rose-600">₹ <%= (candidate.offerSalaryPf ||
+                    0).toLocaleString('en-IN') %>
+                </td>
+                <td class="py-2.5 px-4 text-right text-rose-600">₹ <%= ((candidate.offerSalaryPf || 0) *
+                    12).toLocaleString('en-IN') %>
+                </td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4 text-rose-600 font-bold">Professional Tax (PT)</td>
+                <td class="py-2.5 px-4 text-right text-rose-600">₹ <%= (candidate.offerSalaryTax ||
+                    0).toLocaleString('en-IN') %>
+                </td>
+                <td class="py-2.5 px-4 text-right text-rose-600">₹ <%= ((candidate.offerSalaryTax || 0) *
+                    12).toLocaleString('en-IN') %>
+                </td>
+              </tr>
+              <tr class="bg-rose-50/20 font-bold text-rose-700">
+                <td class="py-2.5 px-4">Total Deductions (B)</td>
+                <td class="py-2.5 px-4 text-right">₹ <%= ((candidate.offerSalaryPf || 0) + (candidate.offerSalaryTax ||
+                    0)).toLocaleString('en-IN') %>
+                </td>
+                <td class="py-2.5 px-4 text-right">₹ <%= (((candidate.offerSalaryPf || 0) + (candidate.offerSalaryTax ||
+                    0)) * 12).toLocaleString('en-IN') %>
+                </td>
+              </tr>
+              <tr class="bg-emerald-50 text-emerald-800 font-extrabold text-sm border-t-2 border-slate-200">
+                <td class="py-3 px-4">Net Take-Home Salary (A - B)</td>
+                <td class="py-3 px-4 text-right">₹ <%= (candidate.offerSalaryNet || 0).toLocaleString('en-IN') %>
+                </td>
+                <td class="py-3 px-4 text-right">₹ <%= ((candidate.offerSalaryNet || 0) * 12).toLocaleString('en-IN') %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          Payroll cycles disburse wages on or before the 7th calendar day of each subsequent month. Increments,
+          performance rewards, and annual revisions are subject to performance ratings, student satisfaction benchmarks,
+          and management approvals.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 4 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 5: REIMBURSEMENTS & ALLOWANCES -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 3: Allowances, Reimbursements & Expenses
+        </h3>
+
+        <p>
+          <strong>3.1 Travel Allowance (TA):</strong> Employees required to travel for institutional work (like
+          inter-branch counseling, center monitoring, or print work) are eligible for fuel/travel allowance.
+          Pre-approval from the Branch Manager and detailed bills are required for claim processing.
+        </p>
+        <p>
+          <strong>3.2 Stationary & Printing:</strong> Teaching assets, notebooks, question paper booklets, and markers
+          must be sourced from the central admin inventory. Personal purchases will not be reimbursed unless
+          pre-authorized by HR in writing.
+        </p>
+        <p>
+          <strong>3.3 Expense Claims:</strong> All eligible business claims must be submitted with original receipts
+          within 15 days of expenditure. Claims submitted beyond this timeline will not be accepted.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 5 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 6: PROBATION & PERFORMANCE EVALUATIONS -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 4: Probation & Performance Evaluations
+        </h3>
+
+        <p>
+          <strong>4.1 Probation Period:</strong> You will serve a probationary evaluation period of <strong>
+            <%= candidate.offerProbationPeriod || '3 Months' %>
+          </strong>. During this timeframe, your student satisfaction scores, syllabus coverage timelines, conduct, and
+          attendance will be monitored.
+        </p>
+        <p>
+          <strong>4.2 Performance Appraisal:</strong> Formal audits are conducted mid-term and at the session-end. Key
+          Result Areas (KRAs) include syllabus completion, feedback scores from student forms, and mock exam grade
+          levels.
+        </p>
+        <p>
+          <strong>4.3 Extension/Termination:</strong> If probation criteria are not met, the HR department reserves the
+          right to extend the probation for up to another 3 months or terminate employment with immediate effect.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 6 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 7: WORKING HOURS & BIOMETRIC LOGS -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 5: Working Hours & Biometric Attendance Logs
+        </h3>
+
+        <p>
+          <strong>5.1 Shift Schedule:</strong> Your shift timing is set as <strong>
+            <%= candidate.offerShiftTimings || '9:00 AM - 6:00 PM' %>
+          </strong>, 6 days a week. Given institutional schedules, shifts may change during final revisions or test
+          sessions.
+        </p>
+        <p>
+          <strong>5.2 Biometric Logging:</strong> Check-in and check-out logs via the digital portal or biometric device
+          are mandatory. Missing check-out logs will treat the day as half-day leave.
+        </p>
+        <p>
+          <strong>5.3 Grace Period:</strong> A 15-minute grace period is allowed up to 3 times a month. Subsequent
+          delays will incur penalty deductions from the monthly payout.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 7 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 8: LEAVE & ABSENCE POLICIES -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 6: Leaves & Absence Policies
+        </h3>
+
+        <p>
+          <strong>6.1 Leaves Credit:</strong> Post-confirmation, you are entitled to <strong>18 Paid Leaves</strong> per
+          academic year, credited at 1.5 leaves per month of active service.
+        </p>
+        <p>
+          <strong>6.2 Casual & Sick Leaves:</strong> Casual Leave (CL) must be requested 3 days in advance. CL cannot be
+          combined with public holidays or weekends without prior written email approval from the branch manager. Sick
+          Leave (SL) exceeding 2 consecutive days requires a valid medical certificate.
+        </p>
+        <p>
+          <strong>6.3 Unapproved Absences:</strong> Taking unapproved leaves, or absence without written notice, will
+          lead to direct Loss of Pay (LOP). This is calculated as **1.5 times the daily gross salary rate** per day of
+          absence.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 8 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 9: ACADEMIC CONTINUITY GUARANTEE -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 7: Academic Continuity & Resignation Restrictions
+        </h3>
+
+        <p>
+          <strong>7.1 Student Interest Protection:</strong> As our primary focus is student academic progress and
+          curriculum delivery:
+        </p>
+
+        <ol class="space-y-4 list-decimal pl-5">
+          <li>Following confirmation of employment, <strong>no resignation will be accepted or processed during the
+              middle of an active academic term/session</strong>.</li>
+          <li>Resignations must only be submitted and processed at the end of the academic session, prior to the start
+            of the next academic term.</li>
+          <li>Tendering resignation or leaving your position mid-term will result in the immediate forfeiture of all
+            pending dues, settlements, and security deposits.</li>
+          <li>The company reserves the right to pursue civil lawsuits to recover damages for batch disruptions and
+            negative student impact.</li>
+        </ol>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 9 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 10: POSH GENERAL POLICY -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 8: POSH Regulations
+        </h3>
+
+        <p>
+          <strong>8.1 POSH Act Compliance:</strong> Garud Classes maintains an absolute zero-tolerance standard against
+          sexual harassment as defined under the <em>Sexual Harassment of Women at Workplace (Prevention, Prohibition
+            and Redressal) Act, 2013 (POSH Act)</em>.
+        </p>
+        <p>
+          <strong>8.2 Definitions:</strong> Harassment includes unwelcome physical contact, requesting sexual favors,
+          showing pornography, or making offensive remarks.
+        </p>
+        <p>
+          <strong>8.3 Redressal:</strong> Complains must be emailed to ICC at hr@garudclasses.com. Guilty employees face
+          instant summary dismissal and police prosecution (FIR).
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 10 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 11: WOMEN & MINOR STUDENT SAFETY -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 9: Women & Girl Students Safety
+        </h3>
+
+        <p>
+          <strong>9.1 Counseling Regulations:</strong> Male staff members must not conduct closed-door or isolated
+          meetings with female students. Counseling must occur in rooms with glass panels or in open administrative
+          areas.
+        </p>
+        <p>
+          <strong>9.2 Communication Channels:</strong> Staff members must not interact with students via personal
+          channels (WhatsApp, personal call, Instagram). All discussions must occur through the official Garud Classes
+          portal.
+        </p>
+        <p>
+          <strong>9.3 Language Standards:</strong> Using double-meaning, informal, or vulgar language in classrooms or
+          with colleagues will lead to immediate disciplinary reviews.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 11 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 12: FIGHT & VIOLENCE ZERO TOLERANCE -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 10: Zero-Tolerance Conflict Resolution & Violence Policy
+        </h3>
+
+        <p>
+          <strong>10.1 Physical Altercations:</strong> Physical violence, threats, and verbal abuse are strictly banned
+          on our premises. Engaging in physical altercations, assault, or threatening bodily harm to any colleague,
+          student, parent, or vendor is a severe breach of this contract.
+        </p>
+        <p>
+          <strong>10.2 Dismissal:</strong> If found guilty of physical fights, threats, or vandalism, you will be
+          suspended immediately pending enquiry. Upon verification, your employment will be terminated instantly without
+          notice, salary clearance, or experience documentation. The company will also file formal police complaints.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 12 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 13: SOCIAL MEDIA POLICY -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 11: Social Media Usage & Public Posting Policy
+        </h3>
+
+        <p>
+          <strong>11.1 Code of Digital Conduct:</strong> You must not post, publish, upload, or share any classroom
+          lectures, video snippets, student photographs, student feedback logs, test questions, or learning materials
+          generated within Garud Classes onto your personal social media handles (Instagram, YouTube, Facebook,
+          LinkedIn, Twitter/X, and Telegram).
+        </p>
+        <p>
+          <strong>11.2 Internal Communication:</strong> Publishing screenshots of internal office WhatsApp groups,
+          emails, managerial circulars, student chat logs, or administrative documents is strictly prohibited.
+        </p>
+        <p>
+          <strong>11.3 Reputation:</strong> Any personal post or comment that defames, mocks, or negatively affects the
+          reputation of the institution, its directors, colleagues, or students will result in immediate termination.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 13 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 14: CONFIDENTIALITY & NDA -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 12: Confidentiality & Non-Disclosure (NDA)
+        </h3>
+
+        <p>
+          <strong>12.1 Proprietary Data Protection:</strong> You shall not copy, export, share, or sell any proprietary
+          student records, leads lists, parent coordinates, curriculum schedules, test algorithms, codebase, or software
+          credentials to external parties. This non-disclosure obligation is binding indefinitely.
+        </p>
+        <p>
+          <strong>12.2 Security Clearance:</strong> Exchanging student contacts or databases with other tutors or edtech
+          entities is classified as data theft and will result in immediate termination of employment without notice,
+          the immediate cancellation of all unpaid dues, and cyber police complaints.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 14 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 15: INTELLECTUAL PROPERTY RIGHTS -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 13: Intellectual Property Assignment (IPR)
+        </h3>
+
+        <p>
+          <strong>13.1 Ownership of Content:</strong> All study guides, curriculum files, exam booklets, slides, mock
+          test series, and video lectures developed during your working hours belong entirely to Garud Classes Private
+          Limited.
+        </p>
+        <p>
+          <strong>13.2 Assignment:</strong> You hereby assign all copyrights, design rights, and interest in such
+          creations to the company. You cannot publish, reuse, or resell these materials under your personal name or at
+          any other coaching/school network.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 15 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 16: RESTRICTIVE COVENANTS & NON-COMPETE -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 14: Restrictive Covenants & Non-Compete
+        </h3>
+
+        <p>
+          <strong>14.1 Non-Compete:</strong> During your active tenure, you must not engage in external part-time jobs,
+          online edtech consulting, or private tuitions.
+        </p>
+        <p>
+          <strong>14.2 Exclusion Clause:</strong> For a period of 12 months after your exit from Garud Classes, you must
+          not accept employment, consulting contracts, partnerships, or any form of association (including teaching,
+          advising, counseling, content writing, or video lecture production) with any other teaching institution,
+          coaching center, school, tutorial classes, or competitive EdTech company outside of Garud Classes, globally.
+          Furthermore, you shall not solicit, recruit, or poach any current student, parent, or employee of Garud
+          Classes during this post-employment duration.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 16 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 17: DISCIPLINARY & SUMMARY DISMISSAL -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 15: Disciplinary Actions & Summary Dismissal
+        </h3>
+
+        <p>
+          <strong>15.1 Misconduct:</strong> Direct triggers for immediate dismissal include theft, fraud, embezzlement,
+          moral turpitude, leaks of database records, failure to report to duty for 7 consecutive days, or physical
+          fights.
+        </p>
+        <p>
+          <strong>15.2 Enquiry Process:</strong> Disciplinary logs will trigger suspension pending a internal HR review.
+          The company reserves the right to withhold payouts during active enquiries.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 17 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 18: RETURN OF ASSETS & CLEARANCE -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 16: Return of Assets & Exit Clearance
+        </h3>
+
+        <p>
+          <strong>16.1 Asset Handover:</strong> Upon exit, the employee must return all laptops, hardware keys, ID
+          cards, teaching textbooks, and credentials.
+        </p>
+        <p>
+          <strong>16.2 Clearance:</strong> Final salary clearance and experience documentation will only be processed
+          after the completion of this formal handover.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 18 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 19: GENERAL LEGAL PROVISIONS -->
+    <div class="page-break flex flex-col justify-between relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 17: General Legal Provisions
+        </h3>
+
+        <p>
+          <strong>17.1 Force Majeure:</strong> Neither party is liable for failure to perform duties due to natural
+          disasters, acts of government, wars, or pandemics.
+        </p>
+        <p>
+          <strong>17.2 Severability:</strong> If any clause is found invalid by a court, the remaining clauses of this
+          agreement remain valid and binding.
+        </p>
+        <p>
+          <strong>17.3 Amendments:</strong> No changes to this agreement are valid unless signed in writing by both
+          parties.
+        </p>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <span>Confidential</span>
+        <span>Page 19 of 20</span>
+      </div>
+    </div>
+
+
+    <!-- PAGE 20: GOVERNING LAW & SIGNATURES -->
+    <div class="p-12 sm:p-16 flex flex-col justify-between min-h-[1020px] relative">
+      <div class="contract-text space-y-6">
+        <h3 class="serif-title text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">
+          Section 18: Governing Law & Digital Acceptance
+        </h3>
+
+        <p>
+          This Agreement is governed by the laws and judicial statutes of the Republic of India. Any litigation,
+          arbitration, or claims arising out of this contract will fall under the exclusive jurisdiction of the
+          competent courts where the corporate office of Garud Classes is situated.
+        </p>
+
+        <p>
+          By entering your full name in the signature field on the onboarding portal, you declare that you have read,
+          understood, and accepted all sections, clauses, POSH safety guidelines, fight/violence policies, social media
+          restrictions, and academic continuity rules detailed in this Agreement.
+        </p>
+
+        <div class="grid grid-cols-2 gap-8 pt-10 border-t border-slate-200 mt-12">
+          <div class="space-y-4">
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">For Garud Classes Private Ltd.</p>
+            <div class="h-16 flex items-end">
+              <span class="text-xs font-bold text-slate-800 border-b border-slate-300 pb-1 w-full block">HR Manager
+                Signature</span>
+            </div>
+            <p class="text-[9px] text-slate-400 font-bold">GARUD CLASSES CORPORATE OFFICE</p>
+          </div>
+
+          <div class="space-y-4">
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Employee Signature</p>
+            <div class="h-16 flex flex-col justify-end">
+              <% if (candidate.offerStatus==='Accepted' ) { %>
+                <span class="serif-title text-base font-bold text-indigo-700 italic">/s/ <%= candidate.digitalSignature
+                    %></span>
+                <span class="text-[8px] text-slate-400 font-semibold block mt-1">Digitally Signed: <%= new
+                    Date(candidate.offerSignedAt).toLocaleString('en-IN') %></span>
+                <% } else { %>
+                  <span class="text-xs text-rose-500 font-bold italic pb-1 block">Pending Signature Authorization</span>
+                  <% } %>
+                    <div class="border-b border-slate-300 w-full mt-1"></div>
+            </div>
+            <p class="text-[9px] text-slate-500 font-extrabold uppercase">
+              <%= candidate.name %>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="border-t border-slate-100 pt-8 flex justify-between items-center text-[10px] font-bold text-slate-400 tracking-wider uppercase">
+        <span>Confidential</span>
+        <span>Page 20 of 20</span>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+
+</html>

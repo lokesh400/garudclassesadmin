@@ -4,7 +4,7 @@ const Staff = require("../models/Staff");
 const User = require("../models/User");
 const { uploadStaffDocs } = require("./upload");
 const { isAdmin } = require("../middleware/auth");
-const { sendStaffCredentialsEmail } = require("../utils/mailer");
+const { sendStaffCredentialsEmail, sendToggleStaffStatusOtpEmail } = require("../utils/mailer");
 const crypto = require("crypto");
 
 const staffUploadFields = [
@@ -202,24 +202,100 @@ router.post(
   }
 );
 
-// 🔁 Toggle Active/Inactive
-router.post("/:id/toggle-status", isAdmin, async (req, res) => {
-  const staff = await Staff.findById(req.params.id);
-  if (!staff) {
-    return res.status(404).send("Staff not found");
+// 🔁 Request Toggle Active/Inactive OTP
+router.post("/:id/toggle-status-request", isAdmin, async (req, res) => {
+  try {
+    const staff = await Staff.findById(req.params.id);
+    if (!staff) {
+      return res.status(404).json({ success: false, message: "Staff member not found" });
+    }
+
+    const adminEmail = req.user.email;
+    if (!adminEmail) {
+      return res.status(400).json({ success: false, message: "No active email registered for your administrator account. Please configure an email address." });
+    }
+
+    // Generate random 6-digit OTP
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const newStatus = staff.status === "Active" ? "Inactive" : "Active";
+
+    // Store details in session
+    req.session.staffStatusToggleOtp = {
+      staffId: staff._id.toString(),
+      newStatus: newStatus,
+      otp: code,
+      expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes validity
+    };
+
+    // Send email with OTP to current logged-in user
+    await sendToggleStaffStatusOtpEmail(adminEmail, staff.name, newStatus, code);
+
+    res.json({ success: true, message: `OTP sent to your administrator email (${adminEmail}).` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
+});
 
-  staff.status = staff.status === "Active" ? "Inactive" : "Active";
-  await staff.save();
+// 🔁 Confirm Toggle Active/Inactive
+router.post("/:id/toggle-status-confirm", isAdmin, async (req, res) => {
+  try {
+    const { otp } = req.body;
+    if (!otp) {
+      return res.status(400).json({ success: false, message: "OTP is required." });
+    }
 
-  // Propagate status change to associated User accounts
-  const isUserActive = staff.status === "Active";
-  if (staff.linkedUsers && staff.linkedUsers.length) {
-    await User.updateMany({ _id: { $in: staff.linkedUsers } }, { $set: { isActive: isUserActive } });
+    const sessionOtp = req.session.staffStatusToggleOtp;
+    if (!sessionOtp) {
+      return res.status(400).json({ success: false, message: "No active status change request found. Please request OTP again." });
+    }
+
+    if (sessionOtp.staffId !== req.params.id) {
+      return res.status(400).json({ success: false, message: "Inconsistent staff ID. Please request OTP again." });
+    }
+
+    if (sessionOtp.otp !== otp.toString().trim()) {
+      return res.status(400).json({ success: false, message: "Invalid OTP. Please check and try again." });
+    }
+
+    if (Date.now() > sessionOtp.expiresAt) {
+      return res.status(400).json({ success: false, message: "OTP has expired. Please request a new OTP." });
+    }
+
+    const staff = await Staff.findById(req.params.id);
+    if (!staff) {
+      return res.status(404).json({ success: false, message: "Staff member not found." });
+    }
+
+    const originalStatus = staff.status;
+    const newStatus = sessionOtp.newStatus;
+
+    staff.status = newStatus;
+    
+    // Add status history entry
+    staff.statusHistory = staff.statusHistory || [];
+    staff.statusHistory.push({
+      status: newStatus,
+      updatedBy: req.user.email || req.user.username || 'Admin',
+      updatedAt: new Date()
+    });
+
+    await staff.save();
+
+    // Propagate status change to associated User accounts
+    const isUserActive = staff.status === "Active";
+    if (staff.linkedUsers && staff.linkedUsers.length) {
+      await User.updateMany({ _id: { $in: staff.linkedUsers } }, { $set: { isActive: isUserActive } });
+    }
+
+    // Clear session OTP
+    req.session.staffStatusToggleOtp = null;
+
+    res.json({ success: true, message: `Staff status successfully changed to ${newStatus}.` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-
-  const redirectTo = req.body.redirectTo || "/admin/staff";
-  res.redirect(redirectTo);
 });
 
 // 🌐 Link External Portal Account
