@@ -396,6 +396,39 @@ router.post(
   }
 )
 
+// ✅ Admin: Edit Submission
+router.post(
+  '/submission/:submissionId/edit',
+  isLoggedIn,
+  requireRole('admin'),
+  async (req, res) => {
+    try {
+      const { submissionId } = req.params;
+      const { data } = req.body;
+      
+      const submission = await Submission.findById(submissionId);
+      if (!submission) {
+        req.flash('error', 'Submission not found');
+        return res.redirect('back');
+      }
+
+      if (data) {
+        if (data.mobileNumber) submission.mobileNumber = Number(data.mobileNumber);
+        if (data.email) submission.email = data.email;
+        submission.data = data;
+      }
+      
+      await submission.save();
+      req.flash('success', 'Submission updated successfully');
+      res.redirect('back');
+    } catch (err) {
+      console.error(err);
+      req.flash('error', 'Failed to update submission');
+      res.redirect('back');
+    }
+  }
+)
+
 router.post(
   '/:formId/import/:batchId',
   isLoggedIn,

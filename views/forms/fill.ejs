@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <meta name="robots" content="noindex, nofollow">
   <title><%= form.title %> - Application Form</title>
   
   <!-- Tailwind CSS -->
@@ -21,107 +23,203 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-x-hidden">
+<body class="bg-[#f0f4f9] min-h-screen py-10 px-4 sm:px-6 relative overflow-x-hidden">
   
-  <!-- Decorative Background Glows -->
-  <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-  <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <!-- Decorative Top Gradient Line -->
+  <div class="absolute top-0 left-0 w-full h-2.5 bg-indigo-650 z-20"></div>
 
-  <div class="max-w-xl w-full bg-white border border-slate-200 shadow-xl rounded-3xl p-6 sm:p-8 relative z-10">
+  <div class="max-w-xl w-full mx-auto space-y-4 relative z-10">
     
-    <!-- Branding Header -->
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl mb-4 border border-indigo-100 shadow-sm">
-        <i class="fas fa-user-graduate text-2xl"></i>
+    <!-- Branding Header Card -->
+    <div class="bg-white border-t-[10px] border-t-indigo-600 border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 flex flex-col items-center text-center">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl mb-5 border border-slate-150 shadow-md p-2">
+        <img src="/logo.png" alt="Garud Classes Logo" class="w-full h-full object-contain rounded-2xl" />
       </div>
-      <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight"><%= form.title %></h2>
+      <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight leading-tight"><%= form.title %></h2>
       <% if (form.description) { %>
-        <p class="text-slate-500 text-xs mt-2 italic leading-relaxed"><%= form.description %></p>
+        <p class="text-slate-500 text-sm mt-3 leading-relaxed max-w-md mx-auto"><%= form.description %></p>
       <% } %>
     </div>
 
-    <!-- Application Form -->
-    <form method="POST" action="/forms/<%= form._id %>/submit" class="space-y-5">
+    <!-- Application Form Submit Container -->
+    <form method="POST" action="/forms/<%= form._id %>/submit" class="space-y-4">
       
-      <!-- Contact Number -->
-      <div>
-        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Contact Number</label>
-        <div class="relative flex rounded-2xl shadow-sm border border-slate-300 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100 transition overflow-hidden bg-white">
-          <span class="inline-flex items-center px-4 bg-slate-50 border-r border-slate-200 text-slate-500 font-bold text-sm">
-            +91
-          </span>
-          <input
-            type="tel"
-            name="mobileNumber"
-            pattern="[0-9]{10}"
-            maxlength="10"
-            placeholder="10-digit mobile number"
-            class="w-full px-4 py-3 bg-white text-slate-800 placeholder-slate-400 text-sm outline-none font-semibold"
-            required
-          />
-        </div>
-      </div>
+      <!-- Primary Contact Card -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-5">
+        <h3 class="text-base font-extrabold text-slate-800 border-b border-slate-100 pb-2.5 flex items-center gap-2">
+          <i class="fas fa-address-card text-indigo-600"></i> Contact Details
+        </h3>
 
-      <!-- Email Address -->
-      <div>
-        <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider">Email Address</label>
-        <div class="relative">
-          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
-            <i class="far fa-envelope"></i>
-          </span>
-          <input 
-            type="email" 
-            name="email"
-            placeholder="name@example.com"
-            class="w-full pl-11 pr-4 py-3 border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200 font-semibold"
-            required 
-          />
-        </div>
-      </div>
-
-      <!-- Dynamic Fields -->
-      <% form.fields.forEach(f => { %>
+        <!-- Contact Number -->
         <div>
-          <label class="block text-slate-700 font-bold mb-1.5 text-xs uppercase tracking-wider"><%= f.label %></label>
-          <div class="relative">
-            <% 
-              let icon = 'fa-pen';
-              const labelLower = f.label.toLowerCase();
-              if (labelLower.includes('father')) {
-                icon = 'fa-user-tie';
-              } else if (labelLower.includes('mother')) {
-                icon = 'fa-user-friends';
-              } else if (labelLower.includes('name')) {
-                icon = 'fa-user';
-              } else if (labelLower.includes('address')) {
-                icon = 'fa-map-marker-alt';
-              } else if (labelLower.includes('city') || labelLower.includes('state')) {
-                icon = 'fa-map';
-              } else if (labelLower.includes('zip') || labelLower.includes('pin')) {
-                icon = 'fa-mail-bulk';
-              } else if (labelLower.includes('birth') || labelLower.includes('date')) {
-                icon = 'fa-calendar-alt';
-              }
-            %>
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">
-              <i class="fas <%= icon %>"></i>
+          <label class="block text-slate-700 font-extrabold mb-2 text-[10px] uppercase tracking-wider">Contact Number *</label>
+          <div class="group relative flex items-center border border-slate-250 bg-white rounded-2xl focus-within:border-indigo-550 focus-within:ring-4 focus-within:ring-indigo-50 focus-within:scale-[1.005] transition-all duration-300 overflow-hidden">
+            <span class="inline-flex items-center px-4 py-4 bg-slate-50 border-r border-slate-200 text-slate-500 font-bold text-sm select-none group-focus-within:border-indigo-550 transition-colors duration-300">
+              +91
             </span>
-            <input 
-              type="<%= f.type %>" 
-              name="<%= f.label %>" 
-              placeholder="Enter <%= f.label %>"
-              class="w-full pl-11 pr-4 py-3 border border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-2xl text-sm outline-none transition duration-200 font-semibold"
-              <%= f.required ? "required" : "" %>
+            <input
+              type="tel"
+              name="mobileNumber"
+              pattern="[0-9]{10}"
+              maxlength="10"
+              placeholder="10-digit mobile number"
+              class="w-full px-4 bg-transparent text-slate-850 placeholder-slate-400 text-sm outline-none font-semibold py-4"
+              required
             />
           </div>
         </div>
+
+        <!-- Email Address -->
+        <div>
+          <label class="block text-slate-700 font-extrabold mb-2 text-[10px] uppercase tracking-wider">Email Address *</label>
+          <div class="group relative flex items-center border border-slate-250 bg-white rounded-2xl focus-within:border-indigo-550 focus-within:ring-4 focus-within:ring-indigo-50 focus-within:scale-[1.005] transition-all duration-300 px-4 py-0.5">
+            <span class="text-slate-400 group-focus-within:text-indigo-650 transition-colors duration-300 shrink-0">
+              <i class="far fa-envelope text-base"></i>
+            </span>
+            <input 
+              type="email" 
+              name="email"
+              placeholder="name@example.com"
+              class="w-full pl-3 bg-transparent text-slate-850 placeholder-slate-400 text-sm outline-none font-semibold py-4"
+              required 
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Dynamic Question Cards -->
+      <% form.fields.forEach(f => { %>
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-3">
+          <label class="block text-slate-800 font-extrabold text-sm tracking-tight mb-2">
+            <%= f.label %> <%= f.required ? '*' : '' %>
+          </label>
+          
+          <% 
+            let icon = 'fa-pen';
+            const labelLower = f.label.toLowerCase();
+            if (labelLower.includes('father')) {
+              icon = 'fa-user-tie';
+            } else if (labelLower.includes('mother')) {
+              icon = 'fa-user-friends';
+            } else if (labelLower.includes('name')) {
+              icon = 'fa-user';
+            } else if (labelLower.includes('address')) {
+              icon = 'fa-map-marker-alt';
+            } else if (labelLower.includes('city') || labelLower.includes('state')) {
+              icon = 'fa-map';
+            } else if (labelLower.includes('zip') || labelLower.includes('pin')) {
+              icon = 'fa-mail-bulk';
+            } else if (labelLower.includes('birth') || labelLower.includes('date')) {
+              icon = 'fa-calendar-alt';
+            }
+          %>
+
+          <% if (f.type === 'textarea') { %>
+            <div class="group relative flex items-start border border-slate-250 bg-white rounded-2xl focus-within:border-indigo-550 focus-within:ring-4 focus-within:ring-indigo-50 focus-within:scale-[1.005] transition-all duration-300 px-4 py-3">
+              <span class="text-slate-400 group-focus-within:text-indigo-650 transition-colors duration-300 mt-1.5 shrink-0">
+                <i class="fas <%= icon %> text-base"></i>
+              </span>
+              <textarea 
+                name="<%= f.label %>" 
+                placeholder="Your answer"
+                rows="3"
+                class="w-full pl-3 bg-transparent text-slate-800 placeholder-slate-400 text-sm outline-none font-semibold py-1 resize-none"
+                <%= f.required ? "required" : "" %>
+              ></textarea>
+            </div>
+
+          <% } else if (f.type === 'select') { %>
+            <div class="group relative flex items-center border border-slate-250 bg-white rounded-2xl focus-within:border-indigo-550 focus-within:ring-4 focus-within:ring-indigo-50 focus-within:scale-[1.005] transition-all duration-300 px-4 py-0.5">
+              <span class="text-slate-400 group-focus-within:text-indigo-655 transition-colors duration-300 shrink-0">
+                <i class="fas <%= icon %> text-base"></i>
+              </span>
+              <select 
+                name="<%= f.label %>" 
+                class="w-full pl-3 pr-8 bg-transparent text-slate-800 placeholder-slate-405 text-sm outline-none font-semibold py-4 appearance-none cursor-pointer relative z-10"
+                <%= f.required ? "required" : "" %>
+              >
+                <option value="" disabled selected hidden>Choose response</option>
+                <% if (f.options && f.options.length) { %>
+                  <% f.options.forEach(opt => { %>
+                    <option value="<%= opt %>"><%= opt %></option>
+                  <% }) %>
+                <% } %>
+              </select>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10 group-focus-within:text-indigo-650 transition-colors duration-300">
+                <i class="fas fa-chevron-down text-xs"></i>
+              </span>
+            </div>
+
+          <% } else if (f.type === 'radio') { %>
+            <div class="grid grid-cols-1 gap-2.5">
+              <% if (f.options && f.options.length) { %>
+                <% f.options.forEach((opt, idx) => { %>
+                  <label class="flex items-center gap-3 border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/10 p-4 rounded-2xl cursor-pointer transition-all duration-350 relative group has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/20 shadow-sm hover:shadow">
+                    <input 
+                      type="radio" 
+                      name="<%= f.label %>" 
+                      value="<%= opt %>" 
+                      class="w-4 h-4 text-indigo-650 border-slate-350 focus:ring-indigo-500 focus:ring-2 transition cursor-pointer"
+                      <%= f.required ? "required" : "" %>
+                    />
+                    <span class="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition"><%= opt %></span>
+                  </label>
+                <% }) %>
+              <% } else { %>
+                <p class="text-xs text-slate-450 italic">No choices defined</p>
+              <% } %>
+            </div>
+
+          <% } else if (f.type === 'checkbox') { %>
+            <% if (f.options && f.options.length) { %>
+              <div class="grid grid-cols-1 gap-2.5">
+                <% f.options.forEach((opt, idx) => { %>
+                  <label class="flex items-center gap-3 border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/10 p-4 rounded-2xl cursor-pointer transition-all duration-350 relative group has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/20 shadow-sm hover:shadow">
+                    <input 
+                      type="checkbox" 
+                      name="<%= f.label %>" 
+                      value="<%= opt %>" 
+                      class="w-4 h-4 rounded text-indigo-655 border-slate-300 focus:ring-indigo-500 focus:ring-2 transition cursor-pointer"
+                    />
+                    <span class="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition"><%= opt %></span>
+                  </label>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <label class="flex items-center gap-3 border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/10 p-4 rounded-2xl cursor-pointer transition-all duration-350 relative group has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/20 shadow-sm hover:shadow w-full">
+                <input 
+                  type="checkbox" 
+                  name="<%= f.label %>" 
+                  value="Yes" 
+                  class="w-4 h-4 rounded text-indigo-655 border-slate-350 focus:ring-indigo-500 focus:ring-2 transition cursor-pointer"
+                  <%= f.required ? "required" : "" %>
+                />
+                <span class="text-sm font-semibold text-slate-755 transition">Yes, <%= f.label %></span>
+              </label>
+            <% } %>
+
+          <% } else { %>
+            <div class="group relative flex items-center border border-slate-250 bg-white rounded-2xl focus-within:border-indigo-550 focus-within:ring-4 focus-within:ring-indigo-50 focus-within:scale-[1.005] transition-all duration-300 px-4 py-0.5">
+              <span class="text-slate-400 group-focus-within:text-indigo-655 transition-colors duration-300 shrink-0">
+                <i class="fas <%= icon %> text-base"></i>
+              </span>
+              <input 
+                type="<%= f.type %>" 
+                name="<%= f.label %>" 
+                placeholder="Your answer"
+                class="w-full pl-3 bg-transparent text-slate-800 placeholder-slate-400 text-sm outline-none font-semibold py-4"
+                <%= f.required ? "required" : "" %>
+              />
+            </div>
+          <% } %>
+        </div>
       <% }) %>
 
-      <!-- Submit Button -->
+      <!-- Submit Button Card -->
       <div class="pt-2">
         <button type="submit" 
-                class="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm py-4 rounded-2xl transition shadow-md shadow-indigo-100 hover:shadow-lg active:scale-[0.98]">
-          <i class="fas fa-check-circle text-[15px]"></i> Submit Application
+                class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-750 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold text-base py-4 rounded-2xl transition duration-300 shadow-md shadow-indigo-100 hover:shadow-lg active:scale-[0.98] outline-none cursor-pointer">
+          <i class="fas fa-check-circle text-lg"></i> Submit Application
         </button>
       </div>
     </form>

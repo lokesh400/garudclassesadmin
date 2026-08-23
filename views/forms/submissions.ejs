@@ -67,7 +67,7 @@
             <th class="px-6 py-4">Contact</th>
             <th class="px-6 py-4">Email</th>
 
-            <% const keys = submissions.length ? Object.keys(submissions[0].data) : []; %>
+            <% const keys = form.fields.map(f => f.label); %>
             <% keys.forEach(key => { %>
               <th class="px-6 py-4"><%= key %></th>
             <% }) %>
@@ -111,7 +111,9 @@
                 <td class="px-6 py-4 text-slate-900 font-bold lowercase"><%= sub.email || 'N/A' %></td>
 
                 <% keys.forEach(key => { %>
-                  <td class="px-6 py-4 text-slate-900 font-bold"><%= sub.data[key] || '' %></td>
+                  <td class="px-6 py-4 text-slate-900 font-bold">
+                    <%= Array.isArray(sub.data[key]) ? sub.data[key].join(', ') : (sub.data[key] || '') %>
+                  </td>
                 <% }) %>
 
                 <!-- ATTENDANCE TOGGLE -->
@@ -255,7 +257,7 @@
     });
 
     document.getElementById("editSubmissionForm").action =
-      "/submissions/" + submissionId + "/edit";
+      "/forms/submission/" + submissionId + "/edit";
 
     modal.classList.remove("hidden");
     modal.classList.add("flex");

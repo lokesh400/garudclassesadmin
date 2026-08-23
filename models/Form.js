@@ -11,8 +11,9 @@ const formSchema = new mongoose.Schema({
   fields: [
     {
       label: { type: String, required: true },
-      type: { type: String, enum: ["text", "email", "number", "date"], required: true },
-      required: { type: Boolean, default: false }
+      type: { type: String, enum: ["text", "email", "number", "date", "select", "radio", "checkbox", "textarea"], required: true },
+      required: { type: Boolean, default: false },
+      options: [{ type: String }]
     }
   ],
   batch: { type: mongoose.Schema.Types.ObjectId, ref: "Batch", unique: true, sparse: true },
