@@ -1,7 +1,7 @@
 const express = require("express");
 const passport = require("passport");
 const User = require("../models/User");
-const { sendUserCredentials } = require("../utils/mailer");
+const { sendUserCredentials, sendDeleteStaffOtpEmail } = require("../utils/mailer");
 const { isLoggedIn, requireRole } = require("../middleware/auth");
 const crypto = require("crypto");
 
@@ -171,10 +171,74 @@ router.post("/teachers/:id/edit", isLoggedIn, requireRole("superadmin"), async (
   res.redirect("/teachers/all");
 });
 
-/* DELETE USER */
+/* REQUEST DELETE USER OTP */
+router.post("/teachers/:id/delete-request", isLoggedIn, requireRole("superadmin"), async (req, res) => {
+  try {
+    const userToDelete = await User.findById(req.params.id);
+    if (!userToDelete) {
+      return res.status(404).json({ success: false, message: "User account not found" });
+    }
+
+    const adminEmail = req.user.email;
+    if (!adminEmail) {
+      return res.status(400).json({ success: false, message: "No active email registered for your administrator account. Please configure an email address." });
+    }
+
+    // Generate random 6-digit OTP
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Store details in session
+    req.session.userDeleteOtp = {
+      userId: userToDelete._id.toString(),
+      otp: code,
+      expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes validity
+    };
+
+    // Send email with OTP to current logged-in user
+    await sendDeleteStaffOtpEmail(adminEmail, userToDelete.name, code);
+
+    res.json({ success: true, message: `OTP sent to your administrator email (${adminEmail}).` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+/* DELETE USER (Requires OTP) */
 router.post("/teachers/:id/delete", isLoggedIn, requireRole("superadmin"), async (req, res) => {
-  await User.findByIdAndDelete(req.params.id);
-  res.redirect("/teachers/all");
+  try {
+    const { otp } = req.body;
+    if (!otp) {
+      return res.status(400).json({ success: false, message: "OTP is required." });
+    }
+
+    const sessionOtp = req.session.userDeleteOtp;
+    if (!sessionOtp) {
+      return res.status(400).json({ success: false, message: "No active delete request found. Please request OTP again." });
+    }
+
+    if (sessionOtp.userId !== req.params.id) {
+      return res.status(400).json({ success: false, message: "Inconsistent user ID. Please request OTP again." });
+    }
+
+    if (sessionOtp.otp !== otp.toString().trim()) {
+      return res.status(400).json({ success: false, message: "Invalid OTP. Please check and try again." });
+    }
+
+    if (Date.now() > sessionOtp.expiresAt) {
+      return res.status(400).json({ success: false, message: "OTP has expired. Please request a new OTP." });
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    // Clear session OTP
+    req.session.userDeleteOtp = null;
+
+    res.json({ success: true, message: "User account deleted successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
 });
 
 module.exports = router;

@@ -632,6 +632,40 @@ async function sendToggleStaffStatusOtpEmail(email, staffName, newStatus, otp) {
  
   return brevo.sendTransacEmail(mail);
 }
+
+async function sendDeleteStaffOtpEmail(email, staffName, otp) {
+  const mail = new Brevo.SendSmtpEmail();
+  mail.to = [{ email }];
+  mail.sender = { 
+    email: process.env.SENDER_EMAIL, 
+    name: process.env.SENDER_NAME 
+  };
+  mail.subject = "⚠️ Security Authorization Required: Staff/Member Deletion Request";
+  mail.htmlContent = `
+    <html>
+      <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; line-height: 1.6; background-color: #f3f4f6; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e5e7eb;">
+          <h2 style="color: #ef4444; text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 24px; border-bottom: 2px solid #fee2e2; padding-bottom: 15px;">⚠️ Deletion Authorization Required</h2>
+          
+          <p style="font-size: 16px;">Hello,</p>
+          <p style="font-size: 16px; color: #4b5563;">You have requested to permanently delete the staff member / user account: <strong style="color: #111827;">${staffName}</strong>.</p>
+          
+          <div style="background-color: #fef2f2; padding: 20px; border-radius: 12px; border: 1px solid #fecaca; margin: 20px 0; text-align: center;">
+            <p style="font-size: 14px; color: #991b1b; margin-top: 0; font-weight: 600;">YOUR ONE-TIME PASSWORD (OTP)</p>
+            <h1 style="font-size: 36px; letter-spacing: 6px; color: #b91c1c; margin: 10px 0; font-weight: 800;">${otp}</h1>
+            <p style="font-size: 12px; color: #991b1b; margin-bottom: 0;">This OTP is valid for 5 minutes and can only be used once.</p>
+          </div>
+ 
+          <p style="font-size: 14px; color: #6b7280; text-align: center;">
+            If you did not request this action, please secure your account immediately.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+ 
+  return brevo.sendTransacEmail(mail);
+}
  
 const axios = require("axios");
  
@@ -649,5 +683,6 @@ module.exports = {
   sendStaffCredentialsEmail,
   sendOfferLetterEmail,
   sendForceHireOtpEmail,
-  sendToggleStaffStatusOtpEmail
+  sendToggleStaffStatusOtpEmail,
+  sendDeleteStaffOtpEmail
 };
