@@ -35,12 +35,14 @@ router.get('/create', isLoggedIn, requireRole('admin'), (req, res) => {
 // ✅ Admin: save new form
 router.post('/create', isLoggedIn, requireRole('admin'), async (req, res) => {
   try {
-    const { title, description, date, time, fields } = req.body
+    const { title, description, date, time, fields, category, price } = req.body
     const form = new Form({
       title,
       description,
       date,
       time,
+      category: category || 'free',
+      price: price ? Number(price) : 0,
       fields: JSON.parse(fields) // frontend sends array of fields
     })
     await form.save()
@@ -170,6 +172,8 @@ router.post("/edit/:id", async (req, res) => {
       email,
       fields,
       isActive,
+      category,
+      price,
     } = req.body;
 
     const updatedForm = await Form.findByIdAndUpdate(
@@ -183,6 +187,8 @@ router.post("/edit/:id", async (req, res) => {
         email,
         fields,
         isActive,
+        category: category || 'free',
+        price: price ? Number(price) : 0,
       },
       { new: true, runValidators: true }
     );

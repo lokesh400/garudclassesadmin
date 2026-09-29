@@ -23,6 +23,17 @@
           <input type="time" id="time" class="w-full border border-slate-200 rounded-xl p-2 text-sm outline-none font-semibold text-slate-700 bg-slate-50 focus:border-indigo-550 transition" 
             value="<%= form.time || '' %>" />
         </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Category</label>
+          <select id="category" onchange="document.getElementById('priceContainer').style.display = this.value === 'paid' ? 'block' : 'none'" class="w-full border border-slate-200 rounded-xl p-2 text-sm outline-none font-semibold text-slate-700 bg-slate-50 focus:border-indigo-550 transition">
+            <option value="free" <%= form.category === 'free' ? 'selected' : '' %>>Free</option>
+            <option value="paid" <%= form.category === 'paid' ? 'selected' : '' %>>Paid</option>
+          </select>
+        </div>
+        <div id="priceContainer" style="display: <%= form.category === 'paid' ? 'block' : 'none' %>;">
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Price</label>
+          <input type="number" id="price" value="<%= form.price || 0 %>" min="0" class="w-full border border-slate-200 rounded-xl p-2 text-sm outline-none font-semibold text-slate-700 bg-slate-50 focus:border-indigo-550 transition" />
+        </div>
       </div>
     </div>
 
@@ -306,6 +317,8 @@
       description: document.getElementById("description").value.trim(),
       date: document.getElementById("date").value,
       time: document.getElementById("time").value,
+      category: document.getElementById("category").value,
+      price: document.getElementById("price").value,
       fields: questions,
       isActive: document.getElementById("isActive").checked
     };

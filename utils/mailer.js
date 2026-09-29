@@ -1,134 +1,3 @@
-// const { google } = require("googleapis");
-
-// console.log("📩 Gmail API Mailer loaded");
-
-// // OAuth2 client
-// const oauth2Client = new google.auth.OAuth2(
-//   process.env.GMAIL_CLIENT_ID,
-//   process.env.GMAIL_CLIENT_SECRET,
-//   "http://localhost"
-// );
-
-// oauth2Client.setCredentials({
-//   refresh_token:process.env.GMAIL_REFRESH_TOKEN,
-// });
-
-// // Gmail API client
-// const gmail = google.gmail({
-//   version: "v1",
-//   auth: oauth2Client,
-// });
-
-// /**
-//  * Create raw email (base64url encoded)
-//  */
-// function createRawEmail({ from, to, subject, html, text }) {
-//   const lines = [];
-
-//   lines.push(`From: ${from}`);
-//   lines.push(`To: ${to}`);
-//   lines.push(`Subject: ${subject}`);
-//   lines.push("MIME-Version: 1.0");
-
-//   if (html) {
-//     lines.push(`Content-Type: text/html; charset="UTF-8"`);
-//     lines.push("");
-//     lines.push(html);
-//   } else {
-//     lines.push(`Content-Type: text/plain; charset="UTF-8"`);
-//     lines.push("");
-//     lines.push(text || "");
-//   }
-
-//   const message = lines.join("\n");
-
-//   return Buffer.from(message)
-//     .toString("base64")
-//     .replace(/\+/g, "-")
-//     .replace(/\//g, "_")
-//     .replace(/=+$/, "");
-// }
-
-// /**
-//  * Core send mail function
-//  */
-// async function sendMail({ to, subject, html, text }) {
-//   try {
-//     const raw = createRawEmail({
-//       from: `Garud Classes <physics.thetestpulse@gmail.com>`,
-//       to,
-//       subject,
-//       html,
-//       text,
-//     });
-
-//     await gmail.users.messages.send({
-//       userId: "me",
-//       requestBody: { raw },
-//     });
-
-//     console.log(`✅ Mail sent → ${to} | ${subject}`);
-//   } catch (err) {
-//     console.error("❌ Gmail API mail error:", err.message);
-//     throw err;
-//   }
-// }
-
-// /* =====================================================
-//    SPECIFIC MAIL FUNCTIONS (REPLACEMENT FOR OLD ONES)
-//    ===================================================== */
-
-// const sendUserCredentials = async (email, username, password) => {
-//   return sendMail({
-//     to: email,
-//     subject: "Your Account Details",
-//     html: `
-//       <h2>Welcome to Garud Classes</h2>
-//       <p><strong>Username:</strong> ${username}</p>
-//       <p><strong>Password:</strong> ${password}</p>
-//       <p>Please change your password after login.</p>
-//     `,
-//   });
-// };
-
-// const sendStudentCredentials = async (email, username, password) => {
-//   return sendMail({
-//     to: email,
-//     subject: "Student Account Details",
-//     html: `
-//       <h2>Welcome to Garud Classes</h2>
-//       <p><strong>Username:</strong> ${username}</p>
-//       <p><strong>Password:</strong> ${password}</p>
-//       <p>Please change your password after login.</p>
-//     `,
-//   });
-// };
-
-// const sendFormConfirmation = async (email, message) => {
-//   return sendMail({
-//     to: email,
-//     subject: "Application Submitted Successfully",
-//     html: `<p>${message}</p>`,
-//   });
-// };
-
-// const sendStudentTimeTable = async (email, message) => {
-//   return sendMail({
-//     to: email,
-//     subject: "Time Table Updated",
-//     html: `<p>${message}</p>`,
-//   });
-// };
-
-// const sendAdmitCardUpdate = async (email, message) => {
-//   return sendMail({
-//     to: email,
-//     subject: "Admit Card Updated",
-//     html: `<p>${message}</p>`,
-//   });
-// };
-
-
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
@@ -203,9 +72,9 @@ async function sendOtpEmail(email, otp) {
 async function sendUserCredentials(email, username, password) {
   const mail = new Brevo.SendSmtpEmail();
   mail.to = [{ email }];
-  mail.sender = { 
-    email: process.env.SENDER_EMAIL, 
-    name: process.env.SENDER_NAME 
+  mail.sender = {
+    email: process.env.SENDER_EMAIL,
+    name: process.env.SENDER_NAME
   };
   mail.subject = "Your New Account Credentials";
   mail.htmlContent = `
@@ -228,9 +97,9 @@ async function sendUserCredentials(email, username, password) {
 async function sendStudentCredentials(email, username, password) {
   const mail = new Brevo.SendSmtpEmail();
   mail.to = [{ email }];
-  mail.sender = { 
-    email: process.env.SENDER_EMAIL, 
-    name: process.env.SENDER_NAME 
+  mail.sender = {
+    email: process.env.SENDER_EMAIL,
+    name: process.env.SENDER_NAME
   };
   mail.subject = "Your New Account Credentials";
   mail.htmlContent = `
@@ -251,7 +120,7 @@ async function sendStudentCredentials(email, username, password) {
 }
 
 
-const sendOtp = async (email, subject,message) => {
+const sendOtp = async (email, subject, message) => {
   try {
     const response = await axios.post(
       "http://localhost:3000/send-otp",
@@ -270,7 +139,7 @@ const sendOtp = async (email, subject,message) => {
 };
 
 
-const sendAdmitCardUpdate = async (email,message) => {
+const sendAdmitCardUpdate = async (email, message) => {
   try {
     const response = await axios.post(
       "http://localhost:3000/send-otp",
@@ -288,7 +157,7 @@ const sendAdmitCardUpdate = async (email,message) => {
   }
 };
 
-const sendStudentTimeTable = async (email,message) => {
+const sendStudentTimeTable = async (email, message) => {
   try {
     const response = await axios.post(
       "http://localhost:3000/send-otp",
@@ -306,7 +175,7 @@ const sendStudentTimeTable = async (email,message) => {
   }
 };
 
-const sendFormConfirmation = async (email,message) => {
+const sendFormConfirmation = async (email, message) => {
   try {
     const response = await axios.post(
       "http://localhost:3000/send-otp",
@@ -373,9 +242,9 @@ const sendFormConfirmation = async (email,message) => {
 async function sendStudentResultsEmail(email, studentName, testTitle, examType, scores, stats) {
   const mail = new Brevo.SendSmtpEmail();
   mail.to = [{ email }];
-  mail.sender = { 
-    email: process.env.SENDER_EMAIL, 
-    name: process.env.SENDER_NAME 
+  mail.sender = {
+    email: process.env.SENDER_EMAIL,
+    name: process.env.SENDER_NAME
   };
   mail.subject = `🔔 Test Results Released: ${testTitle}`;
 
@@ -457,9 +326,9 @@ async function sendStudentResultsEmail(email, studentName, testTitle, examType, 
 async function sendDeleteOtpEmail(email, studentName, otp) {
   const mail = new Brevo.SendSmtpEmail();
   mail.to = [{ email }];
-  mail.sender = { 
-    email: process.env.SENDER_EMAIL, 
-    name: process.env.SENDER_NAME 
+  mail.sender = {
+    email: process.env.SENDER_EMAIL,
+    name: process.env.SENDER_NAME
   };
   mail.subject = "⚠️ Security Authorization Required: Student Deletion Request";
   mail.htmlContent = `
@@ -491,9 +360,9 @@ async function sendDeleteOtpEmail(email, studentName, otp) {
 async function sendStaffCredentialsEmail(email, name, username, password, loginLink) {
   const mail = new Brevo.SendSmtpEmail();
   mail.to = [{ email }];
-  mail.sender = { 
-    email: process.env.SENDER_EMAIL, 
-    name: process.env.SENDER_NAME 
+  mail.sender = {
+    email: process.env.SENDER_EMAIL,
+    name: process.env.SENDER_NAME
   };
   mail.subject = "Welcome to Garud Classes - Your Staff Account Credentials";
   mail.htmlContent = `
@@ -521,16 +390,16 @@ async function sendStaffCredentialsEmail(email, name, username, password, loginL
       </body>
     </html>
   `;
- 
+
   return brevo.sendTransacEmail(mail);
 }
 
 async function sendOfferLetterEmail(email, name, designation, salary, joiningDate, offerLink) {
   const mail = new Brevo.SendSmtpEmail();
   mail.to = [{ email }];
-  mail.sender = { 
-    email: process.env.SENDER_EMAIL, 
-    name: process.env.SENDER_NAME 
+  mail.sender = {
+    email: process.env.SENDER_EMAIL,
+    name: process.env.SENDER_NAME
   };
   mail.subject = "Offer Letter from Garud Classes";
   mail.htmlContent = `
@@ -561,16 +430,16 @@ async function sendOfferLetterEmail(email, name, designation, salary, joiningDat
       </body>
     </html>
   `;
- 
+
   return brevo.sendTransacEmail(mail);
 }
 
 async function sendForceHireOtpEmail(email, candidateName, otp) {
   const mail = new Brevo.SendSmtpEmail();
   mail.to = [{ email }];
-  mail.sender = { 
-    email: process.env.SENDER_EMAIL, 
-    name: process.env.SENDER_NAME 
+  mail.sender = {
+    email: process.env.SENDER_EMAIL,
+    name: process.env.SENDER_NAME
   };
   mail.subject = "⚠️ Security Authorization Required: Force Hire Candidate Request";
   mail.htmlContent = `
@@ -595,16 +464,16 @@ async function sendForceHireOtpEmail(email, candidateName, otp) {
       </body>
     </html>
   `;
- 
+
   return brevo.sendTransacEmail(mail);
 }
 
 async function sendToggleStaffStatusOtpEmail(email, staffName, newStatus, otp) {
   const mail = new Brevo.SendSmtpEmail();
   mail.to = [{ email }];
-  mail.sender = { 
-    email: process.env.SENDER_EMAIL, 
-    name: process.env.SENDER_NAME 
+  mail.sender = {
+    email: process.env.SENDER_EMAIL,
+    name: process.env.SENDER_NAME
   };
   mail.subject = `⚠️ Security Authorization Required: Staff Status Change (${newStatus})`;
   mail.htmlContent = `
@@ -629,16 +498,16 @@ async function sendToggleStaffStatusOtpEmail(email, staffName, newStatus, otp) {
       </body>
     </html>
   `;
- 
+
   return brevo.sendTransacEmail(mail);
 }
 
 async function sendDeleteStaffOtpEmail(email, staffName, otp) {
   const mail = new Brevo.SendSmtpEmail();
   mail.to = [{ email }];
-  mail.sender = { 
-    email: process.env.SENDER_EMAIL, 
-    name: process.env.SENDER_NAME 
+  mail.sender = {
+    email: process.env.SENDER_EMAIL,
+    name: process.env.SENDER_NAME
   };
   mail.subject = "⚠️ Security Authorization Required: Staff/Member Deletion Request";
   mail.htmlContent = `
@@ -663,13 +532,47 @@ async function sendDeleteStaffOtpEmail(email, staffName, otp) {
       </body>
     </html>
   `;
- 
+
   return brevo.sendTransacEmail(mail);
 }
+
+async function sendLoginOtpEmail(email, name, otp) {
+  const mail = new Brevo.SendSmtpEmail();
+  mail.to = [{ email }];
+  mail.sender = {
+    email: process.env.SENDER_EMAIL,
+    name: process.env.SENDER_NAME
+  };
+  mail.subject = "Admin Login OTP Request";
+  mail.htmlContent = `
+    <html>
+      <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; line-height: 1.6; background-color: #f3f4f6; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e5e7eb;">
+          <h2 style="color: #4f46e5; text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 24px; border-bottom: 2px solid #e0e7ff; padding-bottom: 15px;">Login Authentication Required</h2>
+          
+          <p style="font-size: 16px;">Hello ${name},</p>
+          <p style="font-size: 16px; color: #4b5563;">Please use the following OTP to complete your login:</p>
+          
+          <div style="background-color: #fef2f2; padding: 20px; border-radius: 12px; border: 1px solid #fecaca; margin: 20px 0; text-align: center;">
+            <p style="font-size: 14px; color: #991b1b; margin-top: 0; font-weight: 600;">YOUR ONE-TIME PASSWORD (OTP)</p>
+            <h1 style="font-size: 36px; letter-spacing: 6px; color: #b91c1c; margin: 10px 0; font-weight: 800;">${otp}</h1>
+            <p style="font-size: 12px; color: #991b1b; margin-bottom: 0;">This OTP is valid for 5 minutes and can only be used once.</p>
+          </div>
  
+          <p style="font-size: 14px; color: #6b7280; text-align: center;">
+            If you did not request this login, please secure your account immediately.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return brevo.sendTransacEmail(mail);
+}
+
 const axios = require("axios");
- 
- 
+
+
 // EXPORTS
 module.exports = {
   sendUserCredentials,
@@ -684,5 +587,6 @@ module.exports = {
   sendOfferLetterEmail,
   sendForceHireOtpEmail,
   sendToggleStaffStatusOtpEmail,
-  sendDeleteStaffOtpEmail
+  sendDeleteStaffOtpEmail,
+  sendLoginOtpEmail
 };

@@ -18,7 +18,9 @@ const formSchema = new mongoose.Schema({
   ],
   batch: { type: mongoose.Schema.Types.ObjectId, ref: "Batch", unique: true, sparse: true },
   event: { type: mongoose.Schema.Types.ObjectId, ref: "Event", unique: true, sparse: true },
-  isActive:{ type:Boolean, default:true }
+  isActive:{ type:Boolean, default:true },
+  category: { type: String, enum: ["free", "paid"], default: "free" },
+  price: { type: Number, default: 0 }
 }, { timestamps: true });
 
 const Form = mongoose.models.Form || mongoose.model("Form", formSchema);

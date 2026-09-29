@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Garud Classes | Verify OTP</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Google Fonts (Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .mesh-gradient {
+      background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+                  #030712;
+    }
+  </style>
+</head>
+<body class="mesh-gradient min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- Background decorative glowing blobs -->
+  <div class="absolute w-[400px] h-[400px] bg-indigo-650/10 rounded-full blur-[120px] -top-20 -left-20"></div>
+  <div class="absolute w-[400px] h-[400px] bg-purple-650/10 rounded-full blur-[120px] -bottom-20 -right-20"></div>
+
+  <!-- Login Card -->
+  <div class="w-full max-w-md backdrop-blur-xl bg-slate-900/65 border border-slate-800/80 rounded-3xl p-8 shadow-2xl relative z-10">
+    
+    <!-- Branding Header -->
+    <div class="text-center mb-8">
+      <div class="flex items-center justify-center mb-4">
+        <img src="/logo.png" alt="Garud Classes" class="h-20 w-20 rounded-2xl object-contain bg-white p-1.5 shadow-lg shadow-indigo-500/20">
+      </div>
+      <h2 class="text-3xl font-extrabold text-white tracking-tight">GARUD CLASSES</h2>
+      <p class="text-slate-400 text-sm mt-1.5 font-medium">Verify Login OTP</p>
+    </div>
+
+    <!-- Flash message includes -->
+    <%- include('./flash.ejs') %>
+
+    <!-- Form -->
+    <form method="POST" action="/verify-login-otp" class="space-y-6">
+      
+      <!-- OTP Field -->
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">One Time Password</label>
+        <div class="relative">
+          <span class="absolute left-4 top-3.5 text-slate-500">
+            <i class="fas fa-key"></i>
+          </span>
+          <input type="text" name="otp" placeholder="Enter 6-digit OTP" 
+                 class="w-full pl-11 pr-4 py-3 bg-slate-950/40 border border-slate-800 rounded-2xl text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition duration-200 text-sm" 
+                 required pattern="\d{6}" maxlength="6">
+        </div>
+        <p class="text-xs text-slate-500 mt-2">Please check your email for the OTP.</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="space-y-4 pt-2">
+        <button type="submit" 
+                class="w-full py-3.5 px-4 bg-gradient-to-r from-indigo-600 to-purple-650 hover:from-indigo-500 hover:to-purple-550 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/35 hover:-translate-y-0.5 transition duration-200 text-sm">
+          Verify & Login
+        </button>
+
+        <a href="/login" 
+           class="w-full inline-flex items-center justify-center py-3.5 px-4 border border-slate-800 hover:border-slate-700 bg-slate-950/20 hover:bg-slate-950/40 text-slate-300 font-semibold rounded-2xl transition duration-200 text-sm">
+          <i class="fas fa-arrow-left mr-2 text-xs text-slate-400"></i> Back to Login
+        </a>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    // Global Toast Notification Helper
+    function showToast(message, type = 'success') {
+      const container = document.getElementById("toast-container");
+      if (!container) return;
+
+      const toast = document.createElement("div");
+      toast.className = \`p-4 rounded-2xl shadow-xl border backdrop-blur-md transition-all duration-300 transform translate-x-12 opacity-0 pointer-events-auto flex items-center gap-3 w-full\`;
+      
+      if (type === 'success') {
+        toast.classList.add("bg-emerald-50/90", "border-emerald-200", "text-emerald-950");
+        toast.innerHTML = \`
+          <i class="fas fa-check-circle text-emerald-500 text-lg flex-shrink-0"></i>
+          <div class="flex-1 text-sm font-semibold">\${message}</div>
+          <button class="text-emerald-700/60 hover:text-emerald-950 transition outline-none" onclick="this.parentElement.remove()">
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        \`;
+      } else {
+        toast.classList.add("bg-rose-50/90", "border-rose-200", "text-rose-950");
+        toast.innerHTML = \`
+          <i class="fas fa-exclamation-circle text-rose-500 text-lg flex-shrink-0"></i>
+          <div class="flex-1 text-sm font-semibold">\${message}</div>
+          <button class="text-rose-700/60 hover:text-rose-950 transition outline-none" onclick="this.parentElement.remove()">
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        \`;
+      }
+
+      container.appendChild(toast);
+
+      // Trigger transition
+      setTimeout(() => {
+        toast.classList.remove("translate-x-12", "opacity-0");
+      }, 10);
+
+      // Auto-remove
+      setTimeout(() => {
+        toast.classList.add("translate-x-12", "opacity-0");
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      }, 4000);
+    }
+  </script>
+</body>
+</html>

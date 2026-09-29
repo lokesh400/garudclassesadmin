@@ -1,7 +1,7 @@
 const express = require("express");
 const passport = require("passport");
 const User = require("../models/User");
-const { sendUserCredentials, sendDeleteStaffOtpEmail } = require("../utils/mailer");
+const { sendUserCredentials, sendDeleteStaffOtpEmail, sendLoginOtpEmail } = require("../utils/mailer");
 const { isLoggedIn, requireRole } = require("../middleware/auth");
 const crypto = require("crypto");
 
@@ -35,8 +35,68 @@ router.post("/login", (req, res, next) => {
       return res.redirect("/login");
     }
 
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    req.session.loginOtp = {
+      userId: user._id.toString(),
+      otp: code,
+      expiresAt: Date.now() + 5 * 60 * 1000
+    };
+
+    if (user.email) {
+      sendLoginOtpEmail(user.email, user.name || user.username, code).catch(err => console.error("OTP send error:", err));
+    }
+
+    req.flash("success", "Please check your email for the OTP");
+    return res.redirect("/verify-login-otp");
+  })(req, res, next);
+});
+
+router.get("/verify-login-otp", (req, res) => {
+  if (!req.session.loginOtp) {
+    req.flash("error", "No active login attempt.");
+    return res.redirect("/login");
+  }
+  res.render("verify-login-otp", {
+    title: "Verify OTP",
+    pageTitle: "Verify OTP",
+    activePage: "login",
+    layout: false,
+    messages: req.flash()
+  });
+});
+
+router.post("/verify-login-otp", async (req, res, next) => {
+  try {
+    const { otp } = req.body;
+    const sessionOtp = req.session.loginOtp;
+
+    if (!sessionOtp) {
+      req.flash("error", "No active login attempt.");
+      return res.redirect("/login");
+    }
+
+    if (Date.now() > sessionOtp.expiresAt) {
+      req.flash("error", "OTP has expired. Please login again.");
+      req.session.loginOtp = null;
+      return res.redirect("/login");
+    }
+
+    if (sessionOtp.otp !== otp.toString().trim()) {
+      req.flash("error", "Invalid OTP.");
+      return res.redirect("/verify-login-otp");
+    }
+
+    const user = await User.findById(sessionOtp.userId);
+    if (!user) {
+      req.flash("error", "User not found.");
+      req.session.loginOtp = null;
+      return res.redirect("/login");
+    }
+
     req.logIn(user, (err) => {
       if (err) return next(err);
+      req.session.loginOtp = null; // Clear OTP
+
       if (user.role === "receptionist") {
         req.flash("success", "Login successful");
         return res.redirect("/receptionist");
@@ -61,7 +121,10 @@ router.post("/login", (req, res, next) => {
       req.flash("success", "Login successful");
       return res.redirect("/admin");
     });
-  })(req, res, next);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 });
 
 router.get("/receptionist", (req, res) => {
